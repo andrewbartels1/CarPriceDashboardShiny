@@ -1,0 +1,29 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+#### Clear Environment
+```{r}
+rm(list = ls())
+```
+
+#### Load Libraries
+```{r}
+library(tidyverse)
+library(dplyr)
+```
+#### Import 'Vehicles.csv'
+```{r}
+cars1 <- read.csv('vehicles.csv')
+```
+
+```{r}
+summary(cars1)
+```
+
+
+```{r}
+head(cars1)
+```
+
+
