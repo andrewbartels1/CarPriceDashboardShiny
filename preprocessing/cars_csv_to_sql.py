@@ -18,7 +18,7 @@ import csv
 # =============================================================================
 # Initialize some static variable and read in DataFrame
 # =============================================================================
-filename = '/Users/matt/Desktop/MGT 6203/Group Project/MGT6203-grp-project/vehicles.csv'
+filename = '/Users/IM_ENGEE/Dropbox/OMSA/MGT 6203/Project/MGT6203-grp-project-main/Raw/vehicles.csv'
 data = read_csv(filename)
 head = data.head(50)
 tail = data.tail(50)
@@ -37,13 +37,16 @@ def data_eda(df):
     eda_df['null_pct'] = df.isnull().mean()
     eda_df['dtypes'] = df.dtypes
     eda_df['count'] = df.count()
-    
+
     return pd.DataFrame(eda_df)
+
 
 eda = data_eda(data)
 # =============================================================================
 # Create function to format region column
 # =============================================================================
+
+
 def format_region(region):
     """
     this function will convert region column into consistent format
@@ -101,8 +104,8 @@ print(format_region(test7))
 # Convert 'posting_date' Column to DT
 # =============================================================================
 
-data['posting_date'] = pd.to_datetime(data['posting_date'].str[:10], 
-                                      format = "%Y-%m-%d"
+data['posting_date'] = pd.to_datetime(data['posting_date'].str[:10],
+                                      format="%Y-%m-%d"
                                       )
 
 print(data['posting_date'].dtype)
@@ -136,31 +139,20 @@ part_aiii_sql = """CREATE TABLE {table_name}(
                             price INTEGER,
                             popularity FLOAT
                             )""".format(table_name='cars')
-    
+
 # make table here!
 execute_query(connection, part_aiii_sql)
-        
-        
-        
-   
+
+
 def execute_query(connection, query):
-    
-        cursor = connection.cursor()
-        try:
-            if query == "":
-                return "Query Blank"
-            else:
-                cursor.execute(query)
-                connection.commit()
-                return "Query executed successfully"
-        except Error as e:
-            return "Error occurred: " + str(e)
-  
- 
 
-
-
-
-
-
-     
+    cursor = connection.cursor()
+    try:
+        if query == "":
+            return "Query Blank"
+        else:
+            cursor.execute(query)
+            connection.commit()
+            return "Query executed successfully"
+    except Error as e:
+        return "Error occurred: " + str(e)
