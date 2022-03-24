@@ -141,9 +141,6 @@ part_aiii_sql = """CREATE TABLE {table_name}(
                             popularity FLOAT
                             )""".format(table_name='cars')
 
-# make table here!
-execute_query(connection, part_aiii_sql)
-
 
 def execute_query(connection, query):
 
@@ -157,3 +154,5 @@ def execute_query(connection, query):
             return "Query executed successfully"
     except Error as e:
         return "Error occurred: " + str(e)
+# make table here!
+execute_query(connection, part_aiii_sql)
