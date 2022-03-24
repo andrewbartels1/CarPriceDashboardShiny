@@ -14,6 +14,7 @@ from pandas import read_csv
 import sqlite3
 from sqlite3 import Error
 import csv
+import re
 
 # =============================================================================
 # Initialize some static variable and read in DataFrame
