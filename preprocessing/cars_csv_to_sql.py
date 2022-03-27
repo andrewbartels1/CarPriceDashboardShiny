@@ -210,6 +210,8 @@ execute_query(connection, generate_empty_table)
 #  print the schema so we know we did things correctly
 print_table_schema()
 
+
+# this should be some sort of function, but it'll do for now
 table_name = 'cars'
 with open(filename, 'r') as csvfile:
     csvreader = csv.reader(csvfile)
@@ -228,7 +230,7 @@ with open(filename, 'r') as csvfile:
         condition = row[8]
         cylinders = row[9]
         fuel = row[10]
-        odometer = float(row[11]) if type(row[11]) is not str else np.nan
+        odometer = np.nan if row[11] == '' else float(row[11])    
         title_stat = row[12]
         transmission = row[13]
         VIN = row[14]
@@ -245,12 +247,12 @@ with open(filename, 'r') as csvfile:
         
         # And then finally insert it into the database
         db_row = tuple([idd, region, price, year, manf, model, condition, cylinders,
-                       fuel, odometer, title_stat, transmission, VIN, drive, type_car,
-                       paint, image_url, description, county, state, lat, long, posting_time])
+                        fuel, "", title_stat, transmission, VIN, drive, type_car,
+                        paint, image_url, description, county, state, lat, long, posting_time])
         connection.execute("""INSERT INTO {} VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,
-                                                     ?,?,?,?,?,?,?,?,?,?)""".format(table_name), db_row)
+                                                      ?,?,?,?,?,?,?,?,?,?)""".format(table_name), db_row)
         connection.commit()
-    cursor = connection.execute("SELECT * FROM cars;")
+    cursor = connection.execute("SELECT * FROM cars limit 10;")
     print(cursor.fetchall())    
 # =============================================================================
 #  ONLY SQL Stuff
