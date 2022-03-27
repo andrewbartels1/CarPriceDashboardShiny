@@ -41,6 +41,7 @@ vignettes/*.pdf
 *.iml
 
 # sqlite stuff
+# more comments here, never add data files
 *.sqlite
 *.db
 *.sqlite3
