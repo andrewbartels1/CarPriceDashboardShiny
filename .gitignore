@@ -39,3 +39,8 @@ vignettes/*.pdf
 .Renviron
 *.xml
 *.iml
+
+# sqlite stuff
+*.sqlite
+*.db
+*.sqlite3

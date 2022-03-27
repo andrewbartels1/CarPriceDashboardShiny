@@ -182,7 +182,7 @@ generate_empty_table = """CREATE TABLE {table_name}(
                             condition        TINYTEXT,
                             cylinders        TINYTEXT,
                             fuel             TINYTEXT,
-                            odometer         REAL,
+                            odometer         INT,
                             title_status     TINYTEXT,
                             transmission     TINYTEXT,
                             VIN              TINYTEXT,
@@ -218,7 +218,7 @@ with open(filename, 'r') as csvfile:
     next(csvreader , None)  # skip the headers
     
     # inserting each column from csv into database
-    for row in csvreader:
+    for ind, row in enumerate(csvreader):
         #  there are a million ways to do this in a very clever way, but this is
         #  much more readable to know what's going on
         idd = row[0]
@@ -230,7 +230,7 @@ with open(filename, 'r') as csvfile:
         condition = row[8]
         cylinders = row[9]
         fuel = row[10]
-        odometer = np.nan if row[11] == '' else float(row[11])    
+        odometer = np.nan if row[11] == '' else int(row[11])    
         title_stat = row[12]
         transmission = row[13]
         VIN = row[14]
@@ -251,7 +251,11 @@ with open(filename, 'r') as csvfile:
                         paint, image_url, description, county, state, lat, long, posting_time])
         connection.execute("""INSERT INTO {} VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,
                                                       ?,?,?,?,?,?,?,?,?,?)""".format(table_name), db_row)
-        connection.commit()
+        print(f'added row {ind}')
+        
+    # VERY important this is OUTSIDE the loop, no need to execute, commit every time
+    connection.commit()
+    
     cursor = connection.execute("SELECT * FROM cars limit 10;")
     print(cursor.fetchall())    
 # =============================================================================
