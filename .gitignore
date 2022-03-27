@@ -41,6 +41,7 @@ vignettes/*.pdf
 *.iml
 
 # sqlite stuff
+# this is a different message
 *.sqlite
 *.db
 *.sqlite3
