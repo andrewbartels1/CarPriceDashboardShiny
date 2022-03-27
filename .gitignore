@@ -41,7 +41,11 @@ vignettes/*.pdf
 *.iml
 
 # sqlite stuff
+<<<<<<< HEAD
 # this is a different message
+=======
+# more comments here, never add data files
+>>>>>>> bb920df4218f2d2978c93670cabe611bdcd2b855
 *.sqlite
 *.db
 *.sqlite3
