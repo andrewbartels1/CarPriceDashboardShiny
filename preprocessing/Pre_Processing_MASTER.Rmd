@@ -1,0 +1,35 @@
+---
+title: "Pre_Processing_MASTER"
+output: html_notebook
+---
+
+#### Clear Environment
+```{r}
+rm(list = ls())
+```
+
+#### Load Libraries
+```{r}
+library(tidyverse)
+library(dplyr)
+library(readxl)
+library(stringr)
+library(RSQLite)
+```
+
+## Load SQLite Database
+```{r}
+# Create a connection to our new database, CraigslistCars.sqlite3
+conn <- dbConnect(RSQLite::SQLite(), "CraigslistCars.sqlite3")
+```
+
+#### list of available tables in the database
+```{r}
+dbListTables(conn)
+```
+#### Test Query
+```{r}
+dbGetQuery(conn, "SELECT * FROM cars LIMIT 10")
+```
+
+
