@@ -16,10 +16,11 @@ from sqlite3 import Error
 import numpy as np
 import csv
 import re
-
+import glob
 # =============================================================================
 # Initialize some static variable and read in DataFrame
 # =============================================================================
+# file_list = 
 filename = 'raw/vehicles.csv'
 data = read_csv(filename)
 head = data.head(50)
@@ -230,7 +231,7 @@ with open(filename, 'r') as csvfile:
         condition = row[8]
         cylinders = row[9]
         fuel = row[10]
-        odometer = np.nan if row[11] == '' else int(row[11])    
+        odometer = int(row[11]) if len(row[11]) > 0 else np.nan
         title_stat = row[12]
         transmission = row[13]
         VIN = row[14]
@@ -241,17 +242,18 @@ with open(filename, 'r') as csvfile:
         description = row[20][0:255] #limit characters to first 255
         county = row[21]
         state = row[22]
-        lat = float(row[23]) if type(row[23]) is not str else np.nan
-        long = float(row[24]) if type(row[24]) is not str else np.nan
+        
+        lat = float(row[23]) if len(row[23]) > 0 else np.nan
+        long = float(row[24]) if len(row[24]) > 0 else np.nan
+        # print("lat {} long {}".format(lat, long))
         posting_time = datetime.strptime(row[25][:-5], '%Y-%m-%dT%H:%M:%S') if len(row[25]) > 0 else np.nan
         
         # And then finally insert it into the database
         db_row = tuple([idd, region, price, year, manf, model, condition, cylinders,
-                        fuel, "", title_stat, transmission, VIN, drive, type_car,
+                        fuel, odometer, title_stat, transmission, VIN, drive, type_car,
                         paint, image_url, description, county, state, lat, long, posting_time])
-        connection.execute("""INSERT INTO {} VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,
-                                                      ?,?,?,?,?,?,?,?,?,?)""".format(table_name), db_row)
-        print(f'added row {ind}')
+        connection.execute("INSERT INTO {} VALUES (".format(table_name) + "?" + ",?"*(len(db_row)-1) + ")", db_row)
+        # print(f'added row {ind}')
         
     # VERY important this is OUTSIDE the loop, no need to execute, commit every time
     connection.commit()
