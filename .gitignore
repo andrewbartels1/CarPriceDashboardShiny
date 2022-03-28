@@ -37,3 +37,11 @@ vignettes/*.pdf
 
 # R Environment Variables
 .Renviron
+*.xml
+*.iml
+
+# sqlite stuff
+# this is a different message
+*.sqlite
+*.db
+*.sqlite3
