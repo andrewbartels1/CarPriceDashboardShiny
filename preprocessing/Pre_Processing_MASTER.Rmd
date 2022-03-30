@@ -127,6 +127,7 @@ cars <- select(cars, -y)
 #### Clean 'description' column
 ```{r}
 cars$description <- str_replace_all(cars$description, "[[:punct:]]", " ")
+cars$model <- str_replace_all(cars$model, "[[:punct:]]", " ")
 ```
 
 
@@ -137,7 +138,7 @@ cars %>% filter(is.na(manufacturer))
 ```
 ```{r}
 # create copy for testing
-cars_copy <- cars
+# cars_copy <- cars
 ```
 
 
@@ -154,60 +155,61 @@ manufacturer_pattern <- 'Acura|Alfa Romeo|Aston Martin|Audi|Bentley|
 ```
 
 ```{r}
-cars_copy %>% filter(is.na(manufacturer))
+cars %>% filter(is.na(manufacturer))
 ```
 First we'll try to pull the manufacturer from the model variable.
 ```{r}
-cars_copy$match <- ifelse(is.na(cars_copy$manufacturer), 
-                          str_extract_all(cars_copy$model, regex(manufacturer_pattern, ignore_case = TRUE), simplify = TRUE)[,1],
+cars$match <- ifelse(is.na(cars$manufacturer),
+                          str_extract_all(cars$model, regex(manufacturer_pattern, ignore_case = TRUE), simplify = TRUE)[,1],
                           ''
                           )
 ```
 
 ```{r}
-cars_copy$manufacturer <- ifelse(((is.na(cars_copy$manufacturer)) & (cars_copy$match != '')),
-                                 cars_copy$match,
-                                 cars_copy$manufacturer
+cars$manufacturer <- ifelse(((is.na(cars$manufacturer)) & (cars$match != '')),
+                                 cars$match,
+                                 cars$manufacturer
 )
 ```
 
 ```{r}
-cars_copy %>% filter(is.na(manufacturer))
+cars %>% filter(is.na(manufacturer))
 ```
-This gets us 3,614 manufacturers. Next, we'll try to pull descriptions from the description variable
+This gets us 8908 more manufacturers in our dataset. Next, we'll try to pull remaining missing manufacturers from the description variable
 
 ```{r}
-cars_copy2 <- cars_copy %>% select(-match)
+cars <- cars %>% select(-match)
 ```
 
 ```{r}
-
-
-cars_copy2$match <- ifelse(is.na(cars_copy2$manufacturer), 
-                          str_extract_all(cars_copy2$description, regex(manufacturer_pattern, ignore_case = TRUE), simplify = TRUE)[,1],
+cars$match <- ifelse(is.na(cars$manufacturer), 
+                          str_extract_all(cars$description, regex(manufacturer_pattern, ignore_case = TRUE), simplify = TRUE)[,1],
                           ''
                           )
 ```
 
 ```{r}
-cars_copy2$manufacturer <- ifelse(((is.na(cars_copy2$manufacturer)) & (cars_copy2$match != '')),
-                                 cars_copy2$match,
-                                 cars_copy2$manufacturer
+cars$manufacturer <- ifelse(((is.na(cars$manufacturer)) & (cars$match != '')),
+                                 cars$match,
+                                 cars$manufacturer
 )
 ```
 
 ```{r}
-cars_copy2 %>% filter(is.na(manufacturer)) %>% 
+cars %>% filter(is.na(manufacturer)) %>% 
   select(c(year, manufacturer, model, description))
 ```
-
-8973
+We were able to recover 11,975 manufacturers from the model and description columns.
 
 #### 'condition' column
 ```{r}
 unique(cars$condition)
 ```
+This seems like a good variable, so we'll just replace the NA values with 'unknown'
+
 ```{r}
 cars$condition[is.na(cars$condition)] <- "unknown"
 unique(cars$condition)
 ```
+
+
