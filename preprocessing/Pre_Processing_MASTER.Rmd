@@ -27,9 +27,187 @@ conn <- dbConnect(RSQLite::SQLite(), "CraigslistCars.sqlite3")
 ```{r}
 dbListTables(conn)
 ```
-#### Test Query
+#### Create DF called "cars"
 ```{r}
-dbGetQuery(conn, "SELECT * FROM cars LIMIT 10")
+cars <- dbGetQuery(conn, "SELECT * FROM cars")
+```
+#### Convert to Tibble and Inspect first 6 Rows of Data
+```{r}
+cars <- as_tibble(cars)
+head(cars)
+```
+The original data has 426,880 observations and 23 variables
+
+#### Examine % Null Values in DataFrame
+```{r}
+# Insert 'NA' into any blank string in the DF
+cars[cars == ''] <- NA
+
+cars_num_nas <- data.frame(num_nas = (sapply(cars, function(x){sum(is.na(x))})))
+cars_num_nas$percent_nas <- round((cars_num_nas$num_nas / dim(cars)[1]) * 100, 2)
+cars_num_nas
+```
+Variables with Null Values > 10% include:
+* condition
+* cylinders
+* VIN (drop from DF)
+* drive
+* type
+* paint_color
+* county (drop from DF)
+
+#### Drop Variables that we likely won't need.
+* VIN
+* image_url
+* county
+* lat
+* long
+
+```{r}
+cars <- cars %>% subset(select = c("id", "region", "price", "year", "manufacturer",
+                                    "model", "condition", "cylinders", "fuel",
+                                    "odometer", "title_status", "transmission",
+                                    "drive", "type", "paint_color",
+                                    "description", "state",
+                                    "posting_date"
+                                  ))
+```
+
+# Examine and Impute Data for Columns with NA Values
+
+#### 'year' column
+```{r}
+cars %>% filter(is.na(year) & is.na(description))
+```
+In most cases, the description column contains the year of the cars; however, there are 68 rows of data that have NA values in BOTH the year and the description columns. These observations are also missing most of the variables we'll be using so we should drop these rows from the dataset.
+
+```{r}
+# Remove 68 observations where year and description have "NA" values.
+cars <- cars[!(is.na(cars$year) & is.na(cars$description)), ]
+```
+
+Now let's attempt to parse out the years from the description column and impute them back into the year column. In most cases, the description lists the year first, so we'll grab the first 4 characters from the description column and create a new column 'y' to store them.
+```{r}
+cars %>% filter(is.na(year))
+```
+
+create a list of years to check against when imputing back to the year column.
+```{r}
+list_of_years = list('1990', '1991', '1992', '1993', '1994', '1995', '1996', '1997', 
+                     '1998', '1999', '2000', '2001', '2002', '2003', '2004', '2005', 
+                     '2006', '2007', '2008', '2009', '2010', '2011', '2012', '2013', 
+                     '2014', '2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022')
+
+# get the first 4 characters
+cars$y <- substr(cars$description, start = 1, stop = 4)
+
+# assign 'y' to 'year' column IF 'year' is NA and the value of 'y' is in "list_of_years"
+cars$year <- ifelse(is.na(cars$year), (ifelse(cars$y %in% list_of_years, cars$y, cars$year)), cars$year)
+
+```
+
+Check to see how many NA values are remaining.
+```{r}
+cars %>% filter(is.na(year))
+```
+21 - NA datapoints remain for the 'year' column. I don't see the year in the description and these observations are missing additional variblales, so we should probably drop these remaining rows from the dataset.
+```{r}
+cars <- cars %>% filter(!is.na(year))
+```
+
+We can also check to compare the descriptions to the 'year' and 'y' columns after imputation.
+```{r}
+cars_check_years <- cars %>% subset(select = c('year', 'description', 'y'))
+```
+Finally, we'll drop the 'y' column now that we don't need it anymore.
+```{r}
+cars <- select(cars, -y)
+```
+
+#### Clean 'description' column
+```{r}
+cars$description <- str_replace_all(cars$description, "[[:punct:]]", " ")
 ```
 
 
+#### Clean 'manufacturer' column
+There are 17,557 NA values in the 'manufacturer' column. Let's try to pattern match from a list of manufacturers.
+```{r}
+cars %>% filter(is.na(manufacturer))
+```
+```{r}
+# create copy for testing
+cars_copy <- cars
+```
+
+
+```{r}
+manufacturer_pattern <- 'Acura|Alfa Romeo|Aston Martin|Audi|Bentley|
+                      BMW|Buick|Cadillac|Chevrolet|Chrysler|Dodge|
+                      Ferrari|Fiat|Ford|FORD|Freightliner|Geo|GMC|Genesis|Honda|Hummer|Hyundai|hyndai|
+                      Infinity|International|Isuzu|Jaguar|Jeep|Kenworth|Kia|Land Rover|
+                      Lexus|Lincoln|Mack|Maserati|Mazda|Mercedes-Benz|Mercury|
+                      Mini|Mitsubishi|Nissan|Oldsmobile|OLDSMOBILE|Peugeot|peterbilt|Plymoth|Pontiac|Porsche| 
+                      Ram|Saab|Saturn|Scion|Seat|Smart|Sterling|Subaru|Suzuki|
+                      Tesla|Toyota|Volkswagen|Volkswagon|Volvo'
+                       
+```
+
+```{r}
+cars_copy %>% filter(is.na(manufacturer))
+```
+First we'll try to pull the manufacturer from the model variable.
+```{r}
+cars_copy$match <- ifelse(is.na(cars_copy$manufacturer), 
+                          str_extract_all(cars_copy$model, regex(manufacturer_pattern, ignore_case = TRUE), simplify = TRUE)[,1],
+                          ''
+                          )
+```
+
+```{r}
+cars_copy$manufacturer <- ifelse(((is.na(cars_copy$manufacturer)) & (cars_copy$match != '')),
+                                 cars_copy$match,
+                                 cars_copy$manufacturer
+)
+```
+
+```{r}
+cars_copy %>% filter(is.na(manufacturer))
+```
+This gets us 3,614 manufacturers. Next, we'll try to pull descriptions from the description variable
+
+```{r}
+cars_copy2 <- cars_copy %>% select(-match)
+```
+
+```{r}
+
+
+cars_copy2$match <- ifelse(is.na(cars_copy2$manufacturer), 
+                          str_extract_all(cars_copy2$description, regex(manufacturer_pattern, ignore_case = TRUE), simplify = TRUE)[,1],
+                          ''
+                          )
+```
+
+```{r}
+cars_copy2$manufacturer <- ifelse(((is.na(cars_copy2$manufacturer)) & (cars_copy2$match != '')),
+                                 cars_copy2$match,
+                                 cars_copy2$manufacturer
+)
+```
+
+```{r}
+cars_copy2 %>% filter(is.na(manufacturer)) %>% 
+  select(c(year, manufacturer, model, description))
+```
+
+8973
+
+#### 'condition' column
+```{r}
+unique(cars$condition)
+```
+```{r}
+cars$condition[is.na(cars$condition)] <- "unknown"
+unique(cars$condition)
+```
