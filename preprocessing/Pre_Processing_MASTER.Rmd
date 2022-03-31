@@ -24,7 +24,7 @@ library(roxygen2) # Function Documentation: ctrl + option + shift + r
 conn <- dbConnect(RSQLite::SQLite(), "CraigslistCars.sqlite3")
 ```
 
-#### list of available tables in the database
+#### List of available tables in the database
 ```{r}
 dbListTables(conn)
 ```
@@ -50,9 +50,9 @@ Number_NAs <- function (df) {
   
 #' Title: Number_Nas
 #'
-#' @param df 
-#' @return df with count and % of NA values for each column
-#' @examples
+#' @param: df 
+#' @return: df with count and % of NA values for each column
+#' @examples: Number_NAs(cars)
 
 }
 ```
@@ -161,14 +161,28 @@ Last, we'll convert the 'year' column to dtype = int
 cars$year <- as.integer(cars$year)
 ```
 
-
-#### Remove punctuation from 'description' and model columns
-
+#### Create Function "Remove_Punc()" to remove unneccessary punctuation from 'description' and 'model' columns
 ```{r}
-cars$description <- str_replace_all(cars$description, "[[:punct:]]", " ")
-cars$model <- str_replace_all(cars$model, "[[:punct:]]", " ")
+Remove_Punc <- function (df, col, replacement) {
+  df[[col]] <- str_replace_all(df[[col]],"[[:punct:]]", replacement)
+  return(df)
+
+#' Title: Remove_Punc()
+#'
+#' @param df : DataFrame
+#' @param col : {string} column to clean punctuation from
+#' @param replacement {string} character to replace punctuation with
+#'
+#' @return DataFrame
+#'
+#' @examples Remove_Pund(cars, "description", "")
+}
 ```
 
+```{r}
+cars <- Remove_Punc(cars, "description", " ")
+cars <- Remove_Punc(cars, "model", " ")
+```
 
 #### Clean 'manufacturer' column
 There are 17,557 NA values in the 'manufacturer' column. Let's try to pattern match from a list of manufacturers.
