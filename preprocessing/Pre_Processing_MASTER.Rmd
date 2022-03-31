@@ -15,7 +15,7 @@ library(dplyr)
 library(readxl)
 library(stringr)
 library(RSQLite)
-library(roxygen2)
+library(roxygen2) # Function Documentation: ctrl + option + shift + r
 ```
 
 ## Load SQLite Database
@@ -39,15 +39,29 @@ head(cars)
 ```
 The original data has 426,880 observations and 23 variables
 
-#### Examine % Null Values in DataFrame
+#### Create Function "Number_NAs" to examine % Null Values in DataFrame
 ```{r}
-# Insert 'NA' into any blank string in the DF
-cars[cars == ''] <- NA
+Number_NAs <- function (df) {
+  df[df == ''] <- NA # insert 'NA' into any blank string in the DF
+  
+  number_nas <- data.frame(num_nas = (sapply(df, function(x){sum(is.na(x))})))
+  number_nas$percent_nas <- round((number_nas$num_nas / dim(df)[1]) * 100, 2)
+  return (number_nas)
+  
+#' Title: Number_Nas
+#'
+#' @param df 
+#' @return df with count and % of NA values for each column
+#' @examples
 
-cars_num_nas <- data.frame(num_nas = (sapply(cars, function(x){sum(is.na(x))})))
-cars_num_nas$percent_nas <- round((cars_num_nas$num_nas / dim(cars)[1]) * 100, 2)
-cars_num_nas
+}
 ```
+
+```{r}
+num_nas <- Number_NAs(cars)
+num_nas
+```
+
 Variables with Null Values > 10% include:
 * condition
 * cylinders
@@ -78,7 +92,7 @@ cars <- cars %>% subset(select = c("id", "region", "price", "year", "manufacture
 
 #### Function to quickly remove NA Values
 ```{r}
-remove_nas <- function (df, col) {
+Remove_NAs <- function (df, col) {
   col <- df[[col]]
   df<- df %>% filter(!is.na(col))
   
@@ -129,7 +143,7 @@ Check to see how many NA values are remaining.
 ```{r}
 cars %>% filter(is.na(year))
 ```
-21 - NA datapoints remain for the 'year' column. I don't see the year in the description and these observations are missing additional variblales, so we should probably drop these remaining rows from the dataset.
+21 - NA data points remain for the 'year' column. I don't see the year in the description and these observations are missing additional variables, so we should probably drop these remaining rows from the dataset.
 ```{r}
 cars <- cars %>% filter(!is.na(year))
 ```
@@ -148,7 +162,8 @@ cars$year <- as.integer(cars$year)
 ```
 
 
-#### Clean 'description' column
+#### Remove punctuation from 'description' and model columns
+
 ```{r}
 cars$description <- str_replace_all(cars$description, "[[:punct:]]", " ")
 cars$model <- str_replace_all(cars$model, "[[:punct:]]", " ")
@@ -160,11 +175,6 @@ There are 17,557 NA values in the 'manufacturer' column. Let's try to pattern ma
 ```{r}
 cars %>% filter(is.na(manufacturer))
 ```
-```{r}
-# create copy for testing
-# cars_copy <- cars
-```
-
 
 ```{r}
 manufacturer_pattern <- 'Acura|Alfa Romeo|Aston Martin|Audi|Bentley|
@@ -235,10 +245,10 @@ This variable has 5208 missing values.
 ```{r}
 cars %>% filter(is.na(model))
 ```
-If we had more time, we could probably create a list of all known car models and perform the same steps as manufacturer; however, for this analysis, we'll just drop these rows since they only make up about 1% of the total number of observatoins.
+If we had more time, we could probably create a list of all known car models and perform the same steps as manufacturer; however, for this analysis, we'll just drop these rows since they only make up about 1% of the total number of observations.
 
 ```{r}
-cars <- cars %>% filter(!is.na(model))
+cars <- Remove_NAs(cars, "model")
 cars %>% filter(is.na(model))
 ```
 
@@ -295,10 +305,10 @@ cars %>% filter(mileage_filter) %>%
   select(c(model, year, condition, odometer )) %>%
   arrange(desc(year))
 ```
-#### Create a function 'odometer_filter()' 
+#### Create a function 'Odometer_Filter()' 
 This function will clean the odometer variable based on specific conditions. For example, a 2015 Toyota Camry with 200 miles is probably not accurate and we would probably want to remove these observations from the dataset. This function will allow us to quickly change the filtering when modeling.
 ```{r}
-odometer_filter <- function (df, start_year, mileage, remove_na = TRUE) {
+Odometer_Filter <- function (df, start_year, mileage, remove_na = TRUE) {
 
   df <- df %>% filter(!is.na(odometer))
   
@@ -330,44 +340,16 @@ cars <- odometer_filter(cars_test, 2018, 500)
 ```{r}
 cars %>% filter(is.na(title_status))
 ```
-
 ```{r}
-cars_test <- cars
-cars_test %>% filter(is.na(title_status))
+cars <- remove_nas(cars, "title_status")
+cars %>% filter(is.na(title_status))
 ```
 
 ```{r}
-remove_nas_title_status <- function (df) {
-  df<- df %>% filter(!is.na(title_status))
-  
-return(df)
-  
-#' Title: remove_nas
-#'
-#' @param df 
-#'
-#' @return df with NA values removed
-#' @examples remove_nas(cars, title_status)
-#'   
-}
+Number_NAs(cars)
 ```
 
-```{r}
-remove_nas <- function (df, col) {
-  col <- df[[col]]
-  df<- df %>% filter(!is.na(col))
-  
-return(df)
-  
-#' Title: remove_nas
-#'
-#' @param df 
-#' @param col column to remove NA values
-#' @return df with NA values removed
-#' @examples remove_nas(cars, title_status)
-#'   
-}
-```
+
 
 
 
