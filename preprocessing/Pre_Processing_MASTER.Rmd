@@ -29,7 +29,7 @@ dbListTables(conn)
 ```
 #### Test Query
 ```{r}
-dbGetQuery(conn, "SELECT * FROM cars LIMIT 10")
+dbGetQuery(conn, "SELECT * FROM vehicles LIMIT 10")
 ```
 
 
