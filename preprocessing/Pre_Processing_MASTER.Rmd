@@ -1,6 +1,6 @@
 ---
 title: "Pre_Processing_MASTER"
-output: html_notebook
+output:
 ---
 
 #### Clear Environment
@@ -12,10 +12,10 @@ rm(list = ls())
 ```{r}
 library(tidyverse)
 library(dplyr)
-library(readxl)
-library(stringr)
-library(RSQLite)
-library(roxygen2) # Function Documentation: ctrl + option + shift + r
+library(readxl) 
+library(stringr) # string formatting
+library(RSQLite) # to connect to SQlite database
+library(roxygen2) # For Function Documentation: ctrl + option + shift + r
 ```
 
 ## Load SQLite Database
@@ -30,8 +30,13 @@ dbListTables(conn)
 ```
 #### Create DF called "cars"
 ```{r}
-cars <- dbGetQuery(conn, "SELECT * FROM cars")
+cars <- dbGetQuery(conn, "SELECT * FROM vehicles")
 ```
+
+```{r}
+dbDisconnect(conn)
+```
+
 #### Convert to Tibble and Inspect first 6 Rows of Data
 ```{r}
 cars <- as_tibble(cars)
@@ -39,7 +44,7 @@ head(cars)
 ```
 The original data has 426,880 observations and 23 variables
 
-#### Create Function "Number_NAs" to examine % Null Values in DataFrame
+#### Create Function "Number_NAs( )" to examine % Null Values in DataFrame
 ```{r}
 Number_NAs <- function (df) {
   df[df == ''] <- NA # insert 'NA' into any blank string in the DF
@@ -90,7 +95,7 @@ cars <- cars %>% subset(select = c("id", "region", "price", "year", "manufacture
 
 # Examine and Impute Data for Columns with NA Values
 
-#### Function to quickly remove NA Values
+#### Create "Remove_NAs( )" Function to quickly remove NA Values
 ```{r}
 Remove_NAs <- function (df, col) {
   col <- df[[col]]
@@ -108,7 +113,7 @@ return(df)
 }
 ```
 
-#### 'year' column
+#### Clean 'year' column
 ```{r}
 cars %>% filter(is.na(year) & is.na(description))
 ```
@@ -161,14 +166,16 @@ Last, we'll convert the 'year' column to dtype = int
 cars$year <- as.integer(cars$year)
 ```
 
-#### Create Function "Remove_Punc()" to remove unneccessary punctuation from 'description' and 'model' columns
+#### Create Function "Remove_Punc( )" to remove unnecessary punctuation from 'description' and 'model' columns
 ```{r}
 Remove_Punc <- function (df, col, replacement) {
   df[[col]] <- str_replace_all(df[[col]],"[[:punct:]]", replacement)
   return(df)
 
 #' Title: Remove_Punc()
-#'
+#' 
+#' @description: Removes unnecessary punctuation from a single DataFrame column
+#' 
 #' @param df : DataFrame
 #' @param col : {string} column to clean punctuation from
 #' @param replacement {string} character to replace punctuation with
@@ -193,11 +200,11 @@ cars %>% filter(is.na(manufacturer))
 ```{r}
 manufacturer_pattern <- 'Acura|Alfa Romeo|Aston Martin|Audi|Bentley|
                       BMW|Buick|Cadillac|Chevrolet|Chrysler|Dodge|
-                      Ferrari|Fiat|Ford|FORD|Freightliner|Geo|GMC|Genesis|Honda|Hummer|Hyundai|hyndai|
-                      Infinity|International|Isuzu|Jaguar|Jeep|Kenworth|Kia|Land Rover|
-                      Lexus|Lincoln|Mack|Maserati|Mazda|Mercedes-Benz|Mercury|
-                      Mini|Mitsubishi|Nissan|Oldsmobile|OLDSMOBILE|Peugeot|peterbilt|Plymoth|Pontiac|Porsche| 
-                      Ram|Saab|Saturn|Scion|Seat|Smart|Sterling|Subaru|Suzuki|
+                      Ferrari|Fiat|Ford|FORD|Freightliner|Geo|GMC|Genesis|Honda|Hummer|
+                      Hyundai|hyndai|Infinity|International|Isuzu|Jaguar|Jeep|Kenworth|
+                      Kia|Land Rover|Lexus|Lincoln|Mack|Maserati|Mazda|Mercedes-Benz|Mercury|
+                      Mini|Mitsubishi|Nissan|Oldsmobile|OLDSMOBILE|Peugeot|peterbilt|Plymoth|
+                      Pontiac|Porsche|Ram|Saab|Saturn|Scion|Seat|Smart|Sterling|Subaru|Suzuki|
                       Tesla|Toyota|Volkswagen|Volkswagon|Volvo'
                        
 ```
@@ -319,7 +326,7 @@ cars %>% filter(mileage_filter) %>%
   select(c(model, year, condition, odometer )) %>%
   arrange(desc(year))
 ```
-#### Create a function 'Odometer_Filter()' 
+#### Create a function 'Odometer_Filter( )' 
 This function will clean the odometer variable based on specific conditions. For example, a 2015 Toyota Camry with 200 miles is probably not accurate and we would probably want to remove these observations from the dataset. This function will allow us to quickly change the filtering when modeling.
 ```{r}
 Odometer_Filter <- function (df, start_year, mileage, remove_na = TRUE) {
@@ -362,8 +369,272 @@ cars %>% filter(is.na(title_status))
 ```{r}
 Number_NAs(cars)
 ```
+#### Clean 'transmission' variable
+The 'transmission' variable has 1,557 NA values. We'll convert these to a categorical variable called, 'unknown'. Current categorical variables include:
+- 'automatic'
+- 'manual'
+- 'other'
+```{r}
+cars %>% filter(transmission == 'other')
+```
+```{r}
+cars %>% count(transmission)
+```
+
+```{r}
+cars$transmission[is.na(cars$transmission)] <- 'unknown'
+```
+
+```{r}
+cars %>% count(transmission)
+```
+
+# Clean 'drive' column
+This column has 30% NA Values. Let's see if we can search the description column and extract some of these values.
+```{r}
+cars %>% count(cars$drive)
+```
+
+```{r}
+drive_pattern = "4wd|awd|rwd|fwd"
+```
+
+
+```{r}
+cars$match_drive<- ifelse(is.na(cars$drive),
+                          str_extract_all(cars$description, 
+                                          regex(drive_pattern, ignore_case = TRUE), 
+                                          simplify = TRUE),
+                                          ''
+                          )
+```
+
+```{r}
+cars %>% filter(match_drive != '')
+```
+Looks like we were able to recover over 10% of the missing values. We'll impute the remaining values with 'unknown'
+```{r}
+cars$drive <- ifelse(((is.na(cars$drive)) & (cars$match_drive != '')),
+                                 cars$match_drive,
+                                 cars$drive
+)
+
+cars$drive[is.na(cars$drive)] <- 'unknown'
+```
+
+```{r}
+cars %>% filter(is.na(drive))
+```
+Last step is to remove the 'match_drive' column
+```{r}
+cars <- cars %>% select(-match_drive)
+```
+
+#### Clean 'type' column
+```{r}
+cars %>% count(type)
+```
+We'll employ the same strategy and as drive and try to extract some values from the description. First step is to create a pattern of vehicle types.
+```{r}
+type_pattern <- "bus|convertible|coupe|hatchback|mini-van|minivan|
+                 offroad|pickup|truck|sedan|SUV|van|wagon"
+```
+
+```{r}
+cars$match_type<- ifelse(is.na(cars$type),
+                          str_extract_all(cars$description, 
+                                          regex(type_pattern, ignore_case = TRUE), 
+                                          simplify = TRUE),
+                                          ''
+                          )
+```
+
+```{r}
+cars %>% filter(match_type != '')
+```
+We were able to extract 25% of the missing values from the description column. Next we'll impute the NA values with the extracted types and the remaining NAs with 'unknown'.
+```{r}
+cars$type <- ifelse(((is.na(cars$type)) & (cars$match_type != '')),
+                                 cars$match_type,
+                                 cars$type
+)
+
+cars$type[is.na(cars$type)] <- 'unknown'
+```
+
+```{r}
+cars %>% filter(is.na(type))
+```
+There are some mixed case values in this variable so let's set them all to 'lower'. Last, we can remove the 'match_type' column.
+```{r}
+cars$type <- tolower(cars$type)
+cars <- cars %>% select(-match_type)
+```
+
+#### Clean 'paint_color' column
+This column contains over 25% NA values so once again, let's see if the colors exist in the description.
+```{r}
+color_pattern <- "red|orange|yellow|green|blue|purple|white|black|grey|silver|brown|gold|beige"
+```
+
+```{r}
+cars$match_color<- ifelse(is.na(cars$paint_color),
+                          str_extract_all(cars$description, 
+                                          regex(color_pattern, ignore_case = TRUE), 
+                                          simplify = TRUE),
+                                          ''
+                          )
+```
+
+```{r}
+cars %>% filter(match_color != '')
+```
+Excellent. We were able to extract approximately 29% of the missing paint colors from the description column.
+```{r}
+cars$paint_color <- ifelse(((is.na(cars$paint_color)) & (cars$match_color != '')),
+                                 cars$match_color,
+                                 cars$paint_color
+)
+
+cars$paint_color[is.na(cars$paint_color)] <- 'unknown'
+```
+
+```{r}
+cars %>% filter(is.na(paint_color))
+```
+
+```{r}
+cars$paint_color <- tolower(cars$paint_color)
+cars <- cars %>% select(-match_color)
+```
+#### Clean 'description' column
+There is only 1 missing value here so we'll just impute it with 'no description'. 
+```{r}
+cars$description[is.na(cars$description)] <- "no description"
+```
+
+#### Check to see if any NA Values Remain in the Dataset.
+```{r}
+Number_NAs(cars)
+```
+#### Convert 'manufacturer' and 'model' values to Title Case
+```{r}
+cars$manufacturer <- str_to_title(cars$manufacturer)
+cars$model <- str_to_title(cars$model)
+```
+
+#### Extract the first city from the 'region' column. We'll use this column to join other tables.
+```{r}
+cars$city <- str_split_fixed(cars$region, pattern = "-|/", n = 2)[,1]
+```
+
+```{r}
+cars %>% count(city)
+```
 
 
 
+# Clean Census Data
 
+Establish connection to the database
+```{r}
+conn <- dbConnect(RSQLite::SQLite(), "CraigslistCars.sqlite3")
+```
+
+```{r}
+dbListTables(conn)
+```
+#### Census Data and zcta mapping file
+```{r}
+census_df <- dbGetQuery(conn, "SELECT * FROM census_median_income_2020")
+```
+
+```{r}
+dbDisconnect(conn)
+```
+
+#### Inspect 'census_df' first 6 rows
+```{r}
+head(census_df)
+```
+```{r}
+zcta_df <- read_xlsx('zcta_zip_city_map.xlsx')
+```
+
+```{r}
+zcta_df
+```
+
+#### Subset Census to keep the following variables:
+- 'NAME'
+- 'S1903_C03_015E' 
+- 'S1903_C03_034E'
+```{r}
+census_df <- census_df[-1,]
+census <- subset(census_df, select = c('NAME', 'S1903_C03_015E','S1903_C03_034E'))
+census <- census %>%
+  rename(zcta = NAME,
+         median_income_family = S1903_C03_015E,
+         median_income_non_family = S1903_C03_034E
+         )
+
+summary(census)
+```
+```{r}
+head(census, 50)
+```
+#### Change Data Types for Median Columns
+```{r}
+census$median_income_family <- gsub('+', '', 
+                               gsub('-', NaN, census$median_income_family))
+```
+
+```{r}
+head(census)
+```
+
+```{r}
+census$median_income_family <- as.numeric(census$median_income_family)
+census$median_income_non_family <- as.numeric(census$median_income_non_family)
+
+census <- census %>% drop_na()
+
+head(census)
+```
+```{r}
+summary(census)
+```
+
+
+```{r}
+census <- separate(census, zcta, c("zcta", "zip_code"), ' ')
+```
+
+```{r}
+head(census)
+```
+```{r}
+head(zcta_df)
+```
+
+
+```{r}
+census_m <- merge(census, zcta_df, by.x = 'zip_code', by.y = 'ZIP_CODE')
+head(census_m)
+```
+```{r}
+census_clean = subset(census_m, select = c("PO_NAME",
+                                           "STATE",
+                                           "zip_code",
+                                           "median_income_family",
+                                           "median_income_non_family"))
+
+census_clean = census_clean %>%
+  rename("city" = "PO_NAME",
+         "state" = "STATE")
+```
+
+```{r}
+census_clean
+```
 
