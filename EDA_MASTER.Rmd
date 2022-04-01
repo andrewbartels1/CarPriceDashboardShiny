@@ -1,0 +1,45 @@
+---
+title: "R Notebook"
+output: 
+---
+
+#### Clear Environment
+```{r}
+rm(list = ls())
+```
+
+#### Load Libraries
+```{r}
+library(tidyverse)
+library(dplyr)
+library(readxl) 
+library(stringr) # string formatting
+library(RSQLite) # to connect to SQlite database
+library(roxygen2) # For Function Documentation: ctrl + option + shift + r
+```
+
+## Load SQLite Database
+Create a connection to our new database, CraigslistCars.sqlite3
+```{r}
+#set path to the database.
+db_path <- "/Users/matt/Dev/Projects/MGT6203-grp-project/Database/CraigslistCarsClean.sqlite3"
+  
+conn <- dbConnect(RSQLite::SQLite(), db_path)
+```
+
+#### List of available tables available in the database
+```{r}
+dbListTables(conn)
+```
+#### Create DFs called "cars" and "census
+```{r}
+cars <- dbGetQuery(conn, "SELECT * FROM cars_clean")
+census <- dbGetQuery(conn, "SELECT * FROM census_clean")
+dbDisconnect(conn)
+```
+
+#### View First 6 Rows of 'cars' df
+```{r}
+head(cars)
+```
+
