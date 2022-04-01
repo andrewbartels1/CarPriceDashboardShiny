@@ -22,7 +22,6 @@ census_variable_list_file <- 'preprocessing/census_median_income_variable_list.c
 zcta_mapping_file <- 'preprocessing/zcta_zip_city_map.xlsx' #City to Zipcode Mapping file
 ```
 
-
 #### Import Datasets
 ```{r}
 cars_df <- read.csv(craigslist_file, na.strings=c("NA", "NULL"), stringsAsFactors = FALSE)
@@ -38,6 +37,7 @@ zcta_df <- read_xlsx(zcta_mapping_file)
 ```{r}
 tail(cars_df)
 ```
+
 ```{r}
 print(colnames(cars_df))
 ```
