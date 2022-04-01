@@ -19,9 +19,12 @@ library(roxygen2) # For Function Documentation: ctrl + option + shift + r
 ```
 
 ## Load SQLite Database
+Create a connection to our new database, CraigslistCars.sqlite3
 ```{r}
-# Create a connection to our new database, CraigslistCars.sqlite3
-conn <- dbConnect(RSQLite::SQLite(), "CraigslistCars.sqlite3")
+#set path to the database.
+db_path <- "/Users/matt/Dev/Projects/MGT6203_GroupProject/Database/CraigslistCarsClean.sqlite3"
+  
+conn <- dbConnect(RSQLite::SQLite(), db_path)
 ```
 
 #### List of available tables in the database
@@ -187,8 +190,8 @@ Remove_Punc <- function (df, col, replacement) {
 ```
 
 ```{r}
-# cars <- Remove_Punc(cars, "description", " ")
-# cars <- Remove_Punc(cars, "model", " ")
+cars <- Remove_Punc(cars, "description", " ")
+cars <- Remove_Punc(cars, "model", " ")
 ```
 
 #### Clean 'manufacturer' column
@@ -235,7 +238,7 @@ cars %>% filter(is.na(manufacturer))
 This gets us 8908 more manufacturers in our dataset. Next, we'll try to pull remaining missing manufacturers from the description variable
 
 ```{r}
-cars <- cars %>% select(-match)
+cars <- cars %>% select(-match) # Get rid of match column
 ```
 
 ```{r}
@@ -245,15 +248,6 @@ cars$match <- ifelse(is.na(cars$manufacturer),
                                           simplify = TRUE),
                                           ''
                           )
-```
-
-```{r}
-# cars$match <- ifelse(is.na(cars$manufacturer), 
-#                           str_extract_all(cars$description, 
-#                                       manufacturer_pattern, 
-#                                       simplify = TRUE),
-#                                       ''
-#                           )
 ```
 
 ```{r}
@@ -577,7 +571,7 @@ cars_clean <- cars
 
 Establish connection to the database
 ```{r}
-conn <- dbConnect(RSQLite::SQLite(), "CraigslistCars.sqlite3")
+conn <- dbConnect(RSQLite::SQLite(), db_path)
 ```
 
 ```{r}
@@ -679,17 +673,22 @@ census_clean
 # Write 'cars_clean' and 'census_clean' back the the SQLite DB
 ## SQLite3 Database
 ```{r}
-conn <- dbConnect(RSQLite::SQLite(), "CraigslistCars.sqlite3")
+conn <- dbConnect(RSQLite::SQLite(), db_path)
 ```
 
 ```{r}
 dbListTables(conn)
 ```
+#### Overwrite Tables?
+```{r}
+# If you want to overwrite table, change to TRUE
+overwrite_table <- FALSE
+```
 
 ```{r}
 # Write the mtcars dataset into a table names mtcars_data
-dbWriteTable(conn, "census_clean", census_clean)
-dbWriteTable(conn, "cars_clean", cars_clean)
+dbWriteTable(conn, "census_clean", census_clean, overwrite = overwrite_table)
+dbWriteTable(conn, "cars_clean", cars_clean, overwrite = overwrite_table)
 # List all the tables available in the database
 dbListTables(conn)
 dbDisconnect(conn)
