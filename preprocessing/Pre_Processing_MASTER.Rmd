@@ -187,8 +187,8 @@ Remove_Punc <- function (df, col, replacement) {
 ```
 
 ```{r}
-cars <- Remove_Punc(cars, "description", " ")
-cars <- Remove_Punc(cars, "model", " ")
+# cars <- Remove_Punc(cars, "description", " ")
+# cars <- Remove_Punc(cars, "model", " ")
 ```
 
 #### Clean 'manufacturer' column
@@ -215,8 +215,10 @@ cars %>% filter(is.na(manufacturer))
 First we'll try to pull the manufacturer from the model variable.
 ```{r}
 cars$match <- ifelse(is.na(cars$manufacturer),
-                          str_extract_all(cars$model, regex(manufacturer_pattern, ignore_case = TRUE), simplify = TRUE)[,1],
-                          ''
+                          str_extract_all(cars$model, 
+                                          regex(manufacturer_pattern, ignore_case = TRUE), 
+                                          simplify = TRUE),
+                                          ''
                           )
 ```
 
@@ -237,10 +239,21 @@ cars <- cars %>% select(-match)
 ```
 
 ```{r}
-cars$match <- ifelse(is.na(cars$manufacturer), 
-                          str_extract_all(cars$description, regex(manufacturer_pattern, ignore_case = TRUE), simplify = TRUE)[,1],
-                          ''
+cars$match <- ifelse(is.na(cars$manufacturer),
+                          str_extract_all(cars$description, 
+                                          regex(manufacturer_pattern, ignore_case = TRUE), 
+                                          simplify = TRUE),
+                                          ''
                           )
+```
+
+```{r}
+# cars$match <- ifelse(is.na(cars$manufacturer), 
+#                           str_extract_all(cars$description, 
+#                                       manufacturer_pattern, 
+#                                       simplify = TRUE),
+#                                       ''
+#                           )
 ```
 
 ```{r}
@@ -354,7 +367,7 @@ Odometer_Filter <- function (df, start_year, mileage, remove_na = TRUE) {
 
 Apply the 'odometer_filter' to the dataset.
 ```{r}
-cars <- odometer_filter(cars_test, 2018, 500)
+cars <- Odometer_Filter(cars, 2018, 500)
 ```
 
 #### Remove NA observations in 'title_status' column
@@ -362,7 +375,7 @@ cars <- odometer_filter(cars_test, 2018, 500)
 cars %>% filter(is.na(title_status))
 ```
 ```{r}
-cars <- remove_nas(cars, "title_status")
+cars <- Remove_NAs(cars, "title_status")
 cars %>% filter(is.na(title_status))
 ```
 
@@ -527,11 +540,37 @@ cars$model <- str_to_title(cars$model)
 ```{r}
 cars$city <- str_split_fixed(cars$region, pattern = "-|/", n = 2)[,1]
 ```
+Convert city to title case.
+```{r}
+cars$city <- str_to_title(cars$city)
+```
 
 ```{r}
 cars %>% count(city)
 ```
+#### Convert Posting Date to DT Object
+```{r}
+cars$posting_date <- as.POSIXct(cars$posting_date)
+```
 
+```{r}
+head(cars)
+```
+```{r}
+colnames(cars)
+```
+
+
+#### Re-arrange column order for easy viewing and create new DF called 'cars_clean'
+```{r}
+cars <- cars %>% select(id, region, city, state, year, manufacturer, model, 
+                        condition, cylinders, fuel, odometer, title_status,
+                        transmission, drive, type, paint_color, posting_date, description)
+```
+
+```{r}
+cars_clean <- cars
+```
 
 
 # Clean Census Data
@@ -637,4 +676,21 @@ census_clean = census_clean %>%
 ```{r}
 census_clean
 ```
+# Write 'cars_clean' and 'census_clean' back the the SQLite DB
+## SQLite3 Database
+```{r}
+conn <- dbConnect(RSQLite::SQLite(), "CraigslistCars.sqlite3")
+```
 
+```{r}
+dbListTables(conn)
+```
+
+```{r}
+# Write the mtcars dataset into a table names mtcars_data
+dbWriteTable(conn, "census_clean", census_clean)
+dbWriteTable(conn, "cars_clean", cars_clean)
+# List all the tables available in the database
+dbListTables(conn)
+dbDisconnect(conn)
+```
