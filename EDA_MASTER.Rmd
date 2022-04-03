@@ -42,4 +42,13 @@ dbDisconnect(conn)
 ```{r}
 head(cars)
 ```
+#Creating New Variable Price/Odometer, we do later, just testing git rn - Shawn
+PoverO <- cars %>%
+  mutate(pm = cars$price/cars$odometer) 
 
+#Create Linear Regression Model, test
+lin <- lm(price ~ year + odometer, data = cars)
+summary(lin)
+
+#correlation matrix
+correl <- cor(PoverO)
