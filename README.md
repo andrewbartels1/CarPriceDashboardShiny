@@ -62,3 +62,5 @@ The data for this app is extracted from [MetaCRAN](https://www.r-pkg.org/) which
 ## Deployment
 
 The app is deployed through RStudio's webservice [shinyapps.io](https://shinyapps.io/). Additionally, the app is published on [RStudio Cloud](https://rstudio.cloud/project/258634) which provides a complete development environment of the project.
+
+# testing git with this simple comment -Jason 
