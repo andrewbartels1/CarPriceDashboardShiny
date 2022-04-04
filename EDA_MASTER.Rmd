@@ -22,7 +22,7 @@ library(roxygen2) # For Function Documentation: ctrl + option + shift + r
 Create a connection to our new database, CraigslistCars.sqlite3
 ```{r}
 #set path to the database.
-db_path <- "/Users/matt/Dev/Projects/MGT6203-grp-project/Database/CraigslistCarsClean.sqlite3"
+db_path <- "CraigslistCarsClean.sqlite3"
   
 conn <- dbConnect(RSQLite::SQLite(), db_path)
 ```
@@ -31,11 +31,11 @@ conn <- dbConnect(RSQLite::SQLite(), db_path)
 ```{r}
 dbListTables(conn)
 ```
-#### Create DFs called "cars" and "census
+#### Create DFs called "cars" and "census"
 ```{r}
 cars <- dbGetQuery(conn, "SELECT * FROM cars_clean")
 census <- dbGetQuery(conn, "SELECT * FROM census_clean")
-dbDisconnect(conn)
+#dbDisconnect(conn)
 ```
 
 #### View First 6 Rows of 'cars' df
@@ -43,9 +43,13 @@ dbDisconnect(conn)
 head(cars)
 ```
 #Creating New Variable Price/Odometer, we do later, just testing git rn - Shawn
-PoverO <- cars %>%
-  mutate(pm = cars$price/cars$odometer) 
-
+```{r}
+#change price type to mutate new column for new variable
+cars$price <- as.double(cars$price)
+#mutate new variable
+PoverO <- cars %>% mutate(pm = cars$price/cars$odometer)
+head(PoverO)
+```
 #Create Linear Regression Model, test
 lin <- lm(price ~ year + odometer, data = cars)
 summary(lin)
