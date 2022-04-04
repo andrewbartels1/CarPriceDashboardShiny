@@ -1,6 +1,8 @@
 ---
 title: "R Notebook"
-output: 
+output:
+  html_document: default
+  HTML: default
 ---
 
 #### Clear Environment
@@ -16,13 +18,15 @@ library(readxl)
 library(stringr) # string formatting
 library(RSQLite) # to connect to SQlite database
 library(roxygen2) # For Function Documentation: ctrl + option + shift + r
+library(corrplot)
+library(radiant.data)
 ```
 
 ## Load SQLite Database
 Create a connection to our new database, CraigslistCars.sqlite3
 ```{r}
 #set path to the database.
-db_path <- "/Users/matt/Dev/Projects/MGT6203-grp-project/Database/CraigslistCarsClean.sqlite3"
+db_path <- "CraigslistCarsClean.sqlite3"
   
 conn <- dbConnect(RSQLite::SQLite(), db_path)
 ```
@@ -31,24 +35,59 @@ conn <- dbConnect(RSQLite::SQLite(), db_path)
 ```{r}
 dbListTables(conn)
 ```
-#### Create DFs called "cars" and "census
+#### Create DFs called "cars" and "census"
 ```{r}
 cars <- dbGetQuery(conn, "SELECT * FROM cars_clean")
 census <- dbGetQuery(conn, "SELECT * FROM census_clean")
-dbDisconnect(conn)
+#dbDisconnect(conn)
 ```
 
 #### View First 6 Rows of 'cars' df
 ```{r}
 head(cars)
 ```
+#Study cars statistics
+```{r}
+describe(cars)
+```
+#Clean cylinder variable
+```{r}
+#ifelse(apply(str_contains(cars$cylinders,"cylinders",ignore.case=FALSE)), substring(cars$cylinders,1,1),0)
+cars_cyl_clean <- cars %>% mutate(cylinders_clean=as.integer(str_extract(cars$cylinders,'[0-9]')))
+glimpse(cars_cyl_clean)
+```
+
 #Creating New Variable Price/Odometer, we do later, just testing git rn - Shawn
-PoverO <- cars %>%
-  mutate(pm = cars$price/cars$odometer) 
+```{r}
+#change price type to mutate new column for new variable
+cars$price <- as.double(cars$price)
+#mutate new variable
+PoverO <- cars %>% mutate(pm = cars$price/cars$odometer)
+glimpse(PoverO)
+```
+#select only numeric columns for correlation matrix
+```{r}
+car_num <- select_if(cars,is.numeric)
+head(car_num)
+```
+#correlation matrix for collinearity check
+```{r}
+correl <- cor(car_num[-1])
+corrplot(correl,addCoef.col = 'black')
+```
+
+**Comment**: No collinearity existed between these numeric columns 
 
 #Create Linear Regression Model, test
+```{r}
 lin <- lm(price ~ year + odometer, data = cars)
 summary(lin)
+```
+**Comment** Per result tested on linear regression model above, we can see odometer which has p=0.9 that is greater than typical significant value p=0.05. Thus, it might be not a relevant variable to use. 
 
-#correlation matrix
-correl <- cor(PoverO)
+#plot scatter/residual plots to spot non-linearity and outliers/high-leverage points
+```{r}
+plot(lin,which=1:5)
+```
+
+
