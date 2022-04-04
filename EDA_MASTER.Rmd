@@ -1,6 +1,8 @@
 ---
 title: "R Notebook"
-output: 
+output:
+  html_document: default
+  HTML: default
 ---
 
 #### Clear Environment
@@ -61,7 +63,7 @@ glimpse(cars_cyl_clean)
 cars$price <- as.double(cars$price)
 #mutate new variable
 PoverO <- cars %>% mutate(pm = cars$price/cars$odometer)
-head(PoverO)
+glimpse(PoverO)
 ```
 #select only numeric columns for correlation matrix
 ```{r}
