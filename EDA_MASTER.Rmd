@@ -16,6 +16,7 @@ library(readxl)
 library(stringr) # string formatting
 library(RSQLite) # to connect to SQlite database
 library(roxygen2) # For Function Documentation: ctrl + option + shift + r
+library(corrplot)
 ```
 
 ## Load SQLite Database
@@ -51,8 +52,15 @@ PoverO <- cars %>% mutate(pm = cars$price/cars$odometer)
 head(PoverO)
 ```
 #Create Linear Regression Model, test
+```{r}
 lin <- lm(price ~ year + odometer, data = cars)
 summary(lin)
+```
+**Comment** Per result tested on linear regression model above, we can see odometer which has p=0.9 that is greater than typical significant value p=0.05. Thus, it might be not a relevant variable to use. 
 
 #correlation matrix
-correl <- cor(PoverO)
+```{r}
+#correl <- cor(PoverO)
+#create correlation matrix on cars variables
+#corrplot(cars)
+```
