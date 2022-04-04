@@ -75,14 +75,7 @@ corrplot(correl,addCoef.col = 'black')
 ```
 
 **Comment**: No collinearity existed between these numeric columns 
-#create linear regression model regressing price on all variables
-```{r}
-model <- lm(price~., data=cars)
-```
-#plot scatter/residual plots to spot non-linearity and outliers/high-leverage points
-```{r}
-plot(model,which=1:5)
-```
+
 #Create Linear Regression Model, test
 ```{r}
 lin <- lm(price ~ year + odometer, data = cars)
@@ -90,5 +83,9 @@ summary(lin)
 ```
 **Comment** Per result tested on linear regression model above, we can see odometer which has p=0.9 that is greater than typical significant value p=0.05. Thus, it might be not a relevant variable to use. 
 
+#plot scatter/residual plots to spot non-linearity and outliers/high-leverage points
+```{r}
+plot(lin,which=1:5)
+```
 
 
