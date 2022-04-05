@@ -90,4 +90,8 @@ summary(lin)
 plot(lin,which=1:5)
 ```
 
-
+#plot sale trends in different states of USA
+```{r}
+sale_trend <- cars_cyl_clean %>% group_by(state) %>%summarize(number_of_cars=n())
+plot(sale_trend)
+```
