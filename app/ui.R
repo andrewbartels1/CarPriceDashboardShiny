@@ -6,39 +6,26 @@
 #
 #    http://shiny.rstudio.com/
 #
-
-library(shiny)
-
 # Define UI for application that draws a histogram
-shinyUI(fluidPage(
-
-    # Application title
-    titlePanel("Old Faithful Geyser Data"),
-
-    navlistPanel(
-      "Header A",
-      tabPanel("Component 1"),
-      tabPanel("Component 2"),
-      "Header B",
-      tabPanel("Component 3"),
-      tabPanel("Component 4"),
-      "-----",
-      tabPanel("Component 5")
+ui <- fluidPage(
+  # Header with image
+  
+  img(height="50%", width="50%",
+      src= "logo.png"),
+  sidebarLayout(
+    sidebarPanel(
+      sliderInput("bins",
+                  "Number of bins:",
+                  min = 1,
+                  max = 50,
+                  value = 30)
     ),
-
-    # Sidebar with a slider input for number of bins
-    sidebarLayout(
-        sidebarPanel(
-            sliderInput("bins",
-                        "Number of bins:",
-                        min = 1,
-                        max = 50,
-                        value = 30)
-        ),
-
-        # Show a plot of the generated distribution
-        mainPanel(
-            plotOutput("distPlot")
-        )
+    
+    # Show a plot of the generated distribution
+    mainPanel(
+      plotOutput("distPlot")
     )
-))
+  )
+  # https://shiny.rstudio.com/app-stories/weather-lookup-bslib.html
+  ) 
+# )
