@@ -86,7 +86,7 @@ glimpse(cars_clean_pm)
 cars_clean_pm$fuel <- as.factor(cars_clean_pm$fuel)
 cars_clean_pm$title_status <- as.factor(cars_clean_pm$title_status)
 cars_clean_pm$transmission <- as.factor(cars_clean_pm$transmission)
-cars_sub <- select(cars_clean_pm,year,cylinders_clean,fuel,odometer,title_status,transmission,price,pm)
+cars_sub <- select(cars_clean_pm,year,cylinders_clean,fuel,odometer,title_status,transmission,price)
 glimpse(cars_sub)
 model.matrix(~0+., data=cars_sub) %>%
   cor(use="pairwise.complete.obs") %>%
@@ -97,8 +97,6 @@ model.matrix(~0+., data=cars_sub) %>%
 # corrplot(correl,addCoef.col = 'black')
 
 ```
-
-**Comment**: No collinearity existed between these numeric columns
 
 \#Create Linear Regression Model, test
 
@@ -115,11 +113,11 @@ summary(lin)
 plot(lin,which=1:5)
 ```
 
-\#plot sale trends in different states of USA
+\#plot price trends in different states of USA
 
 ```{r}
-sale_trend <- cars_cyl_clean %>% group_by(state) %>%summarize(number_of_cars=n())
-plot(sale_trend)
+price_trend <- cars_clean_pm %>% group_by(state) %>%summarize(average_price=mean(price))
+ggplot(price_trend, aes(x=reorder(state,-log(average_price)),y=log(average_price))) + geom_bar(stat="identity",fill="steelblue") + labs(x="state") 
 ```
 
 ```{}
