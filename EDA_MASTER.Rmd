@@ -120,5 +120,8 @@ price_trend <- cars_clean_pm %>% group_by(state) %>%summarize(average_price=mean
 ggplot(price_trend, aes(x=reorder(state,-log(average_price)),y=log(average_price))) + geom_bar(stat="identity",fill="steelblue") + labs(x="state") 
 ```
 
-```{}
+\#Plot box-plot to detect outliers/influential points across US states
+
+```{r}
+ggplot(cars_clean_pm,aes(x=state,y=log(price))) + geom_boxplot(fill="steelblue")
 ```
