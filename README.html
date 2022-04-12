@@ -11,7 +11,7 @@
 
 
 
-<title>Group Project README</title>
+<title>README</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -254,7 +254,6 @@ if (window.hljs) {
 
 
 
-
 <style type="text/css">
 .main-container {
   max-width: 940px;
@@ -275,9 +274,6 @@ button.code-folding-btn:focus {
 }
 summary {
   display: list-item;
-}
-details > summary > p:only-child {
-  display: inline;
 }
 pre code {
   padding: 0;
@@ -361,260 +357,96 @@ pre code {
 
 
 
-<h1 class="title toc-ignore">Group Project README</h1>
 
 </div>
 
 
-<div id="top">
-
-</div>
-<!--
-*** Thanks for checking out the Best-README-Template. If you have a suggestion
-*** that would make this better, please fork the repo and create a pull request
-*** or simply open an issue with the tag "enhancement".
-*** Don't forget to give the project a star!
-*** Thanks again! Now go create something AMAZING! :D
--->
-<!-- PROJECT SHIELDS -->
-<!--
-*** I'm using markdown "reference style" links for readability.
-*** Reference links are enclosed in brackets [ ] instead of parentheses ( ).
-*** See the bottom of this document for the declaration of the reference variables
-*** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
-*** https://www.markdownguide.org/basic-syntax/#reference-style-links
--->
-<p><a href="https://github.com/othneildrew/Best-README-Template/graphs/contributors"><img src="data:image/svg+xml;charset=utf-8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMTYwLjUiIGhlaWdodD0iMjgiIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0iQ09OVFJJQlVUT1JTOiAxNiI+PHRpdGxlPkNPTlRSSUJVVE9SUzogMTY8L3RpdGxlPjxnIHNoYXBlLXJlbmRlcmluZz0iY3Jpc3BFZGdlcyI+PHJlY3Qgd2lkdGg9IjEyMCIgaGVpZ2h0PSIyOCIgZmlsbD0iIzU1NSIvPjxyZWN0IHg9IjEyMCIgd2lkdGg9IjQwLjUiIGhlaWdodD0iMjgiIGZpbGw9IiM0YzEiLz48L2c+PGcgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IlZlcmRhbmEsR2VuZXZhLERlamFWdSBTYW5zLHNhbnMtc2VyaWYiIHRleHQtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIGZvbnQtc2l6ZT0iMTAwIj48dGV4dCB0cmFuc2Zvcm09InNjYWxlKC4xKSIgeD0iNjAwIiB5PSIxNzUiIHRleHRMZW5ndGg9Ijk2MCIgZmlsbD0iI2ZmZiI+Q09OVFJJQlVUT1JTPC90ZXh0Pjx0ZXh0IHRyYW5zZm9ybT0ic2NhbGUoLjEpIiB4PSIxNDAyLjUiIHk9IjE3NSIgdGV4dExlbmd0aD0iMTY1IiBmaWxsPSIjZmZmIiBmb250LXdlaWdodD0iYm9sZCI+MTY8L3RleHQ+PC9nPjwvc3ZnPg==" alt="Contributors" /></a> <a href="https://github.com/othneildrew/Best-README-Template/network/members"><img src="data:image/svg+xml;charset=utf-8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMTEzIiBoZWlnaHQ9IjI4Ij48ZyBzaGFwZS1yZW5kZXJpbmc9ImNyaXNwRWRnZXMiPjxyZWN0IHdpZHRoPSI2NC4yNSIgaGVpZ2h0PSIyOCIgZmlsbD0iIzU1NSIvPjxyZWN0IHg9IjY0LjI1IiB3aWR0aD0iNDguNzUiIGhlaWdodD0iMjgiIGZpbGw9IiMwMDdlYzYiLz48L2c+PGcgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IlZlcmRhbmEsR2VuZXZhLERlamFWdSBTYW5zLHNhbnMtc2VyaWYiIHRleHQtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIGZvbnQtc2l6ZT0iMTAwIj48YSB0YXJnZXQ9Il9ibGFuayIgeGxpbms6aHJlZj0iaHR0cHM6Ly9naXRodWIuY29tL290aG5laWxkcmV3L0Jlc3QtUkVBRE1FLVRlbXBsYXRlL2ZvcmsiPjxyZWN0IHdpZHRoPSI2NC4yNSIgaGVpZ2h0PSIyOCIgZmlsbD0icmdiYSgwLDAsMCwwKSIvPjx0ZXh0IHRyYW5zZm9ybT0ic2NhbGUoLjEpIiB4PSIzMjEuMjUiIHk9IjE3NSIgdGV4dExlbmd0aD0iNDAyLjUiIGZpbGw9IiNmZmYiPkZPUktTPC90ZXh0PjwvYT48YSB0YXJnZXQ9Il9ibGFuayIgeGxpbms6aHJlZj0iaHR0cHM6Ly9naXRodWIuY29tL290aG5laWxkcmV3L0Jlc3QtUkVBRE1FLVRlbXBsYXRlL25ldHdvcmsiPjxyZWN0IHdpZHRoPSI0OC43NSIgaGVpZ2h0PSIyOCIgeD0iNjQuMjUiIGZpbGw9InJnYmEoMCwwLDAsMCkiLz48dGV4dCB0cmFuc2Zvcm09InNjYWxlKC4xKSIgeD0iODg2LjI1IiB5PSIxNzUiIHRleHRMZW5ndGg9IjI0Ny41IiBmaWxsPSIjZmZmIiBmb250LXdlaWdodD0iYm9sZCI+MTNLPC90ZXh0PjwvYT48L2c+PC9zdmc+" alt="Forks" /></a> <a href="https://github.com/othneildrew/Best-README-Template/stargazers"><img src="data:image/svg+xml;charset=utf-8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMTE3LjI1IiBoZWlnaHQ9IjI4Ij48ZyBzaGFwZS1yZW5kZXJpbmc9ImNyaXNwRWRnZXMiPjxyZWN0IHdpZHRoPSI2My4yNSIgaGVpZ2h0PSIyOCIgZmlsbD0iIzU1NSIvPjxyZWN0IHg9IjYzLjI1IiB3aWR0aD0iNTQiIGhlaWdodD0iMjgiIGZpbGw9IiMwMDdlYzYiLz48L2c+PGcgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IlZlcmRhbmEsR2VuZXZhLERlamFWdSBTYW5zLHNhbnMtc2VyaWYiIHRleHQtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIGZvbnQtc2l6ZT0iMTAwIj48YSB0YXJnZXQ9Il9ibGFuayIgeGxpbms6aHJlZj0iaHR0cHM6Ly9naXRodWIuY29tL290aG5laWxkcmV3L0Jlc3QtUkVBRE1FLVRlbXBsYXRlIj48cmVjdCB3aWR0aD0iNjMuMjUiIGhlaWdodD0iMjgiIGZpbGw9InJnYmEoMCwwLDAsMCkiLz48dGV4dCB0cmFuc2Zvcm09InNjYWxlKC4xKSIgeD0iMzE2LjI1IiB5PSIxNzUiIHRleHRMZW5ndGg9IjM5Mi41IiBmaWxsPSIjZmZmIj5TVEFSUzwvdGV4dD48L2E+PGEgdGFyZ2V0PSJfYmxhbmsiIHhsaW5rOmhyZWY9Imh0dHBzOi8vZ2l0aHViLmNvbS9vdGhuZWlsZHJldy9CZXN0LVJFQURNRS1UZW1wbGF0ZS9zdGFyZ2F6ZXJzIj48cmVjdCB3aWR0aD0iNTQiIGhlaWdodD0iMjgiIHg9IjYzLjI1IiBmaWxsPSJyZ2JhKDAsMCwwLDApIi8+PHRleHQgdHJhbnNmb3JtPSJzY2FsZSguMSkiIHg9IjkwMi41IiB5PSIxNzUiIHRleHRMZW5ndGg9IjMwMCIgZmlsbD0iI2ZmZiIgZm9udC13ZWlnaHQ9ImJvbGQiPjUuNUs8L3RleHQ+PC9hPjwvZz48L3N2Zz4=" alt="Stargazers" /></a> <a href="https://github.com/othneildrew/Best-README-Template/issues"><img src="data:image/svg+xml;charset=utf-8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMTQyIiBoZWlnaHQ9IjI4IiByb2xlPSJpbWciIGFyaWEtbGFiZWw9IklTU1VFUzogMSBPUEVOIj48dGl0bGU+SVNTVUVTOiAxIE9QRU48L3RpdGxlPjxnIHNoYXBlLXJlbmRlcmluZz0iY3Jpc3BFZGdlcyI+PHJlY3Qgd2lkdGg9IjY5LjUiIGhlaWdodD0iMjgiIGZpbGw9IiM1NTUiLz48cmVjdCB4PSI2OS41IiB3aWR0aD0iNzIuNSIgaGVpZ2h0PSIyOCIgZmlsbD0iI2RmYjMxNyIvPjwvZz48ZyBmaWxsPSIjZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iVmVyZGFuYSxHZW5ldmEsRGVqYVZ1IFNhbnMsc2Fucy1zZXJpZiIgdGV4dC1yZW5kZXJpbmc9Imdlb21ldHJpY1ByZWNpc2lvbiIgZm9udC1zaXplPSIxMDAiPjx0ZXh0IHRyYW5zZm9ybT0ic2NhbGUoLjEpIiB4PSIzNDcuNSIgeT0iMTc1IiB0ZXh0TGVuZ3RoPSI0NTUiIGZpbGw9IiNmZmYiPklTU1VFUzwvdGV4dD48dGV4dCB0cmFuc2Zvcm09InNjYWxlKC4xKSIgeD0iMTA1Ny41IiB5PSIxNzUiIHRleHRMZW5ndGg9IjQ4NSIgZmlsbD0iI2ZmZiIgZm9udC13ZWlnaHQ9ImJvbGQiPjEgT1BFTjwvdGV4dD48L2c+PC9zdmc+" alt="Issues" /></a> <a href="https://github.com/othneildrew/Best-README-Template/blob/master/LICENSE.txt"><img src="data:image/svg+xml;charset=utf-8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMTI0LjUiIGhlaWdodD0iMjgiIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0iTElDRU5TRTogTUlUIj48dGl0bGU+TElDRU5TRTogTUlUPC90aXRsZT48ZyBzaGFwZS1yZW5kZXJpbmc9ImNyaXNwRWRnZXMiPjxyZWN0IHdpZHRoPSI3NS43NSIgaGVpZ2h0PSIyOCIgZmlsbD0iIzU1NSIvPjxyZWN0IHg9Ijc1Ljc1IiB3aWR0aD0iNDguNzUiIGhlaWdodD0iMjgiIGZpbGw9IiM5N2NhMDAiLz48L2c+PGcgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IlZlcmRhbmEsR2VuZXZhLERlamFWdSBTYW5zLHNhbnMtc2VyaWYiIHRleHQtcmVuZGVyaW5nPSJnZW9tZXRyaWNQcmVjaXNpb24iIGZvbnQtc2l6ZT0iMTAwIj48dGV4dCB0cmFuc2Zvcm09InNjYWxlKC4xKSIgeD0iMzc4Ljc1IiB5PSIxNzUiIHRleHRMZW5ndGg9IjUxNy41IiBmaWxsPSIjZmZmIj5MSUNFTlNFPC90ZXh0Pjx0ZXh0IHRyYW5zZm9ybT0ic2NhbGUoLjEpIiB4PSIxMDAxLjI1IiB5PSIxNzUiIHRleHRMZW5ndGg9IjI0Ny41IiBmaWxsPSIjZmZmIiBmb250LXdlaWdodD0iYm9sZCI+TUlUPC90ZXh0PjwvZz48L3N2Zz4=" alt="MIT License" /></a> <a href="https://linkedin.com/in/othneildrew"><img src="data:image/svg+xml;charset=utf-8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMTExIiBoZWlnaHQ9IjI4IiByb2xlPSJpbWciIGFyaWEtbGFiZWw9IkxJTktFRElOIj48dGl0bGU+TElOS0VESU48L3RpdGxlPjxnIHNoYXBlLXJlbmRlcmluZz0iY3Jpc3BFZGdlcyI+PHJlY3Qgd2lkdGg9IjExMSIgaGVpZ2h0PSIyOCIgZmlsbD0iIzU1NSIvPjwvZz48ZyBmaWxsPSIjZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iVmVyZGFuYSxHZW5ldmEsRGVqYVZ1IFNhbnMsc2Fucy1zZXJpZiIgdGV4dC1yZW5kZXJpbmc9Imdlb21ldHJpY1ByZWNpc2lvbiIgZm9udC1zaXplPSIxMDAiPjxpbWFnZSB4PSI5IiB5PSI3IiB3aWR0aD0iMTQiIGhlaWdodD0iMTQiIHhsaW5rOmhyZWY9ImRhdGE6aW1hZ2Uvc3ZnK3htbDtiYXNlNjQsUEhOMlp5Qm1hV3hzUFNKM2FHbDBaWE50YjJ0bElpQnliMnhsUFNKcGJXY2lJSFpwWlhkQ2IzZzlJakFnTUNBeU5DQXlOQ0lnZUcxc2JuTTlJbWgwZEhBNkx5OTNkM2N1ZHpNdWIzSm5Mekl3TURBdmMzWm5JajQ4ZEdsMGJHVStUR2x1YTJWa1NXNDhMM1JwZEd4bFBqeHdZWFJvSUdROUlrMHlNQzQwTkRjZ01qQXVORFV5YUMwekxqVTFOSFl0TlM0MU5qbGpNQzB4TGpNeU9DMHVNREkzTFRNdU1ETTNMVEV1T0RVeUxUTXVNRE0zTFRFdU9EVXpJREF0TWk0eE16WWdNUzQwTkRVdE1pNHhNellnTWk0NU16bDJOUzQyTmpkSU9TNHpOVEZXT1dnekxqUXhOSFl4TGpVMk1XZ3VNRFEyWXk0ME56Y3RMamtnTVM0Mk16Y3RNUzQ0TlNBekxqTTNMVEV1T0RVZ015NDJNREVnTUNBMExqSTJOeUF5TGpNM0lEUXVNalkzSURVdU5EVTFkall1TWpnMmVrMDFMak16TnlBM0xqUXpNMk10TVM0eE5EUWdNQzB5TGpBMk15MHVPVEkyTFRJdU1EWXpMVEl1TURZMUlEQXRNUzR4TXpndU9USXRNaTR3TmpNZ01pNHdOak10TWk0d05qTWdNUzR4TkNBd0lESXVNRFkwTGpreU5TQXlMakEyTkNBeUxqQTJNeUF3SURFdU1UTTVMUzQ1TWpVZ01pNHdOalV0TWk0d05qUWdNaTR3TmpWNmJURXVOemd5SURFekxqQXhPVWd6TGpVMU5WWTVhRE11TlRZMGRqRXhMalExTW5wTk1qSXVNakkxSURCSU1TNDNOekZETGpjNU1pQXdJREFnTGpjM05DQXdJREV1TnpJNWRqSXdMalUwTWtNd0lESXpMakl5Tnk0M09USWdNalFnTVM0M056RWdNalJvTWpBdU5EVXhRekl6TGpJZ01qUWdNalFnTWpNdU1qSTNJREkwSURJeUxqSTNNVll4TGpjeU9VTXlOQ0F1TnpjMElESXpMaklnTUNBeU1pNHlNaklnTUdndU1EQXplaUl2UGp3dmMzWm5QZz09Ii8+PHRleHQgdHJhbnNmb3JtPSJzY2FsZSguMSkiIHg9IjY1NSIgeT0iMTc1IiB0ZXh0TGVuZ3RoPSI2NzAiIGZpbGw9IiNmZmYiIGZvbnQtd2VpZ2h0PSJib2xkIj5MSU5LRURJTjwvdGV4dD48L2c+PC9zdmc+" alt="LinkedIn" /></a></p>
-<!-- PROJECT LOGO -->
-<p><br /></p>
-<div align="center">
-<p><a href="https://github.com/othneildrew/Best-README-Template">
-<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAACxQAAAsUBidZ/7wAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAiFSURBVHic7Z1/bJ1VGcc/p+1dSN0PtjFr74ZsCXSlIIWwjKCTNYpu0Uw0/mM22sEQzQwJkOCPxKgXI2KCiXEKiU6kK7ANh1EgwnAqdwtsUUxGde3WxQiMpWVBgW3tWPajxz+uNO29t+8978057zn3vs8nOX/03vM+53mf++R8z4+351Vaa+JyxalfLADWAKuBJUAWaAEaYxtLDyeB4f+XvwNPAfsGmr867tMpFScBrhj75TXAfcAqoMGVUyniGPBj4OcDH/jKaR8OGCVAx+jmucAmYB2gXDuVQo4Adw3OvP13STdcMQE6Rn/VBjwDtCXiUXrRwPeBewdnfjm+LldJZAJ0nHx4GbALuDAphwQeBdYPzrotkSRomu6Ly088nKUwUJEfP1m6gX8DuSQaK9sDXH7i103APmBZEk4IJWjgiwdnb3A+JiifAMcf2Qg85LpxIZIjwNKDc251OjsokYD2d3tngvqey0YFIz4M3EFhmuiMMnN51QOqpTDbk+K53NP+7han6y2lg0DNF2Jc/x5wP7AT6D80d/0ZS37VHe3vbMkCy4GvAx81vKwFuB54yZVfU8YAS9/umwO8BWQMrj0KfHJoXs9hR77VJUvf7mugsJr6LcNLHhia1/MNV/5M7V606kSrDFphUG6XHz8+Q/N6xtHq22i11zDOTmdiRfqisoba1D80v3unS8fqmaH53eOgHjCMddalL1PGAFpj2tjfHPiSKrQ2jqHTBCiWgNmG3dKwS6fSwOGLbh42jPUsl34UzQKUy7aEEvzHu0gC/DuUJkKI99QeIACHUkUA8ZanelKOSIBHQoi3SIBPAoi3zAK84j/eIgEeCSHeRRLgyYu0EkC8RQK84j/eIgEeCSHeMgvwSQDxFgnwiv94F28HCwkSQrydSsCS15/qArqsGjUj/+olN+UrVXLl36uX3JQzqlj/EqC6AF+PmOcrV3HmX86sWmAJYHtUGsIoNwrf/vluH1wvBAWgcZH49s93+7iXAMv2bOPbP9/tiwSkun1wvRAUwA1G4ts/3+0jCZDu9imWAMvGAxjjROLbP9/tg/QA6W6fcBJgN0YLN3QBK6v0phStTNp0R2gJoC1PS2LYy7/R9ulcpUoXH/5jDosJcKRtVR6zxHOC7XhXQyg9gB97vgngfmprJTCEUZNNDO/n4kO7cmWu/C+FY2ePAvvfaP/U2WpcCEUCvNjzTYz7qbRhdXzRoT89B+wAfn+0/Ubj84eL/zvYvJgQuj3fxLmf6DIHrb6EVr9Fq/2LDv75M6YuyBjAJ27u5yrgD4sG/7IVuO1oxycij5mb0gNolHExIXR7volzP1WUtRq1e+HgCx+K8qFIAmIUszsM255v4txPdWU5mucXDrwwczoXZAzgE3tjgKhyFVo9vvBAvux/gocyC+jKHtidq1xNdVXvTSnZA7u7cPBM4PCVK3Mm9RKUqs8BG4EHi78IZRC4EptLvKZoz88EJttTfTf7zz19wx+54eTkD8MZA9guPv0zJdmYfBDN3cUuhCIBXvDtX4z27y36WwGXUThGdnGMJrspvJVkglAkwA++/TNsf6RzRa7c5639LyoKJ4r/CGg2MHVpa/+LHSOdKwbf/0ASoIbbH+lcoYGftb7y0pvAbwwvWw1MJEAwC0G2i0//TLFlb+Tqj+3QqGcN7S2ZfG1t7Qbaxrd/NtvX7ARM9gCmHD0rElAv7WvVb1izZfIfMguok/Y1yvRlHU3T/uGgB8jbNWiMWbv19ExglbacJsCxa6/L4/GZu0p49y+0BAjhwII0YTPe1dqSI2K8YjPeAUqAUIHQJEB6gKQJrAeQMUCyhDcGEAlIluAkQBIgWUJLANsrYxfte2Ux8far64L/XH913qSe5ZXAqq5zvRJ4C/6OifOJ4XZkYD1A6nYDfWN3N7AqUr0Z5Js0SIBde/VGeBIgCZAooSWASECyBCgBNlxxaK/eCG0QKBKQMCIB6SZACbDeA7xG4Qg4oRyh9QC2NfudrvZeoNeu1ToitDGAdNnJUv8SIEQTngRIAiRKaAkgEpAsAUqADVcEY0IbBIoEJIxIQLoJUAIkARIltB7AdgLMfv61HCl8JOzEqsW1+UiYbAYmSwBjQNkN9EpoPYAkQMKElgBpe3Oob2zGp1pbKX93sG8C++dQGQUmTACjQJEAj4gEpJ7gJEBmAYkS3izAiisTjK1pzWF6dn4KCe+ACOmyE6beJUCIJjwJkARIkhTMAoRogpMAG44IxtT7QpAQjUhA6glOAiQBEkVmAekmBAko+z5ZIT2IBPhEJCDdhCABMgvwiv9ZQNHLo9UJw3fSZ6exJ8RBq7dM4j3jiZOtBrYWGv520789XGuGtS5sLVYoyy2HIpVozYBhvK81sHWdoa2RydcVzQLUcKErqVg6M9tHV1uJQqpRBwzj/c3M9tFpZ2yZ7aMLQG0wtBWRAFr1o9VZw65kc2bbWJuVOKQVrQYMY70CrX6Q2TZWkgSZbWOz0KoXreYb2vrr5OuVLnqUpGnrqV3AjYa38B5wP7AT6D+3ttn07ZUC0LT11MeBPTEu2QP8BNgLzAZuAL6D+TsZzgDzz61tHn3/g9IEePzU14AHYzgl1A7PnlvX/NnJH5TRFdUH6pihnkiprfJDiijpAQAaHzu9EXio5Auhlnnu/M0XlLxevqlcTbTaDGwAljl2SkiG48Cd5b4o2wMAND56Jgu8DMiiT22jgc+f757xdLkvp00AgIa+M8uAXcCFbnwTHKOBu8Z7ZmyarkJkAgA0bDnbBjwDyJy/tjgN9Iyvz+yIqlQxAQAatpybC2wC1lEYTgphsxfYOL6+6R+VKholwETl3vPXAPcBq5CHSUJkP/BToE/f0mj0w8ZKgImLHhlfAKwBVgNLKAwUW4DG2MaEajkP/AsYBPqBJ/WtDQNxjfwP3SPwqwrfa0MAAAAASUVORK5CYII=" alt="Logo" width="80" height="80" /> </a></p>
-<h3 align="center">
-<p>Best-README-Template</p>
-</h3>
-<p align="center">
-<p>An awesome README template to jumpstart your projects! <br />
-<a href="https://github.com/othneildrew/Best-README-Template"><strong>Explore
-the docs »</strong></a> <br /> <br />
-<a href="https://github.com/othneildrew/Best-README-Template">View
-Demo</a> ·
-<a href="https://github.com/othneildrew/Best-README-Template/issues">Report
-Bug</a> ·
-<a href="https://github.com/othneildrew/Best-README-Template/issues">Request
-Feature</a></p>
-</p>
-</div>
-<!-- TABLE OF CONTENTS -->
-<details>
-<summary>
-<p>Table of Contents</p>
-</summary>
-<ol>
-<li>
-<p><a href="#about-the-project">About The Project</a></p>
+<div id="cran-explorer" class="section level1">
+<h1>CRAN Explorer</h1>
+<div id="grabbed-as-template-from-httpsgithub.comrstudioshiny-gallerytreemastergenome-browser" class="section level3">
+<h3>Grabbed as template from <a href="https://github.com/rstudio/shiny-gallery/tree/master/genome-browser" class="uri">https://github.com/rstudio/shiny-gallery/tree/master/genome-browser</a></h3>
+<hr />
 <ul>
-<li>
-<p><a href="#built-with">Built With</a></p>
-</li>
+<li>App on gallery: <a href="https://gallery.shinyapps.io/genome_browser" class="uri">https://gallery.shinyapps.io/genome_browser</a></li>
 </ul>
-</li>
-<li>
-<p><a href="#getting-started">Getting Started</a></p>
-<ul>
-<li>
-<p><a href="#prerequisites">Prerequisites</a></p>
-</li>
-<li>
-<p><a href="#installation">Installation</a></p>
-</li>
-</ul>
-</li>
-<li>
-<p><a href="#usage">Usage</a></p>
-</li>
-<li>
-<p><a href="#roadmap">Roadmap</a></p>
-</li>
-<li>
-<p><a href="#contributing">Contributing</a></p>
-</li>
-<li>
-<p><a href="#license">License</a></p>
-</li>
-<li>
-<p><a href="#contact">Contact</a></p>
-</li>
-<li>
-<p><a href="#acknowledgments">Acknowledgments</a></p>
-</li>
-</ol>
-</details>
-<!-- ABOUT THE PROJECT -->
-<div id="about-the-project" class="section level2">
-<h2>About The Project</h2>
-<p><a href="https://example.com"><img src="data:image/png;base64,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nPXak3L71XIDxG1YAAACZG51t5udN29ncuPmsWWjl29l74evz1xvp307u+Ubmeard8ZHrVfyaecXx5Z93St5IW/lVta/9vp6+nkrt/K9PD/3tnRnhBSLixAAAOZXNH0Dt7e366ZvY1mW2dzcdDQv0Wg0yv379w0CAFipra2txl2vu6+kAbw7v5oZuw0LAECAEM9/rIrb3AAABMilV5ZlOp2OQayAT5oAAObXbvoG9nq9xm5bURQZDoeO4hUZDAapqiqTycQwAAAEyOk2NjbsZRZmbW3NEAAA5uAWLAAAQIAAAAACBAAAQIAAAAACBAAAQIAAAAACBAAAECAAAAACBAAAECAAAAACBAAAECAAAIAAAQAAECAAAIAAAQAAECAAAIAAAQAALpV20zew3+/bywAAIEBWoyxLexkAAM4Jt2ABAAACBAAAECAAAAACBAAAECAAAAACBAAAECAAAIAAAQAAECAAAIAAAQAAECAAAMAz1DYCYBV6vV7KskxRFIYBQKPUdZ2qqjIejw1DgCzPYDBwIUWjv5Du7+8v9O9stVpptVqPzxvnDwBN+H756NdHv0eALE1ZloYAAAACZHW8g0tTeRcHAFgWD6EDAAACBAAAECAAAAACBAAAECAAAAACBAAAECAAAIAAAQAAECAAAIAAAQAAECAAAIAAAQAABAgAAIAAAQAABAgAAIAAAQAABAgAACBAAAAABAgAACBAAAAABAgAACBAAAAAAQIAACBAAAAAAQIAACBAAAAAAQIAAAgQAAAAAQIAAAgQAAAAAQIAAAgQAAAAAQIAAAgQAABAgAAAAAgQAABAgAAAAAgQAABAgAAAAAIEAABAgAAAAAIEAABAgAAAAAIEAAAQIAAAAAIEAAAQIAAAAAIEAAAQIAAAgAABAAAQIAAAgAABAAAQIAAAgAABAAAECAAAgAABAAAECAAAgAABAAAECAAAgAABAAAECAAAIEAAAAAECAAAIEAAAAAECAAAIEAAAAABAgAAIEAAAAABAgAAIEAAAAABAgAACBAAAAABAgAACBAAAAABAgAACBAAAECAAAAACBAAAECAAAAACBAAAECAAAAAAgQAAECAAAAAAgQAAECAAAAAAgQAAECAAAAAAgQAABAgAAAAAgQAABAgAAAAAgQAABAgAACAAAEAABAgAACAAAEAABAgAACAAAEAAAQIAACA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" alt="Product Name Screen Shot" /></a></p>
-<p>There are many great README templates available on GitHub; however, I
-didn’t find one that really suited my needs so I created this enhanced
-one. I want to create a README template so amazing that it’ll be the
-last one you ever need – I think this is it.</p>
-<p>Here’s why: * Your time should be focused on creating something
-amazing. A project that solves a problem and helps others * You
-shouldn’t be doing the same tasks over and over like creating a README
-from scratch * You should implement DRY principles to the rest of your
-life :smile:</p>
-<p>Of course, no one template will serve all projects since your needs
-may be different. So I’ll be adding more in the near future. You may
-also suggest changes by forking this repo and creating a pull request or
-opening an issue. Thanks to all the people have contributed to expanding
-this template!</p>
-<p>Use the <code>BLANK_README.md</code> to get started.</p>
-<p align="right">
-<p>(<a href="#top">back to top</a>)</p>
-</p>
-<div id="built-with" class="section level3">
-<h3>Built With</h3>
-<p>This section should list any major frameworks/libraries used to
-bootstrap your project. Leave any add-ons/plugins for the
-acknowledgements section. Here are a few examples.</p>
-<ul>
-<li><a href="https://www.r-project.org/">R</a></li>
-<li><a href="https://rstudio.github.io/renv/index.html">r-env</a></li>
-</ul>
-<p align="right">
-<p>(<a href="#top">back to top</a>)</p>
-</p>
-<!-- GETTING STARTED -->
+<hr />
 </div>
+<div id="app-description" class="section level2">
+<h2>App description</h2>
+<p>this is an example change Example from <a href="https://shiny.rstudio.com/gallery/genome-browser.html">here</a>
+Explore CRAN packages in an interactive R Shiny app. You can see the
+application in action on shinyapps.io: <a href="https://gallery.shinyapps.io/cran-explorer/">gallery.shinyapps.io/cran-explorer</a>.</p>
+<p>The goal of this project is to demonstrate the development of a
+complete data service entirely written in the statistical programming
+language R. Besides this web application, the project includes the
+creation of a data refresh process (also written in R) that runs inside
+an AWS Docker container on a daily schedule. Additionally, efforts were
+made to develop this project in a reproducible way by controlling the
+operating environmentand the used R version (through Docker containers),
+a complete list of all required R packages and their specific versions
+(through <code>packrat</code>) with the intention to promote
+collaborative development and to reduce the friction of the setup
+process of R projects in heterogeneous development environments.</p>
 </div>
-<div id="getting-started" class="section level2">
-<h2>Getting Started</h2>
-<p>This is an example of how you may give instructions on setting up
-your project locally. To get a local copy up and running follow these
-simple example steps.</p>
-<div id="prerequisites" class="section level3">
-<h3>Prerequisites</h3>
-<p>This is an example of how to list things you need to use the software
-and how to install them. * npm
-<code>sh   npm install npm@latest -g</code></p>
+<div id="shiny-app" class="section level2">
+<h2>Shiny app</h2>
+<p>This web application is written using the <a href="https://shiny.rstudio.com/">R Shiny</a> web framework. It
+demonstrates the use of custom HTML templates in Shiny apps to create a
+fancy user experience. The theme used in this app is made by <a href="https://colorlib.com">Colorlib</a>. The app was developed with
+best Shiny practices in mind, e.g. the use of Shiny modules. In total
+about 1,100 lines of code were written for this app in less than 80
+hours. This time included app ideation and all required research of data
+sources, data preparation and its operationalisation, app development,
+design and how to best present the information.</p>
 </div>
-<div id="installation" class="section level3">
-<h3>Installation</h3>
-<p><em>Below is an example of how you can instruct your audience on
-installing and setting up your app. This template doesn’t rely on any
-external dependencies or services.</em></p>
+<div id="setup-development-environment" class="section level2">
+<h2>Setup development environment</h2>
+<p>The development environment of this project is encapsulated in a
+Docker container.</p>
 <ol style="list-style-type: decimal">
-<li><p>Get a free API Key at <a href="https://example.com" class="uri">https://example.com</a></p></li>
-<li><p>Clone the repo</p>
-<pre class="sh"><code>git clone https://github.com/your_username_/Project-Name.git</code></pre></li>
-<li><p>Install NPM packages</p>
-<pre class="sh"><code>npm install</code></pre></li>
-<li><p>Enter your API in <code>config.js</code></p>
-<pre class="js"><code>const API_KEY = &#39;ENTER YOUR API&#39;;</code></pre></li>
+<li>Install Docker. Follow the instructions on <a href="https://docs.docker.com/install/">https://docs.docker.com/install/</a></li>
+<li>Make docker run without sudo
+<code>sudo groupadd docker     sudo usermod -aG docker $USER</code> Log
+out and log back in so that your group membership is re-evaluated</li>
+<li>Clone the GIT repository
+<code>git clone https://github.com/nz-stefan/cran-explorer.git</code></li>
+<li>Setup development Docker container
+<code>cd cran-explorer     bin/setup-environment.sh</code> You should
+see lots of container build messages</li>
+<li>Spin up the container <code>bin/start_rstudio.sh</code></li>
+<li>Open <a href="http://localhost:8787">http://localhost:8787</a> in
+your browser to start a new RStudio session</li>
+<li>Install R packages required for this app. Type the following
+instructions into the R session window of RStudio
+<code>packrat::on()     packrat::restore()</code> The installation will
+take a few minutes. The package library will be installed into the
+<code>packrat/lib</code> directory of the project path.</li>
+<li>Open the file <code>app/global.R</code> and hit the “Run app” button
+in the toolbar of the script editor (or type
+<code>shiny::runApp(&quot;app&quot;)</code> in the R session window). The Shiny
+app should open in a new window. You may need to instruct your browser
+to not block popup windows for this URL.</li>
 </ol>
-<p align="right">
-<p>(<a href="#top">back to top</a>)</p>
-</p>
-<!-- USAGE EXAMPLES -->
+</div>
+<div id="data" class="section level2">
+<h2>Data</h2>
+<p>The data for this app is extracted from <a href="https://www.r-pkg.org/">MetaCRAN</a> which provides a database of
+all packages on CRAN and their publication history. The extraction
+processes transforms and summarises the data for efficient consumption
+in this app. The app’s data is refreshed through a separate R process
+which runs daily in a Docker container on AWS. The data refresh is
+published in its own git repository (to be published soon).</p>
+</div>
+<div id="deployment" class="section level2">
+<h2>Deployment</h2>
+<p>The app is deployed through RStudio’s webservice <a href="https://shinyapps.io/">shinyapps.io</a>. Additionally, the app is
+published on <a href="https://rstudio.cloud/project/258634">RStudio
+Cloud</a> which provides a complete development environment of the
+project.</p>
 </div>
 </div>
-<div id="usage" class="section level2">
-<h2>Usage</h2>
-<p>Use this space to show useful examples of how a project can be used.
-Additional screenshots, code examples and demos work well in this space.
-You may also link to more resources.</p>
-<p><em>For more examples, please refer to the <a href="https://example.com">Documentation</a></em></p>
-<p align="right">
-<p>(<a href="#top">back to top</a>)</p>
-</p>
-<!-- ROADMAP -->
-</div>
-<div id="roadmap" class="section level2">
-<h2>Roadmap</h2>
-<ul class="task-list">
-<li><input type="checkbox" disabled checked></input>
-Add Changelog</li>
-<li><input type="checkbox" disabled checked></input>
-Add back to top links</li>
-<li><input type="checkbox" disabled></input>
-Add Additional Templates w/ Examples</li>
-<li><input type="checkbox" disabled></input>
-Add “components” document to easily copy &amp; paste sections of the
-readme</li>
-</ul>
-<p>See the <a href="https://github.com/othneildrew/Best-README-Template/issues">open
-issues</a> for a full list of proposed features (and known issues).</p>
-<p align="right">
-<p>(<a href="#top">back to top</a>)</p>
-</p>
-<!-- CONTRIBUTING -->
-</div>
-<div id="contributing" class="section level2">
-<h2>Contributing</h2>
-<p>Contributions are what make the open source community such an amazing
-place to learn, inspire, and create. Any contributions you make are
-<strong>greatly appreciated</strong>.</p>
-<p>If you have a suggestion that would make this better, please fork the
-repo and create a pull request. You can also simply open an issue with
-the tag “enhancement”. Don’t forget to give the project a star! Thanks
-again!</p>
-<ol style="list-style-type: decimal">
-<li>Fork the Project</li>
-<li>Create your Feature Branch
-(<code>git checkout -b feature/AmazingFeature</code>)</li>
-<li>Commit your Changes
-(<code>git commit -m &#39;Add some AmazingFeature&#39;</code>)</li>
-<li>Push to the Branch
-(<code>git push origin feature/AmazingFeature</code>)</li>
-<li>Open a Pull Request</li>
-</ol>
-<p align="right">
-<p>(<a href="#top">back to top</a>)</p>
-</p>
-<!-- LICENSE -->
-</div>
-<div id="license" class="section level2">
-<h2>License</h2>
-<p>Distributed under the MIT License. See <code>LICENSE.txt</code> for
-more information.</p>
-<p align="right">
-<p>(<a href="#top">back to top</a>)</p>
-</p>
-<!-- CONTACT -->
-</div>
-<div id="contact" class="section level2">
-<h2>Contact</h2>
-<p>Your Name - <a href="https://twitter.com/your_username">@your_twitter</a> - <a href="mailto:email@example.com" class="email">email@example.com</a></p>
-<p>Project Link: <a href="https://github.com/your_username/repo_name" class="uri">https://github.com/your_username/repo_name</a></p>
-<p align="right">
-<p>(<a href="#top">back to top</a>)</p>
-</p>
-<!-- ACKNOWLEDGMENTS -->
-</div>
-<div id="acknowledgments" class="section level2">
-<h2>Acknowledgments</h2>
-<p>Use this space to list resources you find helpful and would like to
-give credit to. I’ve included a few of my favorites to kick things
-off!</p>
-<ul>
-<li><a href="https://choosealicense.com">Choose an Open Source
-License</a></li>
-<li><a href="https://www.webpagefx.com/tools/emoji-cheat-sheet">GitHub
-Emoji Cheat Sheet</a></li>
-<li><a href="https://flexbox.malven.co/">Malven’s Flexbox
-Cheatsheet</a></li>
-<li><a href="https://grid.malven.co/">Malven’s Grid Cheatsheet</a></li>
-<li><a href="https://shields.io">Img Shields</a></li>
-<li><a href="https://pages.github.com">GitHub Pages</a></li>
-<li><a href="https://fontawesome.com">Font Awesome</a></li>
-<li><a href="https://react-icons.github.io/react-icons/search">React
-Icons</a></li>
-</ul>
-<p align="right">
-<p>(<a href="#top">back to top</a>)</p>
-</p>
-<!-- MARKDOWN LINKS & IMAGES -->
-<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+<div id="testing-git-with-this-simple-comment--jason" class="section level1">
+<h1>testing git with this simple comment -Jason</h1>
 </div>
 
 
