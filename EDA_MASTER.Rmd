@@ -101,6 +101,7 @@ model.matrix(~0+., data=cars_sub) %>%
 \#Create Linear Regression Model, test
 
 ```{r}
+cars$price <- as.double(cars$price)
 lin <- lm(price ~ year + odometer, data = cars)
 summary(lin)
 ```
@@ -124,4 +125,32 @@ ggplot(price_trend, aes(x=reorder(state,-log(average_price)),y=log(average_price
 
 ```{r}
 ggplot(cars_clean_pm,aes(x=state,y=log(price))) + geom_boxplot(fill="steelblue")
+```
+
+\#Market share of TOP 10 manufacturers
+
+```{r}
+top_10 <- cars %>% group_by(manufacturer) %>% summarize(count=n()) %>% arrange(desc(count)) %>% top_n(10)
+top_10
+ggplot(top_10,aes(x=reorder(manufacturer,-count),y=count)) + geom_bar(stat='identity',fill='steelblue') + labs(x="Manufacturer")
+```
+
+\#Type of car and fuel
+
+```{r}
+car_type <- cars %>% group_by(fuel,type) %>% summarize(count=n()) %>% arrange(desc(count)) %>% top_n(10)
+car_type
+ggplot(car_type,aes(fill=fuel,x=reorder(type,-count),y=count)) + geom_bar(stat="identity",position="stack")
+```
+
+\#Condition vs Year relationship
+
+```{r}
+ggplot(cars,aes(x=year,y=condition)) + geom_violin(scale='area',fill='steelblue') + geom_boxplot(width=0.1,colors='grey',alpha=0.2)
+```
+
+\#Odometer vs Price relationship
+
+```{r}
+ggplot(cars, aes(x=log(odometer),y=log(price)*1000,color=year))+geom_point() + labs(x='odometer',y='price') 
 ```
