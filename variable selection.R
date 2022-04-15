@@ -17,7 +17,7 @@ library(glmnet)
 
 # SQLite Connection
 # Using Matt's cleaned tables
-db_path <- "preprocessing/CraigslistCarsClean.sqlite3"
+db_path <- "CraigslistCarsClean.sqlite3"
 conn <- dbConnect(RSQLite::SQLite(), db_path)
 dbListTables(conn)
 
@@ -55,7 +55,7 @@ cars_new =
     select(price, perc_outdoor_employment, perc_total_comp, age, has_clean_title)
 nrow(cars) # = 400870 rows
 nrow(cars_new) # = 359537 rows
-
+head(cars_new)
 
 # Next, I'll proceed with variable selection.
 # Of course for the final models, we will want to include more variables
@@ -66,7 +66,7 @@ nrow(cars_new) # = 359537 rows
 #------------------------------------------------------------------------------
 lin_model <- lm(as.numeric(price) ~ perc_outdoor_employment + perc_total_comp + age + has_clean_title, data = cars_new)
 log_employment_model <- lm(as.numeric(price) ~ log(perc_outdoor_employment) + age + has_clean_title, data = cars_new)
-summary(lin_mod)
+summary(lin_model)
 summary(log_employment_model)
 
 

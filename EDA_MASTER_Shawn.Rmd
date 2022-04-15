@@ -1,0 +1,156 @@
+---
+title: "R Notebook"
+output:
+  html_document: default
+  HTML: default
+---
+
+#### Clear Environment
+
+```{r}
+rm(list = ls())
+```
+
+#### Load Libraries
+
+```{r}
+library(tidyverse)
+library(dplyr)
+library(readxl) 
+library(stringr) # string formatting
+library(RSQLite) # to connect to SQlite database
+library(roxygen2) # For Function Documentation: ctrl + option + shift + r
+library(corrplot)
+library(ggcorrplot)
+library(radiant.data)
+```
+
+## Load SQLite Database
+
+Create a connection to our new database, CraigslistCars.sqlite3
+
+```{r}
+#set path to the database.
+db_path <- "C:/Users/shawn/MGT 6203 Project/CraigslistCarsClean.sqlite3"
+  
+conn <- dbConnect(RSQLite::SQLite(), db_path)
+```
+
+#### List of available tables available in the database
+
+```{r}
+dbListTables(conn)
+```
+
+#### Create DFs called "cars" and "census"
+
+```{r}
+cars <- dbGetQuery(conn, "SELECT * FROM cars_clean")
+census <- dbGetQuery(conn, "SELECT * FROM census_clean")
+#dbDisconnect(conn)
+```
+
+#### View First 6 Rows of 'cars' df
+
+```{r}
+head(cars)
+```
+
+\#Study cars statistics
+
+```{r}
+describe(cars)
+```
+
+\#Clean cylinder variable
+
+```{r}
+#ifelse(apply(str_contains(cars$cylinders,"cylinders",ignore.case=FALSE)), substring(cars$cylinders,1,1),0)
+cars_clean <- cars %>% mutate(cylinders_clean=as.integer(str_extract(cars$cylinders,'[0-9]')))
+glimpse(cars_clean)
+```
+
+\#Creating New Variable Price/Odometer
+
+```{r}
+#change price type to mutate new column for new variable
+cars_clean$price <- as.double(cars_clean$price)
+#mutate new variable
+cars_clean_pm <- cars_clean %>% mutate(pm = cars$price/cars$odometer)
+glimpse(cars_clean_pm)
+```
+
+\#correlation matrix for collinearity check
+
+```{r}
+cars_clean_pm$fuel <- as.factor(cars_clean_pm$fuel)
+cars_clean_pm$title_status <- as.factor(cars_clean_pm$title_status)
+cars_clean_pm$transmission <- as.factor(cars_clean_pm$transmission)
+cars_sub <- select(cars_clean_pm,year,cylinders_clean,fuel,odometer,title_status,transmission,price)
+glimpse(cars_sub)
+model.matrix(~0+., data=cars_sub) %>%
+  cor(use="pairwise.complete.obs") %>%
+  ggcorrplot(show.diag=F,type="full",lab=TRUE, lab_size = 2,ggtheme = ggplot2::theme_gray(),colors = c("#6D9EC1", "white", "#E46726"),tl.srt=90, tl.cex=8, hc.order=TRUE, insig="blank")
+# car_num <- select_if(cars,is.numeric)
+# head(car_num)
+# correl <- cor(car_num[-1])
+# corrplot(correl,addCoef.col = 'black')
+
+```
+
+\#Create Linear Regression Model, test
+
+```{r}
+cars$price <- as.double(cars$price)
+lin <- lm(price ~ year + odometer, data = cars)
+summary(lin)
+```
+
+**Comment** Per result tested on linear regression model above, we can see odometer which has p=0.9 that is greater than typical significant value p=0.05. Thus, it might be not a relevant variable to use.
+
+\#plot scatter/residual plots to spot non-linearity and outliers/high-leverage points
+
+```{r}
+plot(lin,which=1:5)
+```
+
+\#plot price trends in different states of USA
+
+```{r}
+price_trend <- cars_clean_pm %>% group_by(state) %>%summarize(average_price=mean(price))
+ggplot(price_trend, aes(x=reorder(state,-log(average_price)),y=log(average_price))) + geom_bar(stat="identity",fill="steelblue") + labs(x="state") 
+```
+
+\#Plot box-plot to detect outliers/influential points across US states
+
+```{r}
+ggplot(cars_clean_pm,aes(x=state,y=log(price))) + geom_boxplot(fill="steelblue")
+```
+
+\#Market share of TOP 10 manufacturers
+
+```{r}
+top_10 <- cars %>% group_by(manufacturer) %>% summarize(count=n()) %>% arrange(desc(count)) %>% top_n(10)
+top_10
+ggplot(top_10,aes(x=reorder(manufacturer,-count),y=count)) + geom_bar(stat='identity',fill='steelblue') + labs(x="Manufacturer")
+```
+
+\#Type of car and fuel
+
+```{r}
+car_type <- cars %>% group_by(fuel,type) %>% summarize(count=n()) %>% arrange(desc(count)) %>% top_n(10)
+car_type
+ggplot(car_type,aes(fill=fuel,x=reorder(type,-count),y=count)) + geom_bar(stat="identity",position="stack")
+```
+
+\#Condition vs Year relationship
+
+```{r}
+ggplot(cars,aes(x=year,y=condition)) + geom_violin(scale='area',fill='steelblue') + geom_boxplot(width=0.1,colors='grey',alpha=0.2)
+```
+
+\#Odometer vs Price relationship
+
+```{r}
+ggplot(cars, aes(x=log(odometer),y=log(price)*1000,color=year))+geom_point() + labs(x='odometer',y='price') 
+```
