@@ -48,15 +48,24 @@ cars <- cars_db
 census <- census_db
 ```
 
+#### Convert 'state' column to upper case and convert 'posting_date' to DT
 ```{r}
 cars$state <- str_to_upper(cars$state)
 cars$posting_date <- as.POSIXct(cars$posting_date)
 ```
 
+#### create single city average from Census data to so we can join to cars
+```{r}
+census_grouped <- census %>% 
+  group_by(city, state) %>% 
+  summarise(med_family_income = median(median_income_family),
+            med_non_family_income = median(median_income_non_family))
+```
+
 
 #### Merge 'cars' and 'census'
 ```{r}
-cars <- merge(cars, census, by = "city")
+cars <- left_join(cars, census_grouped, by = c("state", "city"))
 ```
 
 ```{r}
@@ -91,16 +100,15 @@ odometer_test <- Odometer_Filter(cars, 2018, 50)
 ```{r}
 head(cars)
 ```
-#### Convert 'year'to ordered factor datastructure
+#### Create 'age' column
 ```{r}
-cars$year <- cars$year %>% factor(ordered = TRUE)
+cars$age <- 2021 - cars$year
 ```
 
 #### Convert 'state', 'manufacturer', 'model' to factor datastructure
 ```{r}
-cars$state.x <- cars$state.x %>% factor()
+cars$state.x <- cars$state %>% factor()
 cars$manufacturer <- cars$manufacturer %>% factor()
-cars$model <- cars$model %>% factor()
 cars$fuel <- cars$fuel %>% factor()
 cars$transmission <- cars$transmission %>% factor()
 cars$type <- cars$type %>% factor()
@@ -138,7 +146,7 @@ cars$price <- cars$price %>% as.double()
 
 # Open DF in Radiant for Exploratory Analysis and Modeling
 ```{r}
-radiant::radiant()
+#radiant::radiant()
 ```
 
 
@@ -153,6 +161,140 @@ visualize(
   custom = TRUE,
   data_filter = "manufacturer" > 5000000
 )
+```
+```{r}
+manuf_bar_plot <- cars %>% 
+  group_by(manufacturer) %>% 
+  summarise(count = n()) %>% 
+  filter(count > 1000) %>% 
+  ggplot(aes(x = reorder(manufacturer, (count)), y = count)) + 
+    #theme(aspect.ratio = .6) +
+    theme(plot.margin = unit(c(.5,.5,.5,.5), "cm")) +
+    geom_bar(stat = "identity", width = .5, fill = "cadetblue3") + 
+    labs(x = "Manufacturer", y = "Count", title = "Count of Manufacturers") +
+    ylim(c(0,80000)) + 
+    coord_flip()
+
+# aspect_ratio <- 2.5
+# height <- 9
+# ggsave("manuf_bar_plot.png", plot = manuf_bar_plot, width = 7 * aspect_ratio, height = 7, units = "in", dpi = 300)
+
+plot(manuf_bar_plot)
+```
+```{r}
+cars %>% filter(manufacturer == "Ford") %>% 
+  count(model)
+```
+
+
+```{r}
+ford_models_pattern <- paste(c("Figo", "Fusion Energi", "Focus Electric", "Fiesta", "Endura",
+                               "C-Max Hybrid", "B-Max", "Flex", "i-Max", "Fusion", "LCF",
+                               "Excursion", "Ikon", "Focus", "Maverick", "Explorer Sport Trac",
+                               "Activa", "SportKa", "Freestar", "Territory", "Five Hundred", 
+                               "Aspire", "Contour", "Cougar", "Crown Victoria", "Freda", 
+                               "Galaxy", "Ka", "Tourneo", "Puma", "Windstar", "ZX2", "F150", 
+                               "F-150", "F250", "F-250", "F350", "F-350", "Ranger", "Aerostar",
+                               "Bronco", "Bronco II", "Escort", "Probe", "Sierra", "Telstar",
+                               "Taurus", "Tempo", "Verona", "Falcon", "F 150", "F 250", "F 350",
+                               "F450", "F 450", "F-450", "F750", "F 750", "F-750", "F100", 
+                               "F 100", "F-100", "Escape", "Sport Trac", "C Max", 
+                               "Thunderbird", "Expedition", "Model B","Model T", "Model Y", 
+                               "Model C", "Model A", "Mustang", "Explorer", "Econoline",
+                               "Crown Vic", "Transit", "Freestyle", "E350", "E 350", "E-350",
+                               "Edge", "F 550", "F-550", "F550", "E150", "E 150", "E-150",
+                               "E250", "E 250", "E-250", "E450", "E 450", "E-450",
+                               "Ecosport", "F650", "F-650", "F 650", "Raptor", "150", "250",
+                               "350", "450"), collapse = "|")
+
+                             
+ford <- cars %>%
+  filter(manufacturer == "Ford") %>% 
+  mutate(model_clean = str_extract(model, regex(pattern = ford_models_pattern, ignore_case = TRUE)))    
+```
+
+```{r}
+f_150 <- paste(c("F150", "F-150", "F 150", "F-150"), collapse = "|")
+f_250 <- paste(c("F250", "F-250", "F 250", "F-250"), collapse = "|")
+f_350 <- paste(c("F350", "F-350", "F 350", "F-350"), collapse = "|")
+f_450 <- paste(c("F450", "F-450", "F 450", "F-450"), collapse = "|")
+f_550 <- paste(c("F550", "F-550", "F 550", "F-550"), collapse = "|")
+
+ford$model_clean <- str_replace_all(ford$model_clean, regex(pattern = f_150), "F-150")
+ford$model_clean <- str_replace_all(ford$model_clean, regex(pattern = f_250), "F-250")
+ford$model_clean <- str_replace_all(ford$model_clean, regex(pattern = f_350), "F-350")
+ford$model_clean <- str_replace_all(ford$model_clean, regex(pattern = f_450), "F-450")
+ford$model_clean <- str_replace_all(ford$model_clean, regex(pattern = f_550), "F-550")
+```
+
+
+```{r}
+ford_clean <- ford %>% 
+  filter(!is.na(model_clean) & price < 100000)
+
+ford_model_hist <- ford_clean %>% 
+  group_by(model_clean) %>% 
+  summarise(count = n(), price = price) %>% 
+  filter(count > 500) %>% 
+  ggplot(aes(x = price, y = model_clean, color = model_clean)) +
+  geom_boxplot() +
+  labs(title = "Ford Models - Boxplot", y = "Model", x = "Price", color = "Model")
+    
+  
+plot(ford_model_hist)
+```
+
+```{r}
+ford_df <- ford_clean %>%
+  mutate(model_clean = as.factor(model_clean)) %>% 
+  select(city, state, manufacturer, model_clean, age, condition, cylinders, fuel, odometer,
+         title_status, transmission, drive, type, paint_color, price, 
+         med_family_income, med_non_family_income)
+
+head(ford_df)
+```
+#### Create a function to predict prices for Ford models based on a series of inputs:
+- state
+- manufacturer
+- model
+- year
+- odometer
+- condition
+
+```{r}
+Ford_Prediction <- function(input_state, manufacturer, model, year, odometer, condition) {
+  # Create a dataframe filtered by input state, manufacturer, and model
+  df <- ford_df %>%
+    filter(state == input_state, 
+           manufacturer == manufacturer, 
+           model_clean == model
+           )
+  
+  # Create linear model
+  lm_model <- lm(price ~ age + odometer + condition + med_non_family_income + med_non_family_income, data = df)
+  summary(lm_model)
+  
+  # Create new datapoint using inputs
+  newData <- data.frame(model_clean = model,
+                        age = 2021 - year,
+                        odometer = odometer,
+                        condition = condition,
+                        med_family_income = )
+  
+  # Create list of objects to return as list
+  number_of_observations <- paste("Number of Training Observations = ", nrow(df))
+  model_summary <- summary(lm_model)
+  predictions <- predict(lm_model, newdata = newData, interval = "confidence", level = .95)
+  
+  
+  return(list(number_of_observations, model_summary, predictions))
+
+}
+```
+
+#### Test 'ford_prediction' Function
+```{r}
+Ford_Prediction("CA", "Sacramento", "Ford", "F-150", 2015, 100000, "good")
 ```
 
 
