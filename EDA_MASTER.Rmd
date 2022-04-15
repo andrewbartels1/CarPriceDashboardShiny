@@ -26,7 +26,7 @@ library(radiant.data)
 Create a connection to our new database, CraigslistCars.sqlite3
 ```{r}
 #set path to the database.
-db_path <- "CraigslistCarsClean.sqlite3"
+db_path <- "Database/CraigslistCarsClean.sqlite3"
   
 conn <- dbConnect(RSQLite::SQLite(), db_path)
 ```
@@ -37,25 +37,128 @@ dbListTables(conn)
 ```
 #### Create DFs called "cars" and "census"
 ```{r}
-cars <- dbGetQuery(conn, "SELECT * FROM cars_clean")
-census <- dbGetQuery(conn, "SELECT * FROM census_clean")
-#dbDisconnect(conn)
+cars_db <- dbGetQuery(conn, "SELECT * FROM cars_clean")
+census_db <- dbGetQuery(conn, "SELECT * FROM census_clean")
+dbDisconnect(conn)
+```
+
+#### Create a copy of the Database query so we don't need to re-query each time you want to rerun code.
+```{r}
+cars <- cars_db
+census <- census_db
+```
+
+```{r}
+cars$state <- str_to_upper(cars$state)
+cars$posting_date <- as.POSIXct(cars$posting_date)
+```
+
+
+#### Merge 'cars' and 'census'
+```{r}
+cars <- merge(cars, census, by = "city")
+```
+
+```{r}
+Odometer_Filter <- function (df, start_year, mileage, remove_na = TRUE) {
+
+  df <- df %>% filter(!is.na(odometer))
+  
+  mileage_filter <- (df$year <= start_year & df$odometer < mileage)
+  df <- df %>% filter(!mileage_filter)
+          
+  return(df)
+  
+#' Title: odometer_filter 
+#'
+#' @param df - dataframe
+#' @param start_year - ex: 2018 -> filter out all cars before 2018
+#' @param mileage - ex: 500 -> filter out cars with odometer values < 500
+#' @param remove_na = TRUE {default}. This removes all NA values from the df
+#'
+#' @return a dataframe with applied filters
+#'
+#' @examples odometer_test <- odometer_filter(cars_test, 2018, 500)
+  
+}
+```
+
+```{r}
+odometer_test <- Odometer_Filter(cars, 2018, 50)
 ```
 
 #### View First 6 Rows of 'cars' df
 ```{r}
 head(cars)
 ```
-#Study cars statistics
+#### Convert 'year'to ordered factor datastructure
 ```{r}
-describe(cars)
+cars$year <- cars$year %>% factor(ordered = TRUE)
 ```
-#Clean cylinder variable
+
+#### Convert 'state', 'manufacturer', 'model' to factor datastructure
 ```{r}
-#ifelse(apply(str_contains(cars$cylinders,"cylinders",ignore.case=FALSE)), substring(cars$cylinders,1,1),0)
-cars_cyl_clean <- cars %>% mutate(cylinders_clean=as.integer(str_extract(cars$cylinders,'[0-9]')))
-glimpse(cars_cyl_clean)
+cars$state.x <- cars$state.x %>% factor()
+cars$manufacturer <- cars$manufacturer %>% factor()
+cars$model <- cars$model %>% factor()
+cars$fuel <- cars$fuel %>% factor()
+cars$transmission <- cars$transmission %>% factor()
+cars$type <- cars$type %>% factor()
+cars$paint_color <- cars$paint_color %>% factor()
+cars$drive <- cars$drive %>% factor()
+cars$title_status <- cars$title_status %>% factor()
 ```
+
+#### Convert 'condition' to ordered factor
+```{r}
+cars %>% count(condition)
+```
+
+```{r}
+condition_order <- c('unknown', 'salvage', 'fair', 'good', 'excellent', 'like new', 'new')
+cars$condition <- cars$condition %>% factor(levels = condition_order)
+```
+
+#### Clean "cylinder" Variable
+- convert to ordered factor data structure
+```{r}
+cars %>% count(cylinders)
+```
+
+```{r}
+cylinder_levels <- c("un", "3", "4", "5", "6", "8", "10", "12")
+
+cars$cylinders <- factor(str_trim(substr(cars$cylinders, start = 1, stop = 2)), levels = cylinder_levels)
+cars %>% count(cylinders)
+```
+#### Convert Price to Numeric
+```{r}
+cars$price <- cars$price %>% as.double()
+```
+
+# Open DF in Radiant for Exploratory Analysis and Modeling
+```{r}
+radiant::radiant()
+```
+
+
+```{r fig.width = 16, fig.height = 20, dpi = 96}
+visualize(
+  cars, 
+  xvar = "manufacturer", 
+  nrobs = 10,
+  type = "dist", 
+  bins = 5, 
+  axes = "flip", 
+  custom = TRUE,
+  data_filter = "manufacturer" > 5000000
+)
+```
+
+
+
+
+
 
 #Creating New Variable Price/Odometer, we do later, just testing git rn - Shawn
 ```{r}
@@ -65,6 +168,7 @@ cars$price <- as.double(cars$price)
 PoverO <- cars %>% mutate(pm = cars$price/cars$odometer)
 glimpse(PoverO)
 ```
+
 #select only numeric columns for correlation matrix
 ```{r}
 car_num <- select_if(cars,is.numeric)
