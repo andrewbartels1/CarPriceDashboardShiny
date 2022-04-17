@@ -56,11 +56,11 @@ ui <- dashboardPage(
               
               # plotting selection ideas from: http://r-statistics.co/Top50-Ggplot2-Visualizations-MasterList-R-Code.html
               box(title = "Show the Column Plot here",
-                  varSelectInput(inputId = "plotType",
-                                 label = "Plot Type to Select", c("scatter", "line", "cluster", "Violin", 
+                  selectInput(inputId = "plotType",
+                                 label = "Plot Type to Select", list("scatter", "line", "cluster", "Violin", 
                                                                   "Counts", "Marginal Histogram / Boxplot",
                                                                   "Diverging bars","Density plot", "Box Plot",
-                                                                  "Treemap","Clusters", "Spatial")),),
+                                                                  "Treemap","Clusters", "Spatial"))),
               
               box( title = "Table 2 Quick Look", status = "primary", height =
                      "595",width = "6",solidHeader = T,
