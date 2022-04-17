@@ -4,9 +4,9 @@
 
 # Define UI for application that draws a histogram
 library(shiny)
-# library(shinythemes)
 
 ui <- dashboardPage(
+  
   dashboardHeader(title = "Car Price Dashbaord"),
   ## Sidebar content
   dashboardSidebar(sidebarMenu(
@@ -16,8 +16,8 @@ ui <- dashboardPage(
       icon = icon("dashboard")
     ),
     menuItem("Analysis", tabName = "Analysis", icon = icon("signal", lib = "glyphicon")),
-    menuItem("Prediction", tabName = "Prediction", icon = icon("bar-chart-o")),
-    menuItem("Results", tabName = "Results", icon = icon("search", lib = "glyphicon"))
+    menuItem("Prediction", tabName = "Prediction", icon = icon("bar-chart-o"),verify_fa = FALSE),
+    menuItem("Results", tabName = "Results", icon = icon("search", lib = "glyphicon"),verify_fa = FALSE)
   )),
   # end sidebar content
   
@@ -27,100 +27,79 @@ ui <- dashboardPage(
     tabItem(tabName = "dashboard",
             fluidRow(
               box(
-                title = "User Input",
+                title = "1. User Input",
                 status = "warning",
-                sliderInput("slider", "Number of observations:", 1, 100, 50)),
-              box(
-                title = "User Input",
-                sliderInput("slider2", "Number of observations 2:", 1, 100, 50)
-              ),
-              box(
-                title = "Histogram", status = "primary", solidHeader = TRUE,
-                collapsible = TRUE,
-                plotOutput("plot1", height = 250)
-              ),
-              box(plotOutput("plot2", height = 250))
+                varSelectInput(inputId = "tables1",
+                               label = "First Table To Select",
+                               "Names"),
+                textOutput("selected_var"),
+                varSelectInput(inputId = "columns1",
+                               label = "Column(s) from Table 1 to Plot Below",
+                               "Names", multiple = T),
+                varSelectInput(inputId = "tables2",
+                               label = "Second Tables To Select for Plotting",
+                               "Names"),
+                varSelectInput(inputId = "columns2",
+                               label = "Column(s) from Table 2 to Plot Below",
+                               "Names", multiple = T),
+                textOutput("selected_var1"),
+                textOutput("selected_var2"),
+                textOutput("selected_col1"),
+                textOutput("selected_col2")), # end of first row left box,
+              
+              box( title = "Table 1 Quick Look", status = "primary", height =
+                     "595",width = "6",solidHeader = T,
+                   column(width = 12,
+                          tbl1 <-  DT::dataTableOutput("tableOutput1"),style = "height:450px;
+                          overflow-y: scroll;overflow-x: scroll;"
+                   )), # end of Plot 1
+              
+              # plotting selection ideas from: http://r-statistics.co/Top50-Ggplot2-Visualizations-MasterList-R-Code.html
+              box(title = "Show the Column Plot here",
+                  varSelectInput(inputId = "plotType",
+                                 label = "Plot Type to Select", c("scatter", "line", "cluster", "Violin", 
+                                                                  "Counts", "Marginal Histogram / Boxplot",
+                                                                  "Diverging bars","Density plot", "Box Plot",
+                                                                  "Treemap","Clusters", "Spatial")),),
+              
+              box( title = "Table 2 Quick Look", status = "primary", height =
+                     "595",width = "6",solidHeader = T,
+                   column(width = 12,
+                          tbl2 <- DT::dataTableOutput("tableOutput2"),style = "height:500px;
+                          overflow-y: scroll;overflow-x: scroll;"
+                   )
+              ), # end of Plot 2
+              
             ),
-    
-    
-      # A static infoBox
-      infoBox("New Orders", 10 * 2, icon = icon("credit-card")),
-      # Dynamic infoBoxes
-      infoBoxOutput("progressBox"),
-      infoBoxOutput("approvalBox"),
-    
-    
-    # infoBoxes with fill=TRUE
-    fluidRow(
-      infoBox("New Orders", 10 * 2, icon = icon("credit-card"), fill = TRUE),
-      infoBoxOutput("progressBox2"),
-      infoBoxOutput("approvalBox2")
-    ),
-    
-    fluidRow(
-      # Clicking this will increment the progress amount
-      box(width = 4, actionButton("count", "Increment progress"))
-    ),
-    
-    # Second tab content
-    tabItem(tabName = "widgets",
-            h2("Widgets tab content"))
-  )))
+            # selectInput("state", "Choose a state:",
+            #             list(`East Coast` = list("NY", "NJ", "CT"),
+            #                  `West Coast` = list("WA", "OR", "CA"),
+            #                  `Midwest` = list("MN", "WI", "IA"))
+            # ),
+            # box(plotOutput("plot2", height = 250))
+            
+            
+            # A static infoBox
+            infoBox("New Orders", 10 * 2, icon = icon("credit-card")),
+            # Dynamic infoBoxes
+            infoBoxOutput("progressBox"),
+            infoBoxOutput("approvalBox"),
+            
+            
+            # infoBoxes with fill=TRUE
+            fluidRow(
+              infoBox("New Orders", 10 * 2, icon = icon("credit-card"), fill = TRUE),
+              infoBoxOutput("progressBox2"),
+              infoBoxOutput("approvalBox2")
+            ),
+            
+            fluidRow(
+              # Clicking this will increment the progress amount
+              box(width = 4, actionButton("count", "Increment progress"))
+            ),
+            
+            # Second tab content
+            tabItem(tabName = "Analysis",
+                    h2("Analysis tab content"))
+    )))
 )
-
-# global_data <- reactiveVal(NULL)
-#
-# ui <- fluidPage(
-#   # import the theme from the static css stylesheet to make life easy
-#   tags$head(tags$link(rel = "stylesheet", type = "text/css", href = "bootstrap.css")),
-#
-#   # start navbar
-#   navbarPage(
-#     "WHERE DID ALL THE CHEAP CARS GO?!",
-#     tabPanel(
-#       "Navbar 1",
-#       sidebarPanel(
-#         tags$h3("Input:"),
-#           sliderInput(inputId = "bins","Number of bins:",min = 1,max = 50, value = 5),
-#           numericInput("nrows", "Enter the number of rows to display:", 5),
-#           actionButton(inputId = "queryButton",label = "Query", icon = icon("fas fa-sync"), verify_fa = FALSE)
-#
-#       ),
-#       img(
-#         height = "50%",
-#         width = "50%",
-#         src = "logo.png"
-#       ),
-#       # sidebarPanel
-#       mainPanel(h1("Exploring the Dataset"),
-#                 h4("Table Query"),
-#                 plotOutput("hist"),
-#                 tableOutput("tbl"),
-#
-#                 verbatimTextOutput("txtout")) # mainPanel
-#
-#     ),
-#     # Navbar 1, tabPanel
-#     tabPanel("Navbar 2", "This panel is intentionally left blank"),
-#     tabPanel("Navbar 3", "This panel is intentionally left blank")
-#
-#   )# navbarPage
-# ) # fluidPage
-#
-#
-#   # Header with image
-#
-#
-
-#   sliderInput(inputId = "something","Number of bins:",min = 1,max = 50, value = 30),
-#   numericInput("nrows", "Enter the number of rows to display:", 5),
-#   actionButton(inputId = "queryButton",label = "Query"),
-#
-#   # Show a plot of the generated distribution
-#
-#   tabsetPanel(
-#     tabPanel("Plot", plotOutput("plot")),
-#     tabPanel("Data", verbatimTextOutput("summary"))
-#   )
-# )
-# https://shiny.rstudio.com/app-stories/weather-lookup-bslib.html

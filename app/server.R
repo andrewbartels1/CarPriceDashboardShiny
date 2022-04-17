@@ -5,19 +5,82 @@
 # https://rstudio.github.io/shinydashboard/structure.html#sidebar
 
 
-server <- function(input, output) {
-  set.seed(122)
-  histdata <- rnorm(500)
+
+server <- function(input, output, session) {
+  source("./global.R", local=TRUE)
   
-  output$plot1 <- renderPlot({
-    data <- histdata[seq_len(input$slider)]
-    hist(data)
+  db_path <- "../CraigslistCarsClean.sqlite3"
+  
+  # Connect to the database
+  conn <- dbConnect(RSQLite::SQLite(), db_path)
+  
+  # on.exit(dbDisconnect(conn))
+  # yank stuff from global that's supposed to run
+  table_list <- dbListTables(conn)
+  
+  #create a reactive object with a NULL starting value
+  listofrows <- reactiveValues()
+  
+  
+  ##===========================================
+  ##  create 2 tables & columns and input from
+  ##  dropdowns to a scatter plot? or something
+  ##===========================================
+  
+  observe({
+    updateSelectInput(session, "tables1", choices = table_list)
   })
-  output$plot2 <- renderPlot({
-    data <- histdata[seq_len(input$slider2)]
-    hist(data)
+  observe({
+    updateSelectInput(session, "tables2", choices = table_list)
+  })
+
+  
+  observeEvent(input$tables1, {
+    # print(paste("SELECT * FROM ",input$tables1," LIMIT 10;"))
+    
+    output$tableOutput1 <-renderDataTable({
+      
+      tempTable <- dbGetQuery(conn,paste("SELECT * FROM ",input$tables1," LIMIT 10;"))
+      # print(names(tempTable))
+      observe({updateSelectInput(session, "columns1", choices =
+                                   names(tempTable[, !names(tempTable) %in% c("description")]))})# put the 1st 10 rows from the table selected
+      outputs1 <- tempTable[, !names(tempTable) %in% c("description")]
+      
+    })
+    
   })
   
+  
+  observeEvent(input$tables2, {
+    # print(paste("SELECT * FROM ",input$tables2," LIMIT 10;"))
+
+    output$tableOutput2 <-renderDataTable({
+
+      tempTable <- dbGetQuery(conn,paste("SELECT * FROM ",input$tables2," LIMIT 10;"))
+      # print(names(tempTable))
+      observe({updateSelectInput(session, "columns2", choices =
+                                   names(tempTable[, !names(tempTable) %in% c("description")]))})# put the 1st 10 rows from the table selected
+      outputs1 <- tempTable[, !names(tempTable) %in% c("description")]
+
+    })
+
+  })
+
+
+  output$selected_var1 <- renderText({
+    paste("You have selected Table 1: ", input$tables1 )
+  })
+  output$selected_var2 <- renderText({
+    paste("You have selected Table 2: ", input$tables2 )
+  })
+  output$selected_col1 <- renderText({
+    paste("You have selected Column(s) for Table 1: \n\n", list(input$columns1) )
+  })
+  output$selected_col2 <- renderText({
+    paste("You have selected Column(s) for Table 2: \n\n", list(input$columns2) )
+  })
+
+
   output$progressBox <- renderInfoBox({
     infoBox(
       "Progress", paste0(25 + input$count, "%"), icon = icon("list"),
@@ -30,7 +93,7 @@ server <- function(input, output) {
       color = "yellow"
     )
   })
-  
+
   # Same as above, but with fill=TRUE
   output$progressBox2 <- renderInfoBox({
     infoBox(
@@ -44,43 +107,7 @@ server <- function(input, output) {
       color = "yellow", fill = TRUE
     )
   })
+
   
 }
 
-# server <- function(input, output) {
-#   
-#   
-#   # Open up a connection to the database, probably put this somewhere else in the future
-#   con <- dbConnect(RSQLite::SQLite(), ":memory:")
-#   dbWriteTable(con, "iris", iris)
-#   dbListTables(con)
-#   
-# 
-#   iris_preview <- reactiveVal(data.frame())
-#   queryString <- sprintf("select * from iris limit %s", 5)
-#   iris_preview(dbGetQuery(con, queryString))
-#                
-#   observeEvent(input$queryButton, {
-#     queryString <- sprintf("select * from iris limit %s", input$nrows)
-#     iris_preview(dbGetQuery(con, queryString))
-#   })
-#   
-#   output$tbl <- renderTable({
-#     iris_preview()
-#   })
-#   
-#   output$hist <- renderPlot({
-#     # Require that the data is there
-#     req(iris_preview())
-#     
-#     title <- "Sepal.Length from Iris"
-#     # generate bins based on input$bins from ui.R
-#     bins <- seq(min(iris_preview()$Sepal.Length), max(iris_preview()$Sepal.Length), length.out = input$bins + 1)
-#     
-#     # draw the histogram with the specified number of bins
-#     
-#     hist(iris_preview()$Sepal.Length, breaks=bins, col = 'darkgray', border = 'white', main= title)
-#   }) # end of hist render
-#   
-#   
-# }

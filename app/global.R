@@ -10,6 +10,7 @@ pacman::p_load("DBI",
                "plotly",
                "maps",
                "shinydashboard",
+               "stringr",
                install = TRUE, update = getOption("pac_update"))
 
 # Put deps here!
@@ -25,3 +26,4 @@ library(plotly)
 library(maps)
 library(bslib)
 library(shinydashboard)
+library(stringr)
