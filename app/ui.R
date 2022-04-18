@@ -31,17 +31,24 @@ ui <- dashboardPage(
                 status = "warning",
                 varSelectInput(inputId = "tables1",
                                label = "First Table To Select",
-                               "Names"),
-                textOutput("selected_var"),
+                               "Names",
+                               selected = as.character("Ford")), # First dropdown bar (tables)
+                
                 varSelectInput(inputId = "columns1",
                                label = "Column(s) from Table 1 to Plot Below",
-                               "Names", multiple = T),
+                               "Names", multiple = TRUE,
+                               selected = list("region")), # Second dropdown bar (columns)
+                
                 varSelectInput(inputId = "tables2",
                                label = "Second Tables To Select for Plotting",
-                               "Names"),
+                               "Names",
+                               selected = as.character("Ford")),
+                
                 varSelectInput(inputId = "columns2",
                                label = "Column(s) from Table 2 to Plot Below",
-                               "Names", multiple = T),
+                               "Names", multiple = TRUE,
+                               selected = as.character("year")),
+                
                 textOutput("selected_var1"),
                 textOutput("selected_var2"),
                 textOutput("selected_col1"),
@@ -67,8 +74,7 @@ ui <- dashboardPage(
                    column(width = 12,
                           tbl2 <- DT::dataTableOutput("tableOutput2"),style = "height:500px;
                           overflow-y: scroll;overflow-x: scroll;"
-                   )
-              ), # end of Plot 2
+                   )), # end of Plot 2
               
             ),
             # selectInput("state", "Choose a state:",

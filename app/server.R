@@ -36,15 +36,17 @@ server <- function(input, output, session) {
 
   
   observeEvent(input$tables1, {
-    # print(paste("SELECT * FROM ",input$tables1," LIMIT 10;"))
+    # print(paste("SELECT * FROM ",input$tables1," LIMIT 10;")) # uncomment to print the tables being cast to dataTableOutput
     
     output$tableOutput1 <-renderDataTable({
       
       tempTable <- dbGetQuery(conn,paste("SELECT * FROM ",input$tables1," LIMIT 10;"))
-      # print(names(tempTable))
+      
       observe({updateSelectInput(session, "columns1", choices =
-                                   names(tempTable[, !names(tempTable) %in% c("description")]))})# put the 1st 10 rows from the table selected
-      outputs1 <- tempTable[, !names(tempTable) %in% c("description")]
+                                 names(tempTable[, !names(tempTable) %in% c("description")]),
+                                 selected="region")})# put the 1st 10 rows from the table selected
+      # print(typeof(outputs1))
+      outputs1 <- tempTable[, !names(tempTable) %in% c("description")]      
       
     })
     
@@ -52,16 +54,18 @@ server <- function(input, output, session) {
   
   
   observeEvent(input$tables2, {
-    # print(paste("SELECT * FROM ",input$tables2," LIMIT 10;"))
+    # print(paste("SELECT * FROM ",input$tables2," LIMIT 10;")) # uncomment to print the tables being cast to dataTableOutput
 
     output$tableOutput2 <-renderDataTable({
 
       tempTable <- dbGetQuery(conn,paste("SELECT * FROM ",input$tables2," LIMIT 10;"))
       # print(names(tempTable))
-      observe({updateSelectInput(session, "columns2", choices =
-                                   names(tempTable[, !names(tempTable) %in% c("description")]))})# put the 1st 10 rows from the table selected
-      outputs1 <- tempTable[, !names(tempTable) %in% c("description")]
 
+      
+      observe({updateSelectInput(session, "columns2", choices =
+                                   names(tempTable[, !names(tempTable) %in% c("description")]),
+                                 selected = "year")})# put the 1st 10 rows from the table selected
+      outputs1 <- tempTable[, !names(tempTable) %in% c("description")]
     })
 
   })
