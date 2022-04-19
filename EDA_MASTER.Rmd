@@ -465,7 +465,8 @@ Model_Prediction <- function(input_state, input_city, input_manufacturer, model,
   number_of_observations <- paste("Number of Training Observations = ", nrow(df))
   model_summary <- summary(lm_model)
   predictions <- predict(lm_model, newdata = newData, interval = "confidence", level = .95)
-  
+  #Create KNN Clustering model for FORD to compare with Regression model
+  set.seed(100) #set seed
   
   return(list(number_of_observations, model_summary, predictions))
   
