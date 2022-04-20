@@ -16,6 +16,7 @@ rm(list = ls())
 ```{r}
 library(tidyverse)
 library(dplyr)
+options(dplyr.summarise.inform = FALSE)
 library(readxl) 
 library(stringr) # string formatting
 library(RSQLite) # to connect to SQlite database
@@ -23,6 +24,7 @@ library(roxygen2) # For Function Documentation: ctrl + option + shift + r
 library(corrplot)
 library(ggcorrplot)
 library(radiant.data)
+library(glue) # to format strings
 ```
 
 ## Load SQLite Database
@@ -31,7 +33,7 @@ Create a connection to our new database, CraigslistCars.sqlite3
 
 ```{r}
 #set path to the database.
-db_path <- "CraigslistCarsClean.sqlite3"
+db_path <- "Database/CraigslistCarsClean.sqlite3"
   
 conn <- dbConnect(RSQLite::SQLite(), db_path)
 ```
@@ -42,35 +44,30 @@ conn <- dbConnect(RSQLite::SQLite(), db_path)
 dbListTables(conn)
 ```
 
-#### Create DFs called "cars" and "census"
+Create DFs called "cars" and "census"
 
 ```{r}
-cars <- dbGetQuery(conn, "SELECT * FROM cars_clean")
-census <- dbGetQuery(conn, "SELECT * FROM census_clean")
-#dbDisconnect(conn)
+cars_db <- dbGetQuery(conn, "SELECT * FROM cars_clean")
+census_db <- dbGetQuery(conn, "SELECT * FROM census_clean")
+dbDisconnect(conn)
 ```
 
-#### View First 6 Rows of 'cars' df
-
+Create a copy of the Database query so we don't need to re-query each time you want to rerun code.
 ```{r}
-head(cars)
+cars <- cars_db
+census <- census_db
 ```
 
-\#Study cars statistics
+Creating New Variable Price/Odometer, we do later, just testing git rn
 
 ```{r}
-describe(cars)
-```
-
-\#Clean cylinder variable
-
-```{r}
-#ifelse(apply(str_contains(cars$cylinders,"cylinders",ignore.case=FALSE)), substring(cars$cylinders,1,1),0)
+#Clean cylinder variable
+# ifelse(apply(str_contains(cars$cylinders,"cylinders",ignore.case=FALSE)), substring(cars$cylinders,1,1),0)
 cars_clean <- cars %>% mutate(cylinders_clean=as.integer(str_extract(cars$cylinders,'[0-9]')))
 glimpse(cars_clean)
 ```
 
-\#Creating New Variable Price/Odometer
+Creating New Variable Price/Odometer
 
 ```{r}
 #change price type to mutate new column for new variable
@@ -80,7 +77,12 @@ cars_clean_pm <- cars_clean %>% mutate(pm = cars$price/cars$odometer)
 glimpse(cars_clean_pm)
 ```
 
-\#correlation matrix for collinearity check
+<!-- Select only numeric columns for correlation matrix -->
+<!-- ```{r} -->
+<!-- car_num <- select_if(cars,is.numeric) -->
+<!-- head(car_num) -->
+<!-- ``` -->
+Correlation matrix for collinearity check
 
 ```{r}
 cars_clean_pm$fuel <- as.factor(cars_clean_pm$fuel)
@@ -98,7 +100,7 @@ model.matrix(~0+., data=cars_sub) %>%
 
 ```
 
-\#Create Linear Regression Model, test
+Create Linear Regression Model, test
 
 ```{r}
 cars$price <- as.double(cars$price)
@@ -108,26 +110,26 @@ summary(lin)
 
 **Comment** Per result tested on linear regression model above, we can see odometer which has p=0.9 that is greater than typical significant value p=0.05. Thus, it might be not a relevant variable to use.
 
-\#plot scatter/residual plots to spot non-linearity and outliers/high-leverage points
+Plot scatter/residual plots to spot non-linearity and outliers/high-leverage points
 
 ```{r}
 plot(lin,which=1:5)
 ```
 
-\#plot price trends in different states of USA
+Plot price trends in different states of USA
 
 ```{r}
 price_trend <- cars_clean_pm %>% group_by(state) %>%summarize(average_price=mean(price))
 ggplot(price_trend, aes(x=reorder(state,-log(average_price)),y=log(average_price))) + geom_bar(stat="identity",fill="steelblue") + labs(x="state") 
 ```
 
-\#Plot box-plot to detect outliers/influential points across US states
+Plot box-plot to detect outliers/influential points across US states
 
 ```{r}
 ggplot(cars_clean_pm,aes(x=state,y=log(price))) + geom_boxplot(fill="steelblue")
 ```
 
-\#Market share of TOP 10 manufacturers
+Market share of TOP 10 manufacturers
 
 ```{r}
 top_10 <- cars %>% group_by(manufacturer) %>% summarize(count=n()) %>% arrange(desc(count)) %>% top_n(10)
@@ -135,7 +137,431 @@ top_10
 ggplot(top_10,aes(x=reorder(manufacturer,-count),y=count)) + geom_bar(stat='identity',fill='steelblue') + labs(x="Manufacturer")
 ```
 
-\#Type of car and fuel
+Type of car and fuel
+
+```{r}
+car_type <- cars %>% group_by(fuel,type) %>% summarize(count=n()) %>% arrange(desc(count)) %>% top_n(10)
+car_type
+ggplot(car_type,aes(fill=fuel,x=reorder(type,-count),y=count)) + geom_bar(stat="identity",position="stack") + labs(x="Type")
+```
+
+Condition vs Year relationship
+
+```{r}
+ggplot(cars,aes(x=year,y=condition)) + geom_violin(scale='area',fill='steelblue') + geom_boxplot(width=0.1,colors='grey',alpha=0.2)
+```
+
+Odometer vs Price relationship
+
+```{r}
+ggplot(cars, aes(x=log(odometer),y=log(price)*1000,color=year))+geom_point() + labs(x='odometer',y='price') 
+```
+
+
+Convert 'state' column to upper case and convert 'posting_date' to DT
+```{r}
+cars$state <- str_to_upper(cars$state)
+cars$posting_date <- as.POSIXct(cars$posting_date)
+```
+
+Create single city average from Census data to so we can join to cars
+```{r}
+census_grouped <- census %>% 
+  group_by(city, state) %>% 
+  summarise(med_family_income = median(median_income_family),
+            med_non_family_income = median(median_income_non_family))
+```
+
+
+Merge 'cars' and 'census'
+```{r}
+cars <- left_join(cars, census_grouped, by = c("state", "city"))
+```
+
+```{r}
+Odometer_Filter <- function (df, start_year, mileage, remove_na = TRUE) {
+
+  df <- df %>% filter(!is.na(odometer))
+  
+  mileage_filter <- (df$year <= start_year & df$odometer < mileage)
+  df <- df %>% filter(!mileage_filter)
+          
+  return(df)
+  
+#' Title: odometer_filter 
+#'
+#' @param df - dataframe
+#' @param start_year - ex: 2018 -> filter out all cars before 2018
+#' @param mileage - ex: 500 -> filter out cars with odometer values < 500
+#' @param remove_na = TRUE {default}. This removes all NA values from the df
+#'
+#' @return a dataframe with applied filters
+#'
+#' @examples odometer_test <- odometer_filter(cars_test, 2018, 500)
+  
+}
+```
+
+```{r}
+odometer_test <- Odometer_Filter(cars, 2018, 50)
+```
+
+View First 6 Rows of 'cars' df
+
+```{r}
+head(cars)
+```
+
+#### Create 'age' column
+```{r}
+cars$age <- 2021 - cars$year
+```
+
+Convert 'state', 'manufacturer', 'model' to factor datastructure
+```{r}
+cars$state.x <- cars$state %>% factor()
+cars$manufacturer <- cars$manufacturer %>% factor()
+cars$fuel <- cars$fuel %>% factor()
+cars$transmission <- cars$transmission %>% factor()
+cars$type <- cars$type %>% factor()
+cars$paint_color <- cars$paint_color %>% factor()
+cars$drive <- cars$drive %>% factor()
+cars$title_status <- cars$title_status %>% factor()
+```
+
+Convert 'condition' to ordered factor
+```{r}
+cars %>% count(condition)
+```
+
+```{r}
+condition_order <- c('unknown', 'salvage', 'fair', 'good', 'excellent', 'like new', 'new')
+cars$condition <- cars$condition %>% factor(levels = condition_order)
+```
+
+Clean "cylinder" Variable
+
+```{r}
+#- convert to ordered factor data structure
+cars %>% count(cylinders)
+```
+
+```{r}
+cylinder_levels <- c("un", "3", "4", "5", "6", "8", "10", "12")
+
+cars$cylinders <- factor(str_trim(substr(cars$cylinders, start = 1, stop = 2)), levels = cylinder_levels)
+cars %>% count(cylinders)
+```
+Convert Price to Numeric
+```{r}
+cars$price <- cars$price %>% as.double()
+```
+
+Open DF in Radiant for Exploratory Analysis and Modeling
+```{r}
+#radiant::radiant()
+```
+
+```{r}
+manuf_bar_plot <- cars %>% 
+  group_by(manufacturer) %>% 
+  summarise(count = n()) %>% 
+  filter(count > 1000) %>% 
+  ggplot(aes(x = reorder(manufacturer, (count)), y = count)) + 
+    #theme(aspect.ratio = .6) +
+    theme(plot.margin = unit(c(.5,.5,.5,.5), "cm")) +
+    geom_bar(stat = "identity", width = .5, fill = "cadetblue3") + 
+    labs(x = "Manufacturer", y = "Count", title = "Count of Manufacturers") +
+    ylim(c(0,80000)) + 
+    coord_flip()
+
+# aspect_ratio <- 2.5
+# height <- 9
+# ggsave("manuf_bar_plot.png", plot = manuf_bar_plot, width = 7 * aspect_ratio, height = 7, units = "in", dpi = 300)
+
+plot(manuf_bar_plot)
+```
+```{r}
+cars %>% filter(manufacturer == "Ford") %>% 
+  count(model)
+```
+
+
+```{r}
+ford_models_pattern <- paste(c("Figo", "Fusion Energi", "Focus Electric", "Fiesta", "Endura",
+                               "C-Max Hybrid", "B-Max", "Flex", "i-Max", "Fusion", "LCF",
+                               "Excursion", "Ikon", "Focus", "Maverick", "Explorer Sport Trac",
+                               "Activa", "SportKa", "Freestar", "Territory", "Five Hundred", 
+                               "Aspire", "Contour", "Cougar", "Crown Victoria", "Freda", 
+                               "Galaxy", "Ka", "Tourneo", "Puma", "Windstar", "ZX2", "F150", 
+                               "F-150", "F250", "F-250", "F350", "F-350", "Ranger", "Aerostar",
+                               "Bronco", "Bronco II", "Escort", "Probe", "Sierra", "Telstar",
+                               "Taurus", "Tempo", "Verona", "Falcon", "F 150", "F 250", "F 350",
+                               "F450", "F 450", "F-450", "F750", "F 750", "F-750", "F100", 
+                               "F 100", "F-100", "Escape", "Sport Trac", "C Max", 
+                               "Thunderbird", "Expedition", "Model B","Model T", "Model Y", 
+                               "Model C", "Model A", "Mustang", "Explorer", "Econoline",
+                               "Crown Vic", "Transit", "Freestyle", "E350", "E 350", "E-350",
+                               "Edge", "F 550", "F-550", "F550", "E150", "E 150", "E-150",
+                               "E250", "E 250", "E-250", "E450", "E 450", "E-450",
+                               "Ecosport", "F650", "F-650", "F 650", "Raptor", "150", "250",
+                               "350", "450"), collapse = "|")
+
+                             
+ford <- cars %>%
+  filter(manufacturer == "Ford") %>% 
+  mutate(model_clean = str_extract(model, regex(pattern = ford_models_pattern, ignore_case = TRUE)))    
+```
+
+```{r}
+f_150 <- paste(c("F150", "F-150", "F 150", "F-150"), collapse = "|")
+f_250 <- paste(c("F250", "F-250", "F 250", "F-250"), collapse = "|")
+f_350 <- paste(c("F350", "F-350", "F 350", "F-350"), collapse = "|")
+f_450 <- paste(c("F450", "F-450", "F 450", "F-450"), collapse = "|")
+f_550 <- paste(c("F550", "F-550", "F 550", "F-550"), collapse = "|")
+
+ford$model_clean <- str_replace_all(ford$model_clean, regex(pattern = f_150), "F-150")
+ford$model_clean <- str_replace_all(ford$model_clean, regex(pattern = f_250), "F-250")
+ford$model_clean <- str_replace_all(ford$model_clean, regex(pattern = f_350), "F-350")
+ford$model_clean <- str_replace_all(ford$model_clean, regex(pattern = f_450), "F-450")
+ford$model_clean <- str_replace_all(ford$model_clean, regex(pattern = f_550), "F-550")
+```
+
+
+```{r}
+ford_clean <- ford %>% 
+  filter(!is.na(model_clean) & price < 100000) %>% 
+
+
+ford_model_hist <- ford_clean %>% 
+  group_by(model_clean) %>% 
+  summarise(count = n(), price = price) %>% 
+  filter(count > 500) %>% 
+  ggplot(aes(x = price, y = model_clean, color = model_clean)) +
+  geom_boxplot() +
+  labs(title = "Ford Models - Boxplot", y = "Model", x = "Price", color = "Model")
+    
+  
+plot(ford_model_hist)
+```
+
+#### Study cars statistics
+
+```{r}
+ford_df <- ford_clean %>%
+  mutate(model_clean = as.factor(model_clean)) %>% 
+  select(city, state, manufacturer, model_clean, age, condition, cylinders, fuel, odometer,
+         title_status, transmission, drive, type, paint_color, price, 
+         med_family_income, med_non_family_income)
+
+```
+
+```{r}
+#' Title: Model_Box
+#'
+#' @param input_manufacturer {string}
+#'
+#' @return: box plot
+#' @export: box plot
+#'
+#' @examples: Model_Box("Ford")
+#' 
+#' 
+Model_Box <- function(input_manufacturer){
+  
+  # Connect to the database
+  conn <- dbConnect(RSQLite::SQLite(), db_path)
+  df <- dbGetQuery(conn, glue("SELECT model_clean, price
+                               FROM {input_manufacturer}"))
+  # Close db connection
+  dbDisconnect(conn)
+  
+  # Build box plots
+  model_box <- df %>% 
+    group_by(model_clean) %>% 
+    summarise(count = n(), price = price) %>%
+    # Filter out vehicles that have limited number of observations
+    filter(count > 500) %>% 
+    ggplot(aes(x = price, y = model_clean, color = model_clean)) +
+    geom_boxplot() +
+    labs(title = glue("{input_manufacturer} Models - Boxplot"), 
+         y = "Model", 
+         x = "Price", 
+         color = "Model")
+  
+  # Return Plot
+  plot(model_box)
+  
+}
+```
+
+```{r}
+Model_Box("Ford")
+```
+
+#### Create a function to predict prices for Ford models based on a series of inputs:
+- state
+- manufacturer
+- model
+- year
+- odometer
+- condition
+
+```{r}
+#' Title: Model_Prediction
+#'
+#' @param input_state {string}
+#' @param input_city {string}
+#' @param input_manufacturer {string} 
+#' @param model {string}
+#' @param year {int}
+#' @param odometer {int}
+#' @param input_condition {string} 
+#' @param drive {string}
+#' @param cylinders {string}
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' 
+Model_Prediction <- function(input_state, input_city, input_manufacturer, model, 
+                             year, odometer, input_condition, drive, cylinders) {
+  
+  # Connect to db and create df based on input_manufacturer
+  conn <- dbConnect(RSQLite::SQLite(), db_path)
+  df <- dbGetQuery(conn, glue("SELECT state, city, manufacturer, model_clean, age, condition, 
+                                      odometer, drive, cylinders, price, med_family_income, med_non_family_income
+                               FROM {input_manufacturer}"))
+  # Close db connection
+  dbDisconnect(conn)
+  
+  # Create a df filtered by input state, manufacturer, and model
+  df <- df %>%
+    filter(state == input_state, 
+           manufacturer == input_manufacturer, 
+           model_clean == model,
+           condition == input_condition
+    )
+  
+  # Extract income values for model 
+  med_inc <- df %>% filter(state == input_state, city == input_city)
+  med_inc_fam <- med_inc$med_family_income[1]
+  med_inc_non_fam <- med_inc$med_non_family_income[1]
+  
+  # Create linear model
+  lm_model <- lm(price ~ age + odometer + drive + cylinders + med_family_income + med_non_family_income, data = df)
+  
+  # Create new data point from user inputs
+  newData <- data.frame(model_clean = model,
+                        age = 2021 - year,
+                        odometer = odometer,
+                        drive = drive,
+                        cylinders = cylinders,
+                        med_family_income = med_inc_fam,
+                        med_non_family_income = med_inc_non_fam)
+  
+  # Create list of objects to return as list
+  number_of_observations <- paste("Number of Training Observations = ", nrow(df))
+  model_summary <- summary(lm_model)
+  predictions <- predict(lm_model, newdata = newData, interval = "confidence", level = .95)
+  #Create KNN Clustering model for FORD to compare with Regression model
+  set.seed(100) #set seed
+  
+  return(list(number_of_observations, model_summary, predictions))
+  
+}
+
+```
+
+#### Test 'ford_prediction' Function
+```{r}
+Model_Prediction("CA", "Sacramento", "Ford", "F-250", 2015, 100000, "good", "4wd", "8")
+```
+
+
+#Creating New Variable Price/Odometer, we do later, just testing git rn - Shawn
+
+#Clean cylinder variable
+
+```{r}
+#ifelse(apply(str_contains(cars$cylinders,"cylinders",ignore.case=FALSE)), substring(cars$cylinders,1,1),0)
+cars_clean <- cars %>% mutate(cylinders_clean=as.integer(str_extract(cars$cylinders,'[0-9]')))
+glimpse(cars_clean)
+```
+
+#Creating New Variable Price/Odometer
+
+```{r}
+#change price type to mutate new column for new variable
+cars_clean$price <- as.double(cars_clean$price)
+#mutate new variable
+cars_clean_pm <- cars_clean %>% mutate(pm = cars$price/cars$odometer)
+glimpse(cars_clean_pm)
+```
+
+#select only numeric columns for correlation matrix
+```{r}
+car_num <- select_if(cars,is.numeric)
+head(car_num)
+```
+
+#correlation matrix for collinearity check
+
+```{r}
+cars_clean_pm$fuel <- as.factor(cars_clean_pm$fuel)
+cars_clean_pm$title_status <- as.factor(cars_clean_pm$title_status)
+cars_clean_pm$transmission <- as.factor(cars_clean_pm$transmission)
+cars_sub <- select(cars_clean_pm,year,cylinders_clean,fuel,odometer,title_status,transmission,price)
+glimpse(cars_sub)
+model.matrix(~0+., data=cars_sub) %>%
+  cor(use="pairwise.complete.obs") %>%
+  ggcorrplot(show.diag=F,type="full",lab=TRUE, lab_size = 2,ggtheme = ggplot2::theme_gray(),colors = c("#6D9EC1", "white", "#E46726"),tl.srt=90, tl.cex=8, hc.order=TRUE, insig="blank")
+# car_num <- select_if(cars,is.numeric)
+# head(car_num)
+# correl <- cor(car_num[-1])
+# corrplot(correl,addCoef.col = 'black')
+
+```
+
+#Create Linear Regression Model, test
+
+```{r}
+cars$price <- as.double(cars$price)
+lin <- lm(price ~ year + odometer, data = cars)
+summary(lin)
+```
+
+**Comment** Per result tested on linear regression model above, we can see odometer which has p=0.9 that is greater than typical significant value p=0.05. Thus, it might be not a relevant variable to use.
+
+#plot scatter/residual plots to spot non-linearity and outliers/high-leverage points
+
+```{r}
+plot(lin,which=1:5)
+```
+
+#plot price trends in different states of USA
+
+```{r}
+price_trend <- cars_clean_pm %>% group_by(state) %>%summarize(average_price=mean(price))
+ggplot(price_trend, aes(x=reorder(state,-log(average_price)),y=log(average_price))) + geom_bar(stat="identity",fill="steelblue") + labs(x="state") 
+```
+
+#Plot box-plot to detect outliers/influential points across US states
+
+```{r}
+ggplot(cars_clean_pm,aes(x=state,y=log(price))) + geom_boxplot(fill="steelblue")
+```
+
+#Market share of TOP 10 manufacturers
+
+```{r}
+top_10 <- cars %>% group_by(manufacturer) %>% summarize(count=n()) %>% arrange(desc(count)) %>% top_n(10)
+top_10
+ggplot(top_10,aes(x=reorder(manufacturer,-count),y=count)) + geom_bar(stat='identity',fill='steelblue') + labs(x="Manufacturer")
+```
+
+#Type of car and fuel
 
 ```{r}
 car_type <- cars %>% group_by(fuel,type) %>% summarize(count=n()) %>% arrange(desc(count)) %>% top_n(10)
@@ -143,14 +569,15 @@ car_type
 ggplot(car_type,aes(fill=fuel,x=reorder(type,-count),y=count)) + geom_bar(stat="identity",position="stack")
 ```
 
-\#Condition vs Year relationship
+#Condition vs Year relationship
 
 ```{r}
 ggplot(cars,aes(x=year,y=condition)) + geom_violin(scale='area',fill='steelblue') + geom_boxplot(width=0.1,colors='grey',alpha=0.2)
 ```
 
-\#Odometer vs Price relationship
+#Odometer vs Price relationship
 
 ```{r}
 ggplot(cars, aes(x=log(odometer),y=log(price)*1000,color=year))+geom_point() + labs(x='odometer',y='price') 
 ```
+

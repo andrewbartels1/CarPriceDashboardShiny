@@ -33,7 +33,7 @@ dbListTables(conn)
 ```
 #### Create DF called "cars"
 ```{r}
-cars <- dbGetQuery(conn, "SELECT * FROM vehicles")
+cars1 <- dbGetQuery(conn, "SELECT * FROM vehicles")
 ```
 
 ```{r}
@@ -42,6 +42,7 @@ dbDisconnect(conn)
 
 #### Convert to Tibble and Inspect first 6 Rows of Data
 ```{r}
+cars <- cars1
 cars <- as_tibble(cars)
 head(cars)
 ```
@@ -209,12 +210,74 @@ manufacturer_pattern <- 'Acura|Alfa Romeo|Aston Martin|Audi|Bentley|
                       Mini|Mitsubishi|Nissan|Oldsmobile|OLDSMOBILE|Peugeot|peterbilt|Plymoth|
                       Pontiac|Porsche|Ram|Saab|Saturn|Scion|Seat|Smart|Sterling|Subaru|Suzuki|
                       Tesla|Toyota|Volkswagen|Volkswagon|Volvo'
+
+man_pattern_2 <- paste(c("Acura", "Alfa Romeo", "Aston Martin", "Audi", "Bentley", 
+                      "BMW", "Buick", "Cadillac", "Chevrolet", "Chrysler", "Dodge",
+                      "Ferrari", "Fiat", "Ford", "Freightliner", "Geo", "GMC", "Genesis",
+                      "Honda", "Hummer", "Hyundai", "Infinity", "International", "Isuzu",
+                      "Jaguar", "Jeep", "Kenworth", "Kia", "Land Rover","Lexus", 
+                      "Lincoln", "Mack", "Maserati", "Mazda", "Mercedes-Benz", "Mercury",
+                      "Mini", "Mitsubishi", "Nissan", "Oldsmobile", "Peugeot", "Peterbilt", 
+                      "Plymoth", "Pontiac", "Porsche", "Ram", "Saab", "Saturn", "Scion", "Seat", 
+                      "Smart","Sterling", "Subaru", "Suzuki", "Tesla", "Toyota", "Volkswagen",
+                      "Volkswagon", "Volvo"), collapse = "|")
                        
+```
+
+```{r}
+test_df <- data.frame(manufacturer = c("Ford", "Chevy", NA, NA, NA),
+                      model = c("F150", "Chevrolet Silverado", "Chevrolet Silverado", "Dodge Dakota", "toyota 4runner"),
+                      description = c("test", "test", "Chevrolet Silverado Truck for Sale", "Dodge Dakota Truck for Sale Toyota", "For sale, toyota 4Runner at Benny's Chevrolet")
+                      )
+
+test_df
+```
+
+```{r}
+pattern <- paste(c("Toyota", "Chevrolet", "Dodge", "Ford"), collapse = "|")
+
+test_df <- test_df %>% 
+  #filter(is.na(manufacturer)) %>% 
+  mutate(manufacturer = ifelse(is.na(manufacturer), str_to_title(str_extract(test_df$model, regex(man_pattern_2, ignore_case = TRUE))), test_df$manufacturer))
+
+test_df
+```
+
+```{r}
+cars <- cars %>% 
+  #filter(is.na(manufacturer)) %>% 
+  mutate(manufacturer = ifelse(is.na(manufacturer), str_to_title(str_extract(cars$model, regex(man_pattern_2, ignore_case = TRUE))), cars$manufacturer))
 ```
 
 ```{r}
 cars %>% filter(is.na(manufacturer))
 ```
+```{r}
+cars <- cars %>% 
+  mutate(manufacturer = ifelse(is.na(manufacturer), 
+                               str_to_title(str_extract(cars$description, 
+                                                        regex(man_pattern_2, 
+                                                              pattern = ignore_case = TRUE)
+                                                        )
+                                            ), 
+                               cars$manufacturer
+                               )
+         )
+```
+
+```{r}
+cars %>% filter(is.na(manufacturer)) %>% 
+  select(manufacturer, model, description)
+```
+
+
+
+
+
+
+
+
+
 First we'll try to pull the manufacturer from the model variable.
 ```{r}
 cars$match <- ifelse(is.na(cars$manufacturer),
@@ -550,6 +613,7 @@ cars$posting_date <- as.POSIXct(cars$posting_date)
 ```{r}
 head(cars)
 ```
+
 ```{r}
 colnames(cars)
 ```
