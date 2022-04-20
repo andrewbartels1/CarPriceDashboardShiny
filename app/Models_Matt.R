@@ -16,7 +16,7 @@ library(corrplot)
 library(ggcorrplot)
 library(glue) # to format strings
 library(viridis)
-
+library(class) #for KNN model
 library(bannerCommenter) # input into console -> banner("display text", snug = TRUE, bandChar = "=")
 
 ##==================================================================
@@ -406,4 +406,93 @@ Avg_Price_Per_Region_Plot <- function(df, input_manufacturer, input_model, input
 
 Avg_Price_Per_Region_Plot(cars, "Ford", "Mustang", 2015)
 
+##==================================================================
+##  Function to Make a Prediction based on user generated inputs  == Angie
+##==================================================================
 
+# This function will create a KNN model based on what the users inputs in the app. My thinking 
+# is that the user will select from a pre-determined menu of available inputs, and this function will 
+# return a predicted price, model summary, and number of observations it used to make the prediction. 
+# We can also tweak the list of returns to include things like R2 or whatever else we want.
+# This function could be used for the PREDICTIONS tab on the app.
+
+
+#' Title: State_Model_Prediction
+#'
+#' @param df {dataframe}
+#' @param input_state {string}
+#' @param input_city {string}
+#' @param input_manufacturer {string} 
+#' @param input_model {string}
+#' @param input_year {int}
+#' @param input_odometer {int}
+#' @param input_condition {string} 
+#' @param input_drive {string}
+#' @param input_cylinders {string}
+#'
+#' @return list [n of observations, model summary, predicted price + confidence intervals]
+#' @export
+#'
+#' @examples Local_Model_Prediction(ford, "CA", "Los Angeles", "Ford", "F-150", 2015, 100000, "good", "4wd", "8")
+#' 
+#' 
+#' 
+State_Model_Prediction <- function(df, input_state, input_city, input_manufacturer, input_model, 
+                                   input_year, input_odometer, input_condition, input_drive, input_cylinders) {
+  
+  
+  # Create a df filtered by the user selected state, manufacturer, model, and condition.
+  df <- df %>%
+    filter(state == input_state,
+           manufacturer == input_manufacturer, 
+           model == input_model,
+           condition == input_condition
+    )
+  
+  # Extract income values for model. This is used to figure out what median income is in the user selected city.
+  med_inc <- df %>% filter(state == input_state, city == input_city)
+  med_inc_fam <- med_inc$med_family_income[1]
+  med_inc_non_fam <- med_inc$med_non_family_income[1]
+  
+  #Generate a random number that is 90% of the total number of rows in dataset.
+  random <- sample(1:nrow(df), 0.9 * nrow(df))
+  
+  #Extract Training Set
+  df_train <- df[random,]
+  
+  #Extract Testing Set
+  df_test <- df[-random,]
+  
+  #Extract Price Category of train dataset because it will be used as 'cl' argument in KNN function 
+  df_target_price <- df[random,16]
+  
+  #Extract Price Category to measure the accuracy for test dataset
+  df_test_price <- df[-random,16]
+  
+  # Create KNN model
+  knn_model <- knn(df_train,df_test,cl=df_target_price,k=13)
+  
+  # Create new data point from user inputs
+  newData <- data.frame(model = input_model,
+                        age = 2021 - input_year,
+                        odometer = input_odometer,
+                        drive = input_drive,
+                        cylinders = input_cylinders,
+                        med_family_income = med_inc_fam,
+                        med_non_family_income = med_inc_non_fam)
+  
+  # Create list of objects to return as list
+  number_of_observations <- paste("Number of Training Observations = ", nrow(df))
+  model_summary <- summary(knn_model)
+  predictions <- predict(knn_model, newdata = newData, interval = "confidence", level = .95)
+  
+  
+  return(list(head(df, 25), number_of_observations, model_summary, predictions))
+  
+}
+
+##------------------------------------
+##  Test Model_Prediction Function  --
+##------------------------------------
+
+State_Model_Prediction(cars, "CA", "Sacramento", "Ford", "F-150", 2015, 100000, "good", "4wd", "8")

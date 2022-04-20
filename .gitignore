@@ -45,3 +45,4 @@ vignettes/*.pdf
 *.sqlite
 *.db
 *.sqlite3
+app/Ford_boxplot.png
