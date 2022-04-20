@@ -36,15 +36,15 @@ server <- function(input, output, session) {
 
   
   observeEvent(input$tables1, {
-    # print(paste("SELECT * FROM ",input$tables1," LIMIT 10;")) # uncomment to print the tables being cast to dataTableOutput
+    
     
     output$tableOutput1 <-renderDataTable({
       
       tempTable <- dbGetQuery(conn,paste("SELECT * FROM ",input$tables1," LIMIT 10;"))
-      
+      print(names(tempTable)) # uncomment to print the tables being cast to dataTableOutput
       observe({updateSelectInput(session, "columns1", choices =
                                  names(tempTable[, !names(tempTable) %in% c("description")]),
-                                 selected="region")})# put the 1st 10 rows from the table selected
+                                 selected="state")})# put the 1st 10 rows from the table selected
       # print(typeof(outputs1))
       outputs1 <- tempTable[, !names(tempTable) %in% c("description")]      
       
@@ -59,7 +59,7 @@ server <- function(input, output, session) {
     output$tableOutput2 <-renderDataTable({
 
       tempTable <- dbGetQuery(conn,paste("SELECT * FROM ",input$tables2," LIMIT 10;"))
-      # print(names(tempTable))
+      
 
       
       observe({updateSelectInput(session, "columns2", choices =
@@ -78,10 +78,10 @@ server <- function(input, output, session) {
     paste("You have selected Table 2: ", input$tables2 )
   })
   output$selected_col1 <- renderText({
-    paste("You have selected Column(s) for Table 1: \n\n", list(input$columns1) )
+    paste("You have selected Column(s) for Table 1: \n\n", input$columns1) 
   })
   output$selected_col2 <- renderText({
-    paste("You have selected Column(s) for Table 2: \n\n", list(input$columns2) )
+    paste("You have selected Column(s) for Table 2: \n\n", input$columns2) 
   })
 
 
