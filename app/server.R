@@ -28,10 +28,10 @@ server <- function(input, output, session) {
   ##===========================================
   
   observe({
-    updateSelectInput(session, "tables1", choices = table_list)
+    updateSelectInput(session, "tables1", choices = table_list, selected="cars_clean")
   })
   observe({
-    updateSelectInput(session, "tables2", choices = table_list)
+    updateSelectInput(session, "tables2", choices = table_list, selected="cars_clean")
   })
 
   
@@ -40,7 +40,7 @@ server <- function(input, output, session) {
     
     output$tableOutput1 <-renderDataTable({
       
-      tempTable <- dbGetQuery(conn,paste("SELECT * FROM ",input$tables1," LIMIT 10;"))
+      tempTable <- dbGetQuery(conn,paste("SELECT * FROM ",input$tables1," LIMIT 100;"))
       
       observe({updateSelectInput(session, "columns1", choices =
                                  names(tempTable[, !names(tempTable) %in% c("description")]),
@@ -58,7 +58,7 @@ server <- function(input, output, session) {
 
     output$tableOutput2 <-renderDataTable({
 
-      tempTable <- dbGetQuery(conn,paste("SELECT * FROM ",input$tables2," LIMIT 10;"))
+      tempTable <- dbGetQuery(conn,paste("SELECT * FROM ",input$tables2," LIMIT 100;"))
       # print(names(tempTable))
 
       
@@ -85,6 +85,7 @@ server <- function(input, output, session) {
   })
 
 
+  # Progress boxes at bottom of Data Explorer tab
   output$progressBox <- renderInfoBox({
     infoBox(
       "Progress", paste0(25 + input$count, "%"), icon = icon("list"),
