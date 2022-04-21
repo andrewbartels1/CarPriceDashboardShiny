@@ -175,12 +175,15 @@ manuf_bar_plot <- cars %>%
     ylim(c(0,80000)) + 
     coord_flip()
 
+ggsave("manuf_count_bar_plot.png", manuf_bar_plot,width = 13, height = 8)
 # aspect_ratio <- 2.5
 # height <- 9
 # ggsave("manuf_bar_plot.png", plot = manuf_bar_plot, width = 7 * aspect_ratio, height = 7, units = "in", dpi = 300)
 
 plot(manuf_bar_plot)
 ```
+
+
 ```{r}
 cars %>% filter(manufacturer == "Ford") %>% 
   count(model)
@@ -477,14 +480,14 @@ plot(lin,which=1:5)
 #plot price trends in different states of USA
 
 ```{r}
-price_trend <- cars_clean_pm %>% group_by(state) %>%summarize(average_price=mean(price))
+price_trend <- cars %>% group_by(state) %>%summarize(average_price=mean(price))
 ggplot(price_trend, aes(x=reorder(state,-log(average_price)),y=log(average_price))) + geom_bar(stat="identity",fill="steelblue") + labs(x="state") 
 ```
 
 #Plot box-plot to detect outliers/influential points across US states
 
 ```{r}
-ggplot(cars_clean_pm,aes(x=state,y=log(price))) + geom_boxplot(fill="steelblue")
+ggplot(cars,aes(x=state,y=log(price))) + geom_boxplot(fill="steelblue")
 ```
 
 #Market share of TOP 10 manufacturers
