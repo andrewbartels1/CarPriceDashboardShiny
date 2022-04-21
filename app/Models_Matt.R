@@ -395,7 +395,7 @@ Avg_Price_Per_Region_Plot <- function(df, input_manufacturer, input_model, input
       coord_polar()
       
       # Save the plot
-      ggsave("plot.png", plot,width = 13, height = 8)
+      ggsave("circle_bar_plot.png", plot,width = 13, height = 8)
       
     return(plot)
 }
