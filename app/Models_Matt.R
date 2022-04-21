@@ -18,6 +18,7 @@ library(glue) # to format strings
 library(viridis)
 library(class) #for KNN model
 library(bannerCommenter) # input into console -> banner("display text", snug = TRUE, bandChar = "=")
+library(stats)
 
 ##==================================================================
 ##  Connect to Database and create df based on input_manufacturer ==
@@ -409,14 +410,14 @@ Avg_Price_Per_Region_Plot <- function(df, input_manufacturer, input_model, input
 ##  Function to Make a Prediction based on user generated inputs  == Angie
 ##==================================================================
 
-# This function will create a KNN model based on what the users inputs in the app. My thinking 
+# This function will create a KNN Regression model based on what the users inputs in the app. My thinking 
 # is that the user will select from a pre-determined menu of available inputs, and this function will 
 # return a predicted price, model summary, and number of observations it used to make the prediction. 
 # We can also tweak the list of returns to include things like R2 or whatever else we want.
 # This function could be used for the PREDICTIONS tab on the app.
 
 
-#' Title: State_Model_Prediction
+#' Title: State_Model_Prediction_KNNReg
 #'
 #' @param df {dataframe}
 #' @param input_state {string}
@@ -436,55 +437,69 @@ Avg_Price_Per_Region_Plot <- function(df, input_manufacturer, input_model, input
 #' 
 #' 
 #' 
-State_Model_Prediction <- function(df, input_state, input_city, input_manufacturer, input_model, 
+State_Model_Prediction_KNNReg <- function(df, input_city,input_state,input_manufacturer, input_model, 
                                    input_year, input_odometer, input_condition, input_drive, input_cylinders) {
   
   
   # Create a df filtered by the user selected state, manufacturer, model, and condition.
   df <- df %>%
     filter(state == input_state,
-           manufacturer == input_manufacturer, 
+           manufacturer == input_manufacturer,
            model == input_model,
            condition == input_condition
     )
   
   # Extract income values for model. This is used to figure out what median income is in the user selected city.
-  med_inc <- df %>% filter(state == input_state, city == input_city)
-  med_inc_fam <- med_inc$med_family_income[1]
-  med_inc_non_fam <- med_inc$med_non_family_income[1]
+  #med_inc <- df %>% filter(state == input_state, city == input_city)
+  #med_inc_fam <- med_inc$med_family_income[1]
+  #med_inc_non_fam <- med_inc$med_non_family_income[1]
   
-  #Generate a random number that is 90% of the total number of rows in dataset.
-  random <- sample(1:nrow(df), 0.9 * nrow(df))
+  #select certain columns to train data
+  df_select <- df %>% select(city,state,
+                      manufacturer,model,
+                      year,odometer,
+                      condition,
+                      cylinders,
+                      drive)
+  #drop any NA
+  df_clean <- df_select[complete.cases(df_select),]
+  
+  #Generate a random number that is 80% of the total number of rows in dataset.
+  random <- sample(1:nrow(df_clean), 0.8 * nrow(df_clean))
   
   #Extract Training Set
-  df_train <- df[random,]
+  df_train <- df_clean[random,]
   
   #Extract Testing Set
-  df_test <- df[-random,]
+  #df_test <- df[-random,]
   
-  #Extract Price Category of train dataset because it will be used as 'cl' argument in KNN function 
+  #Extract Price Category of train dataset 
   df_target_price <- df[random,16]
   
   #Extract Price Category to measure the accuracy for test dataset
-  df_test_price <- df[-random,16]
+  #df_test_price <- df[-random,16]
   
   # Create KNN model
-  knn_model <- knn(df_train,df_test,cl=df_target_price,k=13)
+  knnreg_model <- knnreg(df_train,df_target_price,na.action=na.omit(df_select),k=13)
   
   # Create new data point from user inputs
-  newData <- data.frame(model = input_model,
-                        age = 2021 - input_year,
+  newData <- data.frame(city=input_city,
+                        state = input_state,
+                        manufacturer = input_manufacturer,
+                        model = input_model,
+                        year = input_year,
                         odometer = input_odometer,
-                        drive = input_drive,
+                        condition=input_condition,
                         cylinders = input_cylinders,
-                        med_family_income = med_inc_fam,
-                        med_non_family_income = med_inc_non_fam)
+                        drive = input_drive)
+                        # med_family_income = med_inc_fam,
+                        # med_non_family_income = med_inc_non_fam)
   
   # Create list of objects to return as list
-  number_of_observations <- paste("Number of Training Observations = ", nrow(df))
-  model_summary <- summary(knn_model)
-  predictions <- predict(knn_model, newdata = newData, interval = "confidence", level = .95)
-  
+  number_of_observations <- paste("Number of Training Observations = ", nrow(random))
+  model_summary <- summary(knnreg_model)
+  predictions <- predict(knnreg_model, newdata = newData, interval = "confidence", level = .95)
+
   
   return(list(head(df, 25), number_of_observations, model_summary, predictions))
   
@@ -494,4 +509,5 @@ State_Model_Prediction <- function(df, input_state, input_city, input_manufactur
 ##  Test Model_Prediction Function  --
 ##------------------------------------
 
-# State_Model_Prediction(cars, "CA", "Sacramento", "Ford", "F-150", 2015, 100000, "good", "4wd", "8")
+State_Model_Prediction_KNNReg(cars, "Sacramento","CA", "Ford", "F-150", 2015, 100000, "good", "4wd", "8")
+
