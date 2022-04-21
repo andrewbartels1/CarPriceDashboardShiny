@@ -7,46 +7,121 @@
 
 
 server <- function(input, output, session) {
-  source("./global.R", local=TRUE)
+  source("./global.R", local = TRUE)
+  source("./Plots_Angie.R")
+  source("./Models_Matt.R")
   
   db_path <- "../CraigslistCarsClean.sqlite3"
   
   # Connect to the database
   conn <- dbConnect(RSQLite::SQLite(), db_path)
   
-  # on.exit(dbDisconnect(conn))
   # yank stuff from global that's supposed to run
   table_list <- dbListTables(conn)
   
   #create a reactive object with a NULL starting value
   listofrows <- reactiveValues()
   
-  
-  ##===========================================
-  ##  create 2 tables & columns and input from
-  ##  dropdowns to a scatter plot? or something
-  ##===========================================
+  # print(cars)
+  #
+  output$manuf_bar_plot <- renderPlot({
+    
+    # Count per Manf
+    if (input$firstplots == "count") {
+      cars1 <-
+        dbGetQuery(conn, paste("SELECT manufacturer FROM cars_clean;")) # make a query to the clean table!
+      cars1 %>%
+        group_by(manufacturer) %>%
+        summarise(count = n()) %>%
+        filter(count > 1000) %>%
+        ggplot(aes(x = reorder(manufacturer, (count)), y = count)) +
+        theme(axis.text = element_text(size = 12)) +
+        theme(plot.margin = unit(c(.5, .5, .5, .5), "cm")) +
+        geom_bar(stat = "identity",
+                 width = 0.5,
+                 fill = "cadetblue3") +
+        labs(x = "Manufacturer", y = "Count", title = "Count of Cars per Manufacturers") +
+        ylim(c(0, 80000)) +
+        coord_flip()
+    } 
+    # Average Price per Manf Plot
+    else if (input$firstplots == "avgPrice") {
+      cars1 <-
+        dbGetQuery(conn, paste("SELECT manufacturer, price FROM cars_clean;")) # make a query to the clean table!
+ 
+      cars1 %>%
+        group_by(manufacturer) %>%
+        summarise_at(vars(price), list(avg_price = mean)) %>%
+        droplevels() %>%
+        ggplot(aes(x = reorder(manufacturer, (avg_price)), y = avg_price),na.rm = T) +
+        theme(axis.text = element_text(size = 11)) +
+        theme(axis.text.x = element_text(angle = 75, vjust = 0.25)) +
+        theme(plot.margin = unit(c(.5, .5, .5, .5), "cm")) +
+        geom_text(aes(label = avg_price), 
+                  position = position_dodge(0.9),
+                  color="black",vjust = 0.5,hjust = -0.5, angle = 75) +
+        geom_bar(stat = "identity",
+                 width = 0.55,
+                 fill = "green4",na.rm = T) +
+        labs(x = "Manufacturer", y = "Price", title = "Average Price Per Manufacturers") +
+        ylim(c(0, 55000))
+        
+    } else if(input$firstplots == "medPrice") {
+      cars1 <-
+        dbGetQuery(conn, paste("SELECT state, price FROM cars_clean;")) # make a query to the clean table!
+      
+      cars1 %>%
+        group_by(state) %>%
+        summarise_at(vars(price), list(avg_price = mean)) %>%
+        droplevels() %>%
+        ggplot(aes(x = reorder(state, (avg_price)), y = avg_price),na.rm = T) +
+        theme(axis.text = element_text(size = 11)) +
+        theme(axis.text.x = element_text(angle = 60, vjust = 0.25)) +
+        theme(plot.margin = unit(c(.5, .5, .5, .5), "cm")) +
+        geom_text(aes(label = avg_price),
+                  position = position_dodge(0.9),
+                  color="black",vjust = 0.25,hjust = -0.3, angle = 75) +
+        geom_bar(stat = "identity",
+                 width = 0.55,
+                 fill = "green4",na.rm = T) +
+        labs(x = "State", y = "Price ($ USD)", title = "Average Price Per State") +
+        ylim(c(0, 55000))
+    }
+    
+  }, height = 525) # end first plot
   
   observe({
-    updateSelectInput(session, "tables1", choices = table_list, selected="cars_clean")
+    updateSelectInput(session,
+                      "tables1",
+                      choices = table_list,
+                      selected = "cars_clean")
   })
+  
   observe({
-    updateSelectInput(session, "tables2", choices = table_list, selected="cars_clean")
+    updateSelectInput(session,
+                      "tables2",
+                      choices = table_list,
+                      selected = "cars_clean")
   })
-
+  
+  tempTable2 <- reactive(dbGetQuery(conn, paste("SELECT * FROM ", input$tables2, " LIMIT 100;")))
+  
+  tempTable1 <-reactive( dbGetQuery(conn, paste("SELECT * FROM ", input$tables1, " LIMIT 100;")))
   
   observeEvent(input$tables1, {
-    
-    
-    output$tableOutput1 <-renderDataTable({
+    output$tableOutput1 <- renderDataTable({
       
-      tempTable <- dbGetQuery(conn,paste("SELECT * FROM ",input$tables1," LIMIT 100;"))
       
-      observe({updateSelectInput(session, "columns1", choices =
-                                 names(tempTable[, !names(tempTable) %in% c("description")]),
-                                 selected="state")})# put the 1st 10 rows from the table selected
+      observe({
+        updateSelectInput(session,
+                          "columns1",
+                          choices =
+                            names(tempTable1()[,!names(tempTable1()) %in% c("description")]),
+                          selected = "state")
+      })# put the 1st 10 rows from the table selected
       # print(typeof(outputs1))
-      outputs1 <- tempTable[, !names(tempTable) %in% c("description")]      
+      outputs1 <-
+        tempTable1()[,!names(tempTable1()) %in% c("description")]
       
     })
     
@@ -55,64 +130,23 @@ server <- function(input, output, session) {
   
   observeEvent(input$tables2, {
     # print(paste("SELECT * FROM ",input$tables2," LIMIT 10;")) # uncomment to print the tables being cast to dataTableOutput
-
-    output$tableOutput2 <-renderDataTable({
-
-      tempTable <- dbGetQuery(conn,paste("SELECT * FROM ",input$tables2," LIMIT 100;"))
-      # print(names(tempTable))
-
+    
+    output$tableOutput2 <- renderDataTable({
       
-      observe({updateSelectInput(session, "columns2", choices =
-                                   names(tempTable[, !names(tempTable) %in% c("description")]),
-                                 selected = "year")})# put the 1st 10 rows from the table selected
-      outputs1 <- tempTable[, !names(tempTable) %in% c("description")]
+      # print(names(tempTable))
+      
+      
+      observe({
+        updateSelectInput(session,
+                          "columns2",
+                          choices =
+                            names(tempTable2()[,!names(tempTable2()) %in% c("description")]),
+                          selected = "year")
+      })# put the 1st 10 rows from the table selected
+      outputs2 <-
+        tempTable2()[,!names(tempTable2()) %in% c("description")]
     })
-
+    
   })
-
-
-  output$selected_var1 <- renderText({
-    paste("You have selected Table 1: ", input$tables1 )
-  })
-  output$selected_var2 <- renderText({
-    paste("You have selected Table 2: ", input$tables2 )
-  })
-  output$selected_col1 <- renderText({
-    paste("You have selected Column(s) for Table 1: \n\n", input$columns1) 
-  })
-  output$selected_col2 <- renderText({
-    paste("You have selected Column(s) for Table 2: \n\n", input$columns2) 
-  })
-
-
-  # Progress boxes at bottom of Data Explorer tab
-  output$progressBox <- renderInfoBox({
-    infoBox(
-      "Progress", paste0(25 + input$count, "%"), icon = icon("list"),
-      color = "purple"
-    )
-  })
-  output$approvalBox <- renderInfoBox({
-    infoBox(
-      "Approval", "80%", icon = icon("thumbs-up", lib = "glyphicon"),
-      color = "yellow"
-    )
-  })
-
-  # Same as above, but with fill=TRUE
-  output$progressBox2 <- renderInfoBox({
-    infoBox(
-      "Progress", paste0(25 + input$count, "%"), icon = icon("list"),
-      color = "purple", fill = TRUE
-    )
-  })
-  output$approvalBox2 <- renderInfoBox({
-    infoBox(
-      "Approval", "80%", icon = icon("thumbs-up", lib = "glyphicon"),
-      color = "yellow", fill = TRUE
-    )
-  })
-
   
 }
-

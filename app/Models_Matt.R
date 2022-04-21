@@ -28,7 +28,7 @@ library(bannerCommenter) # input into console -> banner("display text", snug = T
 
 
 # Create Path to SQLite db
-db_path <- "CraigslistCarsClean.sqlite3"
+db_path <- "../CraigslistCarsClean.sqlite3"
 
 # Establish connection
 conn <- dbConnect(RSQLite::SQLite(), db_path)
@@ -82,7 +82,7 @@ Add_Regions <- function (df) {
 }
 
 # Add regions to 'cars' df
-cars <- Add_Regions(cars)
+# cars <- Add_Regions(cars)
 
 ##==================================================================
 ##  Function to Create Box Plots Comparing Models                 ==
@@ -134,7 +134,7 @@ Model_Box <- function(df, input_manufacturer) {
 ##-----------------------------
 ##  Test Model_Box Function  --
 ##-----------------------------
-Model_Box(cars, "Ford")
+# Model_Box(cars, "Ford")
 
 
 ##==================================================================
@@ -209,8 +209,7 @@ State_Model_Prediction <- function(df, input_state, input_city, input_manufactur
 ##------------------------------------
 ##  Test Model_Prediction Function  --
 ##------------------------------------
-
-State_Model_Prediction(cars, "CA", "Sacramento", "Ford", "F-150", 2015, 100000, "good", "4wd", "8")
+# State_Model_Prediction(cars, "CA", "Sacramento", "Ford", "F-150", 2015, 100000, "good", "4wd", "8")
 
 ##======================================================
 ##  Create Function to get National Predicted Price  ==
@@ -281,7 +280,7 @@ National_Model_Prediction <- function(df, input_state, input_city, input_manufac
 ##  Test National_Model_Prediction Function  --
 ##---------------------------------------------
 
-National_Model_Prediction(cars, "CA", "Sacramento", "Ford", "F-150", 2015, 100000, "good", "4wd", "8")
+# National_Model_Prediction(cars, "CA", "Sacramento", "Ford", "F-150", 2015, 100000, "good", "4wd", "8")
 
 ##===============================================================================
 ##  Create Plot to compare average price for different regions of the Country  ==
@@ -404,7 +403,7 @@ Avg_Price_Per_Region_Plot <- function(df, input_manufacturer, input_model, input
 ##  Test Avg_Price_Per_Region_Plot function --
 ##---------------------------------------------
 
-Avg_Price_Per_Region_Plot(cars, "Ford", "Mustang", 2015)
+# Avg_Price_Per_Region_Plot(cars, "Ford", "Mustang", 2015)
 
 ##==================================================================
 ##  Function to Make a Prediction based on user generated inputs  == Angie
@@ -495,4 +494,4 @@ State_Model_Prediction <- function(df, input_state, input_city, input_manufactur
 ##  Test Model_Prediction Function  --
 ##------------------------------------
 
-State_Model_Prediction(cars, "CA", "Sacramento", "Ford", "F-150", 2015, 100000, "good", "4wd", "8")
+# State_Model_Prediction(cars, "CA", "Sacramento", "Ford", "F-150", 2015, 100000, "good", "4wd", "8")

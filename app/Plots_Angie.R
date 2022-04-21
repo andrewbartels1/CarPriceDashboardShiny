@@ -28,14 +28,14 @@ library(bannerCommenter) # input into console -> banner("display text", snug = T
 
 
 # Create Path to SQLite db
-db_path <- "CraigslistCarsClean.sqlite3"
-
-# Establish connection
-conn <- dbConnect(RSQLite::SQLite(), db_path)
-cars <- dbGetQuery(conn, "SELECT * FROM Ford")
-
-# Close db connection
-dbDisconnect(conn)
+# db_path <- "../CraigslistCarsClean.sqlite3"
+# 
+# # Establish connection
+# conn <- dbConnect(RSQLite::SQLite(), db_path)
+# cars <- dbGetQuery(conn, "SELECT * FROM Ford")
+# 
+# # Close db connection
+# dbDisconnect(conn)
 
 ##=================================================================================
 ##  Create Function to compare fuel types for different Vehicle types            ==
@@ -90,10 +90,7 @@ Fuel_Comparison <- function(df, input_manufacturer){
 ##  test function  --
 ##-------------------
 
-Fuel_Comparison(cars, "Ford")
-
-
-
+# Fuel_Comparison(cars, "Ford")
 
 ##======================================================
 ##  Create Function to compare condition of vehicles  ==
@@ -138,4 +135,4 @@ Condition_Comparison <- function(df, input_manufacturer) {
 ##  test function  --
 ##-------------------
 
-Condition_Comparison(cars, "Ford")
+# Condition_Comparison(cars, "Ford")
