@@ -189,7 +189,7 @@ body <- dashboardBody(tabItems(
   # end first tab
   tabItem(tabName = "analysis",
           h2("Analysis tab contents"),
-          textOutput("This tab contains some more complex visualizations for a specific Manufacturer to ensure the most")),
+          tags$i("This tab contains some more complex visualizations for a specific Manufacturer to ensure the most value and consistent app experience.")),
   # end 2nd Analysis tab
   
   tabItem(tabName = "prediction",

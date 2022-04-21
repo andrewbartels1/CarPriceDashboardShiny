@@ -83,7 +83,7 @@ server <- function(input, output, session) {
                   color="black",vjust = 0.25,hjust = -0.3, angle = 75) +
         geom_bar(stat = "identity",
                  width = 0.55,
-                 fill = "green4",na.rm = T) +
+                 fill = "purple3",na.rm = T) +
         labs(x = "State", y = "Price ($ USD)", title = "Average Price Per State") +
         ylim(c(0, 55000))
     }
