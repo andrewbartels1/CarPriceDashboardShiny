@@ -51,7 +51,7 @@ body <- dashboardBody(tabItems(
         
         varSelectInput(
           inputId = "columns1",
-          label = "Column(s) from Table 1 to Plot Below",
+          label = "Column from Table 1 to Plot Below",
           "Names",
           multiple = TRUE,
           selected = list("region")
@@ -59,19 +59,23 @@ body <- dashboardBody(tabItems(
         # Second dropdown bar (columns)
         
         varSelectInput(
+          inputId = "columns2",
+          label = "Column from Table 2 to Plot Below",
+          "Names",
+          multiple = TRUE,
+          selected = as.character("year")
+        ),
+        
+        # For second quick look table
+        tags$i("this drop down is just for the Table 2 Quick Look! (not plotted)"),
+        varSelectInput(
           inputId = "tables2",
           label = "Second Tables To Select for Plotting",
           "Names",
           selected = as.character("Ford")
         ),
         
-        varSelectInput(
-          inputId = "columns2",
-          label = "Column(s) from Table 2 to Plot Below",
-          "Names",
-          multiple = TRUE,
-          selected = as.character("year")
-        ),
+
         # Debugging comment only to see drop down selection from backend
         # textOutput("selected_var1"),
         # textOutput("selected_var2"),

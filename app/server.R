@@ -138,6 +138,7 @@ server <- function(input, output, session) {
                       selected = "cars_clean")
   })
   
+  # Get the 2 Quick look tables from the input dropdowns
   tempTable2 <-
     reactive(dbGetQuery(conn, paste(
       "SELECT * FROM ", input$tables2, " LIMIT 100;"
@@ -159,10 +160,19 @@ server <- function(input, output, session) {
           selected = "state"
         )
       })# put the 1st 10 rows from the table selected
+      observe({
+        updateSelectInput(
+          session,
+          "columns2",
+          choices =
+            names(tempTable1()[, !names(tempTable1()) %in% c("description")]),
+          selected = "year"
+        )
+      })# put the 1st 10 rows from the table selected
       # print(typeof(outputs1))
       outputs1 <-
         tempTable1()[, !names(tempTable1()) %in% c("description")]
-      
+       
     })
     
   })
@@ -175,15 +185,7 @@ server <- function(input, output, session) {
       # print(names(tempTable))
       
       
-      observe({
-        updateSelectInput(
-          session,
-          "columns2",
-          choices =
-            names(tempTable2()[, !names(tempTable2()) %in% c("description")]),
-          selected = "year"
-        )
-      })# put the 1st 10 rows from the table selected
+      
       outputs2 <-
         tempTable2()[, !names(tempTable2()) %in% c("description")]
     })
