@@ -27,14 +27,14 @@ library(bannerCommenter) # input into console -> banner("display text", snug = T
 
 
 # Create Path to SQLite db
-db_path <- "../CraigslistCarsClean.sqlite3"
-
-# Establish connection
-conn <- dbConnect(RSQLite::SQLite(), db_path)
-cars <- dbGetQuery(conn, "SELECT * FROM Ford")
-
-# Close db connection
-dbDisconnect(conn)
+# db_path <- "../CraigslistCarsClean.sqlite3"
+# 
+# # Establish connection
+# conn <- dbConnect(RSQLite::SQLite(), db_path)
+# cars <- dbGetQuery(conn, "SELECT * FROM Ford")
+# 
+# # Close db connection
+# dbDisconnect(conn)
 
 
 ##=================================================================================
@@ -208,7 +208,7 @@ State_Model_Prediction <- function(df, input_state, input_city, input_manufactur
 ##------------------------------------
 ##  Test Model_Prediction Function  --
 ##------------------------------------
-State_Model_Prediction(cars, "CA", "Sacramento", "Ford", "F-150", 2015, 100000, "good", "4wd", "8")
+# State_Model_Prediction(cars, "CA", "Sacramento", "Ford", "F-150", 2015, 100000, "good", "4wd", "8")
 
 ##======================================================
 ##  Create Function to get National Predicted Price  ==
@@ -402,7 +402,7 @@ Avg_Price_Per_Region_Plot <- function(df, input_manufacturer, input_model, input
 ##  Test Avg_Price_Per_Region_Plot function --
 ##---------------------------------------------
 
-Avg_Price_Per_Region_Plot(cars, "Ford", "Mustang", 2015)
+# Avg_Price_Per_Region_Plot(cars, "Ford", "Mustang", 2015)
 
 ##==================================================================
 ##  Function to Make a Prediction based on user generated inputs  == Angie
@@ -535,6 +535,6 @@ State_Model_Prediction_KNNReg <- function(df, input_city,input_state,input_manuf
 ##  Test Model_Prediction Function  --
 ##------------------------------------
 
-State_Model_Prediction_KNNReg(cars, "Sacramento","CA", "Ford", "F-150", 2015, 100000, "good", "4wd", "6")
+# State_Model_Prediction_KNNReg(cars, "Sacramento","CA", "Ford", "F-150", 2015, 100000, "good", "4wd", "6")
 
 

@@ -19,7 +19,7 @@ library(roxygen2) # For Function Documentation: ctrl + option + shift + r
 library(randomForest)
 
 #set path to the database
-db_path <- "C:/Users/shawn/MGT 6203 Project/CraigslistCarsClean.sqlite3"
+db_path <- "../CraigslistCarsClean.sqlite3"
 
 conn <- dbConnect(RSQLite::SQLite(), db_path)
 

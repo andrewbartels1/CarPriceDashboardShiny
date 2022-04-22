@@ -11,6 +11,8 @@ pacman::p_load("DBI",
                "maps",
                "shinydashboard",
                "stringr",
+               "kknn",
+               "randomForest",
                install = TRUE, update = getOption("pac_update"))
 
 # Put deps here!
@@ -27,3 +29,5 @@ library(maps)
 library(bslib)
 library(shinydashboard)
 library(stringr)
+library(kknn)
+library(randomForest)
