@@ -208,7 +208,7 @@ State_Model_Prediction <- function(df, input_state, input_city, input_manufactur
 ##------------------------------------
 ##  Test Model_Prediction Function  --
 ##------------------------------------
-# State_Model_Prediction(cars, "CA", "Sacramento", "Ford", "F-150", 2015, 100000, "good", "4wd", "8")
+State_Model_Prediction(cars, "CA", "Sacramento", "Ford", "F-150", 2015, 100000, "good", "4wd", "8")
 
 ##======================================================
 ##  Create Function to get National Predicted Price  ==
@@ -279,7 +279,7 @@ National_Model_Prediction <- function(df, input_state, input_city, input_manufac
 ##  Test National_Model_Prediction Function  --
 ##---------------------------------------------
 
-# National_Model_Prediction(cars, "CA", "Sacramento", "Ford", "F-150", 2015, 100000, "good", "4wd", "8")
+#National_Model_Prediction(cars, "CA", "Sacramento", "Ford", "F-150", 2015, 100000, "good", "4wd", "8")
 
 ##===============================================================================
 ##  Create Plot to compare average price for different regions of the Country  ==
@@ -439,17 +439,18 @@ State_Model_Prediction_KNNReg <- function(df, input_city,input_state,input_manuf
   
   
   # Create a df filtered by the user selected state, manufacturer, model, and condition.
-  # df <- df %>%
-  #   filter(state == input_state,
-  #          manufacturer == input_manufacturer,
-  #          model == input_model,
-  #          condition == input_condition
-  #   )
+  df <- df %>%
+    filter(state == input_state,
+           city == input_city,
+           manufacturer == input_manufacturer,
+           model == input_model,
+           #condition == input_condition
+    )
   
   #My thinking is using the filtered data as raw source for training/test dataset split
   #so that we can get closer to the actual price given user inputs as conditions
   #select certain columns to train data since other user
-  df_select <- df %>% select(year,odometer)
+  df_select <- df %>% select(year,odometer,price)
   #drop any NA
   #df_clean <- df_select[complete.cases(df_select),]
   
@@ -457,19 +458,21 @@ State_Model_Prediction_KNNReg <- function(df, input_city,input_state,input_manuf
   random <- sample(1:nrow(df_select), 0.8 * nrow(df_select))
   
   #Extract Training Set
-  df_train <- df_select[random,]
+  df_train <- df_select[random,-3]
+
   
   #Preprocess training data
   #df_train_pp <- preProcess(df_train,method='range')
   
   #Extract Testing Set
-  df_test <- df_select[-random,]
-  
+  #df_test <- df_select[-random,-3]
+
   #Extract Price Category of train dataset 
-  df_target_price <- df[random,'price']
+  df_target_price <- df_select[random,'price']
+
   
   #Extract Price Category to measure the accuracy for test dataset
-  df_test_price <- df[-random,'price']
+  #df_test_price <- df[-random,'price']
   
   #normalize train dataset
   #fit <- predict(df_train_pp,df_train)
@@ -492,22 +495,16 @@ State_Model_Prediction_KNNReg <- function(df, input_city,input_state,input_manuf
   #     accuracy[i] <- sum(predicted[i] == df$price[i]) / nrow(df)# round off to 0 or 1
   #   }
   #   
-  #   # calculate fraction of correct predictions
   #   
   # 
   # optimal_k <- which.max(accuracy)
-
-  #
-  # Now call the function for values of k from 1 to 20 (you could try higher values of k too)
-  #
   
-  # set up a vector of 20 zeros to start
 
   #set seed
   set.seed(1)
   
-  # Create KNN model
-  knnreg_model <- knnreg(df_train,df_target_price,k=7)
+  # Create KNNReg model
+  knnreg_model <- knnreg(df_train,df_target_price,k=2)
   
   # Create new data point from user inputs
   newData <- data.frame(city=input_city,
@@ -524,15 +521,13 @@ State_Model_Prediction_KNNReg <- function(df, input_city,input_state,input_manuf
   
   #select column for newData to fit KNN Regression model
   newData_select <- newData %>% select(year,odometer)
-  
+
   # Create list of objects to return as list
   number_of_observations <- paste("Number of Training Observations = ", nrow(df_train))
-  model_summary <- summary(knnreg_model)
   predictions <- predict(knnreg_model, newdata = newData_select, interval = "confidence", level = .95)
   
   
-  
-  return(list(head(df, 25), number_of_observations, knnreg_model, predictions))
+  return(list(df_select, number_of_observations, knnreg_model, predictions))
   
 }
 
@@ -540,5 +535,6 @@ State_Model_Prediction_KNNReg <- function(df, input_city,input_state,input_manuf
 ##  Test Model_Prediction Function  --
 ##------------------------------------
 
-State_Model_Prediction_KNNReg(cars, "Sacramento","CA", "Ford", "F-150", 2000, 25000, "good", "4wd", "8")
+State_Model_Prediction_KNNReg(cars, "Sacramento","CA", "Ford", "F-150", 2015, 100000, "good", "4wd", "6")
+
 
