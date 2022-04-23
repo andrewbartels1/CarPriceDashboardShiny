@@ -26,7 +26,6 @@ library(bannerCommenter) # input into console -> banner("display text", snug = T
 # My thinking here is that the app will query the "clean" table upon launch and assign the table to 
 # appropriately named data frame called 'cars'. Currently, the only usable table with a clean model variable is "Ford".
 
-
 # Create Path to SQLite db
 # db_path <- "../CraigslistCarsClean.sqlite3"
 # 

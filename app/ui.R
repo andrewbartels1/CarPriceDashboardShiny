@@ -53,7 +53,7 @@ body <- dashboardBody(tabItems(
           inputId = "columns1",
           label = "Column from Table 1 to Plot Below",
           "Names",
-          multiple = TRUE,
+          multiple = FALSE,
           selected = list("region")
         ),
         # Second dropdown bar (columns)
@@ -62,7 +62,7 @@ body <- dashboardBody(tabItems(
           inputId = "columns2",
           label = "Column from Table 2 to Plot Below",
           "Names",
-          multiple = TRUE,
+          multiple = FALSE,
           selected = as.character("year")
         ),
         
@@ -136,13 +136,28 @@ body <- dashboardBody(tabItems(
     ),),
     # end first fluid row!
     br(), br(), br(), br(), br(), br(), # Give me some space!
-    
+    fluidRow(
+      # Simple stats Plot
+      box(
+        title = "Table 1 Plot",
+        status = "primary",
+        width = "12",
+        collapsible = TRUE,
+        collapsed = FALSE,
+        plotOutput("plotTable1", width = "100%"),
+
+      )
+      # Simple stats Plot
+    ), # End Fluid Row for scatter plotting etc.
+    br(), br(), br(), br(), br(), br(), # Give me some space!
     fluidRow(
       # tags$h1("Next thing is the Count Manuf, Avg Price per manf, med price THAT WILL GO HERE!"),
       # Clicking this will increment the progress amount
-      # box(width = 4, actionButton("count", "Increment progress"))
+      # box(width = 4, actionButton("count", "Increment prog ress"))
       # DROP DOWN BOXES #
       # DROP DOWN BOXES #
+      
+      # Plot 1 #
       box(
         title = "Table 1 Quick Look",
         status = "primary",
@@ -157,6 +172,7 @@ body <- dashboardBody(tabItems(
       # end of Plot 1
       
       # plotting selection ideas from: http://r-statistics.co/Top50-Ggplot2-Visualizations-MasterList-R-Code.html
+      # Plot 2 #
       box(
         title = "Table 2 Quick Look",
         status = "primary",
@@ -171,25 +187,7 @@ body <- dashboardBody(tabItems(
       # end of Plot 2
       
       # end of fist left column
-      
-    ),
-    
-    
-    # selectInput("state", "Choose a state:",
-    #             list(`East Coast` = list("NY", "NJ", "CT"),
-    #                  `West Coast` = list("WA", "OR", "CA"),
-    #                  `Midwest` = list("MN", "WI", "IA"))
-    # ),
-    # box(plotOutput("plot2", height = 250))
-    
-    
-    # infoBox(
-    #   "New Orders",
-    #   10 * 2,
-    #   icon = icon("credit-card"),
-    #   fill = TRUE
-    # )
-  ),
+    )),
   # end first tab
   tabItem(tabName = "analysis",
           h2("Analysis tab contents"),
@@ -210,3 +208,21 @@ body <- dashboardBody(tabItems(
 ui <- dashboardPage(dashboardHeader(title = "Car Price Dashbaord"),
                     sidebar,
                     body)
+
+
+# Good ideas to keep 
+
+# selectInput("state", "Choose a state:",
+#             list(`East Coast` = list("NY", "NJ", "CT"),
+#                  `West Coast` = list("WA", "OR", "CA"),
+#                  `Midwest` = list("MN", "WI", "IA"))
+# ),
+# box(plotOutput("plot2", height = 250))
+
+
+# infoBox(
+#   "New Orders",
+#   10 * 2,
+#   icon = icon("credit-card"),
+#   fill = TRUE
+# )

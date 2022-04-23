@@ -27,6 +27,7 @@ library(bannerCommenter) # input into console -> banner("display text", snug = T
 
 
 # Create Path to SQLite db
+
 # db_path <- "../CraigslistCarsClean.sqlite3"
 # 
 # # Establish connection
@@ -35,7 +36,6 @@ library(bannerCommenter) # input into console -> banner("display text", snug = T
 # 
 # # Close db connection
 # dbDisconnect(conn)
-
 
 ##=================================================================================
 ##  Create Function to assign each row to a specific region of the country       ==
