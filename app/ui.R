@@ -44,17 +44,14 @@ body <- dashboardBody(tabItems(
         varSelectInput(
           inputId = "tables1",
           label = "First Table To Select",
-          "Names",
-          selected = as.character("Ford")
-        ),
+          "Names"),
         # First dropdown bar (tables)
         
         varSelectInput(
           inputId = "columns1",
           label = "Column from Table 1 to Plot Below",
           "Names",
-          multiple = FALSE,
-          selected = list("region")
+          multiple = FALSE
         ),
         # Second dropdown bar (columns)
         
@@ -62,8 +59,7 @@ body <- dashboardBody(tabItems(
           inputId = "columns2",
           label = "Column from Table 2 to Plot Below",
           "Names",
-          multiple = FALSE,
-          selected = as.character("year")
+          multiple = FALSE
         ),
         
         # For second quick look table
@@ -72,10 +68,9 @@ body <- dashboardBody(tabItems(
           inputId = "tables2",
           label = "Second Tables To Select for Plotting",
           "Names",
-          selected = as.character("Ford")
+          selected = c("Ford")
         ),
         
-
         # Debugging comment only to see drop down selection from backend
         # textOutput("selected_var1"),
         # textOutput("selected_var2"),
@@ -93,17 +88,18 @@ body <- dashboardBody(tabItems(
           label = "Plot Type to Select",
           list(
             "scatter",
-            "line",
-            "cluster",
-            "Violin",
-            "Counts",
-            "Marginal Histogram / Boxplot",
-            "Diverging bars",
-            "Density plot",
             "Box Plot",
-            "Treemap",
-            "Clusters",
-            "Spatial"
+            "simple linear model" 
+            # probably good enough for now? agnostic plotting is pretty hard
+            # "cluster",
+            # "Violin",
+            # "Counts",
+            # "Marginal Histogram / Boxplot",
+            # "Diverging bars",
+            # "Density plot",
+            # "Treemap",
+            # "Clusters",
+            # "Spatial"
           )
         )
       ),

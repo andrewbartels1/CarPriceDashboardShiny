@@ -123,114 +123,60 @@ server <- function(input, output, session) {
   }, height = 525) # end first "Quick Stats Quick Look" plot
   # CARS STATS QUICK LOOK #
   
-  # Table 1 Plotting #
+  # Option Plots #
   output$plotTable1 <- renderPlot({
     
-    # Select the 2 rows to plot from the table selected
-    plotTable <- dbGetQuery(conn, paste(
-      "SELECT", input$columns1, " ", input$columns2,  " FROM", input$tables, " ;"
-    ))
-    
-    # Then per the drop down bar plot the type
-    if (input$plotType == "scatter") {
-      cars1 <-
-        dbGetQuery(conn, paste("SELECT manufacturer FROM cars_clean;")) # make a query to the clean table!
-      cars1 %>%
-        group_by(manufacturer) %>%
-        summarise(count = n()) %>%
-        filter(count > 1000) %>%
-        ggplot(aes(x = reorder(manufacturer, (count)), y = count)) +
-        theme(axis.text = element_text(size = 12)) +
-        theme(plot.margin = unit(c(.5, .5, .5, .5), "cm")) +
-        theme(
-          axis.text = element_text(size = 12),
-          axis.title = element_text(size = 14, face = "bold"),
-          axis.title.x = element_text(size = 14, face = "bold"),
-          axis.title.y = element_text(size = 14, face = "bold")
-        ) +
-        geom_bar(stat = "identity",
-                 width = 0.5,
-                 fill = "cadetblue3") +
-        labs(x = "Manufacturer", y = "Count", title = "Count of Cars per Manufacturers") +
-        ylim(c(0, 80000)) +
-        coord_flip()
-    }
-    # Average Price per Manf Plot
-    else if (input$plotType == "Counts") {
-      cars1 <-
-        dbGetQuery(conn,
-                   paste("SELECT manufacturer, price FROM cars_clean;")) # make a query to the clean table!
+    # Get query data for plotting if it isn't empty (it's an issue on startup)
+    if (!(is_empty(input$columns1)) & !(is_empty(input$columns2))) {
       
-      cars1 %>%
-        group_by(manufacturer) %>%
-        summarise_at(vars(price), list(avg_price = mean)) %>%
-        droplevels() %>%
-        ggplot(aes(x = reorder(manufacturer, (avg_price)), y = avg_price), na.rm = T) +
-        theme(axis.text = element_text(size = 11)) +
-        theme(axis.text.x = element_text(angle = 75, vjust = 0.25)) +
-        theme(plot.margin = unit(c(.5, .5, .5, .5), "cm")) +
-        theme(
-          axis.text = element_text(size = 12),
-          axis.title = element_text(size = 14, face = "bold"),
-          axis.title.x = element_text(size = 14, face = "bold"),
-          axis.title.y = element_text(size = 14, face = "bold")
-        ) +
-        geom_text(
-          aes(label = avg_price),
-          position = position_dodge(0.9),
-          color = "black",
-          vjust = 0.5,
-          hjust = -0.5,
-          angle = 75
-        ) +
-        geom_bar(
-          stat = "identity",
-          width = 0.55,
-          fill = "green4",
-          na.rm = T
-        ) +
-        labs(x = "Manufacturer", y = "Price", title = "Average Price Per Manufacturers") +
-        ylim(c(0, 55000))
+      col1 <- as.character(input$columns1)
+      col2 <-  as.character(input$columns2)
+      plotData <-
+        dbGetQuery(
+          conn,
+          paste(
+            "SELECT",
+            input$columns1,
+            ",",
+            input$columns2,
+            "FROM",
+            input$tables1,
+            ";"
+          )
+        )
       
-    } 
-    else if (input$plotType == "medPrice") {
-      cars1 <-
-        dbGetQuery(conn, paste("SELECT state, price FROM cars_clean;")) # make a query to the clean table!
       
-      cars1 %>%
-        group_by(state) %>%
-        summarise_at(vars(price), list(avg_price = mean)) %>%
-        droplevels() %>%
-        ggplot(aes(x = reorder(state, (avg_price)), y = avg_price), na.rm = T) +
-        theme(axis.text = element_text(size = 11)) +
-        theme(axis.text.x = element_text(angle = 60, vjust = 0.25)) +
-        theme(plot.margin = unit(c(.5, .5, .5, .5), "cm")) +
-        theme(
-          axis.text = element_text(size = 12),
-          axis.title = element_text(size = 14, face = "bold"),
-          axis.title.x = element_text(size = 14, face = "bold"),
-          axis.title.y = element_text(size = 14, face = "bold")
-        ) +
-        geom_text(
-          aes(label = avg_price),
-          position = position_dodge(0.9),
-          color = "black",
-          vjust = 0.25,
-          hjust = -0.3,
-          angle = 75
-        ) +
-        geom_bar(
-          stat = "identity",
-          width = 0.55,
-          fill = "purple3",
-          na.rm = T
-        ) +
-        labs(x = "State", y = "Price ($ USD)", title = "Average Price Per State") +
-        ylim(c(0, 55000))
+      if (input$plotType == "scatter") {
+        p = ggplot(data = plotData, aes_string(x = input$columns1, y = input$columns2)) +
+          geom_point(alpha=0.5, color='blue3') +
+          labs(x=input$columns1, y=input$columns2)
+        plot(p)
+        grid()
+      }
+        
+      # Average Price per Manf Plot
+      else if (input$plotType == "Box Plot") {
+        meltData <- melt(plotData)
+        p <- ggplot(meltData, aes(factor(variable), value))
+        p + geom_boxplot() + facet_wrap(~variable, scale="free")
+
+
+      }
+      else if (input$plotType == "simple linear model") {
+        plotData <- plotData[is.na(plotData) | plotData == "Inf"] <- NA  # Replace NaN & Inf with NA
+        m <- lm(data = plotData, na.action=na.omit)  
+        plot(plotData$input$columns1 ~ plotData$input$columns2, main=paste("Scatter Plot:", input$columns1, "vs. ", input$columns2), xlab=input$columns1, ylab=input$columns2)
+        abline(m)
+      }
+      
+      
+      
+      
     }
     
   }, height = 525) # end first "Quick Stats Quick Look" plot
-  # Table 1 Plotting #
+  # Option Plots #
+  
   
   observe({
     updateSelectInput(session,
@@ -264,8 +210,8 @@ server <- function(input, output, session) {
           session,
           "columns1",
           choices =
-            names(tempTable1()[, !names(tempTable1()) %in% c("description")]),
-          selected = "state"
+            names(tempTable1()[,!names(tempTable1()) %in% c("description")]),
+          selected = "cylinders"
         )
       })# put the 1st 10 rows from the table selected
       observe({
@@ -273,14 +219,14 @@ server <- function(input, output, session) {
           session,
           "columns2",
           choices =
-            names(tempTable1()[, !names(tempTable1()) %in% c("description")]),
+            names(tempTable1()[,!names(tempTable1()) %in% c("description")]),
           selected = "year"
         )
       })# put the 1st 10 rows from the table selected
       # print(typeof(outputs1))
       outputs1 <-
-        tempTable1()[, !names(tempTable1()) %in% c("description")]
-       
+        tempTable1()[,!names(tempTable1()) %in% c("description")]
+      
     })
     
   })
@@ -295,7 +241,7 @@ server <- function(input, output, session) {
       
       
       outputs2 <-
-        tempTable2()[, !names(tempTable2()) %in% c("description")]
+        tempTable2()[,!names(tempTable2()) %in% c("description")]
     })
     
   })

@@ -536,5 +536,3 @@ State_Model_Prediction_KNNReg <- function(df, input_city,input_state,input_manuf
 ##------------------------------------
 
 # State_Model_Prediction_KNNReg(cars, "Sacramento","CA", "Ford", "F-150", 2015, 100000, "good", "4wd", "6")
-
-
