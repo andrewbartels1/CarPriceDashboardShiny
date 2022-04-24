@@ -416,7 +416,7 @@ Avg_Price_Per_Region_Plot <- function(df, input_manufacturer, input_model, input
 ##  Test Avg_Price_Per_Region_Plot function --
 ##---------------------------------------------
 
-Avg_Price_Per_Region_Plot(cars, "Toyota", "Tacoma", 2010)
+Avg_Price_Per_Region_Plot(cars, "Toyota", "Supra", 2022)
 
 ##==================================================================
 ##  Function to Make a Prediction based on user generated inputs  == Angie
