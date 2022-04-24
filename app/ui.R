@@ -31,7 +31,11 @@ sidebar <- dashboardSidebar(sidebarMenu(
 
 ## Body content
 body <- dashboardBody(tabItems(
-  # First tab content
+  
+  #######################
+  # Data Exploration Tab
+  #######################
+  
   tabItem(
     tabName = "dashboard",
     fluidRow(column(
@@ -184,11 +188,67 @@ body <- dashboardBody(tabItems(
       
       # end of fist left column
     )),
-  # end first tab
+  
+  #######################
+  # End Data Exploration Tab
+  #######################
+  
+  
+  #######################
+  # Analysis Tab
+  #######################
   tabItem(tabName = "analysis",
           h2("Analysis tab contents"),
-          tags$i("This tab contains some more complex visualizations for a specific Manufacturer to ensure the most value and consistent app experience.")),
-  # end 2nd Analysis tab
+          tags$i("This tab contains some more complex visualizations for a specific Manufacturer to ensure the most value and consistent app experience."),
+          fluidRow(
+          # Simple stats Plot
+          box(
+            title = "Select Manufacturer to Analyze",
+            status = "primary",
+            width = "12",
+            collapsible = TRUE,
+            collapsed = FALSE,
+            selectizeInput(
+              inputId = "AnalysisManf",
+              label = "Select Manufacturer",
+              choices = c(
+                "Ford",
+                "Chevrolet",
+                "Toyota",
+                "Honda",
+                "Ram"
+              ),
+              multiple = FALSE,
+              selected = "count"
+            ),
+            varSelectInput(
+              inputId = "MakeModel",
+              label = "Select the Make/Model",
+              "Names")
+            # selectizeInput(
+            #   inputId = "firstplots",
+            #   label = "Select Year",
+            #   choices = c(
+            #     "Ford",
+            #     "Chevrolet",
+            #     "Toyota",
+            #     "Honda",
+            #     "Ram"
+            #   ),
+            #   multiple = FALSE,
+            #   selected = "count"
+            # ),
+            
+            # plotOutput("manuf_bar_plot", width = "100%"),
+            
+          ))),
+
+  #######################
+  # End Analysis Tab
+  #######################
+  
+  
+  
   
   tabItem(tabName = "prediction",
           h2("Prediction tab contents")),

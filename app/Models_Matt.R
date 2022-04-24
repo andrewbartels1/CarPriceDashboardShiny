@@ -536,3 +536,33 @@ State_Model_Prediction_KNNReg <- function(df, input_city,input_state,input_manuf
 ##------------------------------------
 
 # State_Model_Prediction_KNNReg(cars, "Sacramento","CA", "Ford", "F-150", 2015, 100000, "good", "4wd", "6")
+
+
+##------------------------------------
+##  Example Code for the Prediction and Results Tab  --
+##------------------------------------
+
+
+# In the predictions tab it's assumed the user will select:
+
+# df <- ("some thaat is an example")
+
+# user inputs are "Ford", "Mustang", and 2015 (i.e. 3 drop  downs)
+# Avg_Price_Per_Region_Plot(df, "Ford", "Mustang", 2015)
+
+# print something here that the new model gives
+# visualize with plot
+
+
+# Results Example/Scratch
+ 
+
+
+# Results Example/Scratch
+
+
+
+
+
+
+

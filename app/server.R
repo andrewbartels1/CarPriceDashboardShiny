@@ -7,6 +7,9 @@
 
 
 server <- function(input, output, session) {
+  #######################
+  # Setup
+  #######################
   source("./global.R", local = TRUE)
   source("./Plots_Angie.R")
   source("./Models_Matt.R")
@@ -16,11 +19,25 @@ server <- function(input, output, session) {
   # Connect to the database
   conn <- dbConnect(RSQLite::SQLite(), db_path)
   
+  db_path_cleaned <- "../Top_5_Manufacturers.sqlite"
+  
+  # Connect to the database
+  conn_cleaned <- dbConnect(RSQLite::SQLite(), db_path_cleaned)
+  
+  
+  
   # yank stuff from global that's supposed to run
   table_list <- dbListTables(conn)
   
-  # print(cars)
-  #
+  
+  #######################
+  # End Setup
+  #######################
+  
+  
+  #######################
+  # Data Exploration Tab
+  #######################
   # CARS STATS QUICK LOOK #
   output$manuf_bar_plot <- renderPlot({
     # Count per Manf
@@ -163,8 +180,15 @@ server <- function(input, output, session) {
 
       }
       else if (input$plotType == "simple linear model") {
-        plotData <- plotData[is.na(plotData) | plotData == "Inf"] <- NA  # Replace NaN & Inf with NA
-        m <- lm(data = plotData, na.action=na.omit)  
+        if (is.character(plotData$input$columns1)){
+          plotData$input$columns1 <- as.factor(plotData$input$columns1)
+        }
+        if (is.character(plotData$input$columns2)){
+          plotData$input$columns2 <- as.factor(plotData$input$columns2)
+        }
+        # plotData <- plotData[is.na(plotData) | plotData == "Inf"] <- NA  # Replace NaN & Inf with NA
+        print(plotData)
+        m <- lm(input$columns1 ~ input$columns2, data = plotData, na.action=na.omit)  
         plot(plotData$input$columns1 ~ plotData$input$columns2, main=paste("Scatter Plot:", input$columns1, "vs. ", input$columns2), xlab=input$columns1, ylab=input$columns2)
         abline(m)
       }
@@ -236,14 +260,51 @@ server <- function(input, output, session) {
     # print(paste("SELECT * FROM ",input$tables2," LIMIT 10;")) # uncomment to print the tables being cast to dataTableOutput
     
     output$tableOutput2 <- renderDataTable({
-      # print(names(tempTable))
-      
-      
       
       outputs2 <-
         tempTable2()[,!names(tempTable2()) %in% c("description")]
     })
     
   })
+  
+  #######################
+  # End Data Exploration Tab
+  #######################
+  
+  #######################
+  # Analysis Tab
+  #######################
+  # Manf Drop down #
+  observe({
+    updateSelectInput(
+      session,
+      "AnalysisManf",
+      # choices =
+        # names(tempTable1()[,!names(tempTable1()) %in% c("description")]),
+      # selected = "Ford"
+    )
+    print(input$AnalysisManf)
+  })# Manf Drop Down
+  
+  tempManfCleaned <-
+    reactive(dbGetQuery(conn_cleaned, paste(
+      "SELECT * FROM Top_5_Manufacturers;"
+    )))
+  
+  observeEvent(input$AnalysisManf, {
+        updateSelectInput(
+          session,
+          "MakeModel",
+          choices =
+            unique(filter(tempManfCleaned(), manufacturer == input$AnalysisManf)[c("model")]),
+          # selected = "Ford"
+        )
+      })
+  
+  #######################
+  # End Analysis Tab
+  #######################
+  
+  
   
 }
