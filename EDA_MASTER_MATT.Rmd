@@ -68,14 +68,54 @@ Create single city average from Census data to so we can join to cars
 ```{r}
 census_grouped <- census %>% 
   group_by(city, state) %>% 
-  summarise(med_family_income = median(median_income_family),
-            med_non_family_income = median(median_income_non_family))
+  summarise(med_family_income = mean(median_income_family),
+            med_non_family_income = mean(median_income_non_family))
+```
+
+Get Avg Med income by state
+```{r}
+census_avg_by_state <- census %>% 
+  group_by(state) %>% 
+  summarise(med_family_income = mean(median_income_family),
+            med_non_family_income = mean(median_income_non_family))
+```
+
+
+#### Change City / State columns are character type for merge
+```{r}
+cars$state <- as.character(str_trim(cars$state))
+cars$city <- as.character(str_trim(cars$city))
+
+census_grouped$city <- as.character(str_trim(census_grouped$city))
+census_grouped$state <- as.character(str_trim(census_grouped$state))
 ```
 
 
 Merge 'cars' and 'census'
 ```{r}
-cars <- merge(cars, census_grouped, by = c("state", "city"))
+cars <- cars %>% left_join(census_grouped, by = c("state", "city")) 
+```
+
+
+```{r}
+non_city <- cars  %>% filter(is.na(med_family_income)) %>% select(!c(med_family_income, med_non_family_income))
+
+non_city <- non_city %>% left_join(census_avg_by_state, by = "state")
+
+non_city %>% filter(is.na(med_family_income))
+```
+```{r}
+cars <- cars %>% filter(!is.na(med_family_income))
+dim(cars)
+```
+
+
+```{r}
+cars <- rbind(cars, non_city)
+```
+
+```{r}
+cars %>% filter(is.na(med_family_income))
 ```
 
 
@@ -255,7 +295,7 @@ plot(ford_model_hist)
 ford <- ford %>%
   mutate(model_clean = as.factor(model_clean)) %>% 
   select(city, state, manufacturer, model_clean, year, age, condition, cylinders, fuel, odometer,
-         title_status, transmission, drive, type, paint_color, price, 
+         title_status, transmission, drive, type, paint_color,posting_date, price, 
          med_family_income, med_non_family_income) %>% 
   rename(model = model_clean)
 
@@ -265,17 +305,182 @@ ford <- ford %>%
 head(ford)
 ```
 
-#### Write ford df to SQLite DB
+#### Clean Chevrolet
 ```{r}
-conn <- dbConnect(RSQLite::SQLite(), db_path)
+chevrolet_model_pattern <- paste(c("Bolt", "Cruze", "Menlo", "Onix", "Spark", "Malibu", "Monza", "Optra",
+                                   "Sail", "Camaro", "Corvette", "Colorado", "D-Max", "Montana", "S10", "S-10",
+                                   "Silverado", "Silverado 1500", "Silverado 2500", "Silverado 2500HD", "Siverado EV", 
+                                   "Silverado 3500", "Silverado 3500HD", "Blazer", "Bolt EUV", "Captiva", "Equinox",
+                                   "Groove", "Suburban", "Tahoe", "Tracker", "Trailblazer", "Traverse", "Trax",
+                                   "Orlando", "Spin", "Express", "Bel Air", "Townsman", "Impala", "El Camino",
+                                   "Nova", "Chevelle", "Caprice", "Monte Carlo", "Astro", "Lumina", "Venture",
+                                   "Avalanche", "Cobalt", "Volt", "Sonic", "Cavalier", "Elcamino", "1500", "2500",
+                                   "3500", "Z71", "Z 71", "Z-71", "Aveo", "C10", "Uplander", "C1500", "C2500", "C3500",
+                                   "C4500", "C5500", "C6500", "C7500", "Corvair", "Hhr"), collapse = "|")
 
+chevrolet <- cars %>%
+  filter(manufacturer == "Chevrolet") %>% 
+  mutate(model_clean = str_extract(model, regex(pattern = chevrolet_model_pattern, ignore_case = TRUE)))  
+```
+
+
+```{r}
+chevrolet %>% count(model_clean)
+```
+
+```{r}
+silverado <- paste(c("1500", "2500", "3500", "Z 71", "Z71", "Silverado"), collapse = "|")
+
+chevrolet$model_clean <- str_replace_all(chevrolet$model_clean, regex(pattern = silverado, ignore_case = TRUE), "Silverado")
+chevrolet$model_clean <- str_to_title(chevrolet$model_clean)
+
+chevrolet <- chevrolet %>% filter(!is.na(model_clean)) %>% 
+  mutate(model_clean = as.factor(model_clean)) %>% 
+  select(city, state, manufacturer, model_clean, year, age, condition, cylinders, fuel, odometer,
+         title_status, transmission, drive, type, paint_color, posting_date, price, 
+         med_family_income, med_non_family_income) %>% 
+  rename(model = model_clean)
+
+```
+
+```{r}
+head(chevrolet)
+```
+#### Clean Toyota Models
+```{r}
+toyota_model_pattern <- paste(c("Avalon", "Belta", "Camry", "Century", "Corolla", "Crown", "Etios", "Mirai", "Prius",
+                                 "Vios", "Yaris", "Agya", "Aqua", "Glanza", "Passo", "4Runner", "4 Runner", "Aygo", "bZ4X",
+                                 "C-HR", "FJ Cruiser", "Fortuner", "Harrier", "Venza", "Land Cruiser", "Raize", "Rav4",
+                                 "Wildlander", "Rush", "Sequoia", "Urban Cruiser", "Alphard", "Avanza", "Veloz", "Calya",
+                                 "Voxy", "Noah", "Roomy", "Rumion", "Sienna", "Verso", "Sienta", "HiAce", "ProAce",
+                                 "Hilux", "Tacoma", "Tundra", "GR86", "Supra", "Pixis", "Coaster", "Dyna", "Sora",
+                                 "Celica", "Highlander", "Previa", "Solara", "Echo", "Landcruiser", "Rav 4", "Matrix",
+                                 "Tercel"), collapse = "|")
+
+toyota <- cars %>%
+  filter(manufacturer == "Toyota") %>% 
+  mutate(model_clean = str_extract(model, regex(pattern = toyota_model_pattern, ignore_case = TRUE)))  
+```
+
+```{r}
+toyota %>% count(model_clean)
+```
+
+```{r}
+a_4runner <- paste(c("4 Runner", "4Runner"), collapse = "|")
+landcruiser <- paste(c("Land Cruiser", "Landcruiser"), collapse = "|")
+rav4 <- paste(c("Rav 4", "Rav4"), collapse = "|")
+
+toyota$model_clean <- str_replace_all(toyota$model_clean, regex(pattern = a_4runner, ignore_case = TRUE), "4Runner")
+toyota$model_clean <- str_replace_all(toyota$model_clean, regex(pattern = landcruiser, ignore_case = TRUE), "Landcruiser")
+toyota$model_clean <- str_replace_all(toyota$model_clean, regex(pattern = rav4, ignore_case = TRUE), "RAV4")
+
+toyota$model_clean <- str_to_title(toyota$model_clean)
+
+toyota <- toyota %>% filter(!is.na(model_clean)) %>% 
+  mutate(model_clean = as.factor(model_clean)) %>% 
+  select(city, state, manufacturer, model_clean, year, age, condition, cylinders, fuel, odometer,
+         title_status, transmission, drive, type, paint_color, posting_date, price, 
+         med_family_income, med_non_family_income) %>% 
+  rename(model = model_clean)
+```
+
+#### Clean up Honda
+
+```{r}
+honda_model_pattern <- paste(c("Brio", "City", "Civic", "e", "Fit", "Jazz", "Life", "Accord", "Amaze", "CRZ", "CR Z", "CR-Z",
+                               "Insight", "Envix", "Crider", "Elysion", "Freed", "Mobilio", "Odyssey", "Clarity",
+                               "Shuttle", "Stepwgn", "Avancier", "BR-V", "Breeze", "CRV", "CR-V", "CR V", "Passport",
+                               "Pilot", "UR-V", "URV", "WR-V", "WRV", "HRV", "HR V", "HR-V", "Ridgeline", "Civic Type R", "NSX",
+                               "S660", "S2000", "Crosstour", "Jade", "Prelude", "Concerto"), collapse = "|")
+
+honda <- cars %>%
+  filter(manufacturer == "Honda") %>% 
+  mutate(model_clean = str_extract(model, regex(pattern = honda_model_pattern, ignore_case = TRUE))) 
+  
+honda$model_clean <- str_to_title(honda$model_clean)
+```
+
+```{r}
+crv <- paste(c("CRV", "CR-V", "CR V"), collapse = "|")
+crz <- paste(c("CRZ", "CR-Z", "CR Z"), collapse = "|")
+hrv <- paste(c("HRV", "HR V", "HR-V"), collapse = "|")
+
+honda$model_clean <- str_replace_all(honda$model_clean, regex(pattern = crv, ignore_case = TRUE), "CR-V")
+honda$model_clean <- str_replace_all(honda$model_clean, regex(pattern = crz, ignore_case = TRUE), "CR-Z")
+honda$model_clean <- str_replace_all(honda$model_clean, regex(pattern = hrv, ignore_case = TRUE), "HR-V")
+```
+
+```{r}
+honda$model_clean <- str_to_title(honda$model_clean)
+
+honda <- honda %>% filter(!is.na(model_clean)) %>% 
+  mutate(model_clean = as.factor(model_clean)) %>% 
+  select(city, state, manufacturer, model_clean, year, age, condition, cylinders, fuel, odometer,
+         title_status, transmission, drive, type, paint_color, posting_date, price, 
+         med_family_income, med_non_family_income) %>% 
+  rename(model = model_clean)
+```
+
+
+```{r}
+honda %>% count(model)
+```
+
+#### Clean Ram
+```{r}
+cars %>% filter(manufacturer == "Ram") %>% count(model)
+```
+
+
+```{r}
+ram_model_pattern <- paste(c("1500 Promaster", "2500 Promaster", "3500 Promaster", 
+                             "Promaster", "Promaster City", "Chassis", "Cargo Van", 
+                             "4500", "5500", "1500 Bighorn", "2500 Bighorn", "3500 Bighorn", 
+                             "1500 Laramie", "2500 Laramie", "3500 Laramie", "1500 Rebel", 
+                             "1500 Longhorn", "2500 Longhorn", "3500 Longhorn", "1500 Outdoorsman", 
+                             "2500 Outdoorsman", "3500 Outdoorsman", "Dakota", "3500", "2500", "1500", "700", "500"), collapse = "|")
+
+ram <- cars %>%
+  filter(manufacturer == "Ram") %>% 
+  mutate(model_clean = str_extract(model, regex(pattern = ram_model_pattern, ignore_case = TRUE))) 
+  
+ram$model_clean <- str_to_title(ram$model_clean)
+```
+
+```{r}
+ram$model_clean <- str_to_title(ram$model_clean)
+
+ram <- ram %>% filter(!is.na(model_clean)) %>% 
+  mutate(model_clean = as.factor(model_clean)) %>% 
+  select(city, state, manufacturer, model_clean, year, age, condition, cylinders, fuel, odometer,
+         title_status, transmission, drive, type, paint_color, posting_date, price, 
+         med_family_income, med_non_family_income) %>% 
+  rename(model = model_clean)
+```
+
+```{r}
+ram %>% count(model)
+```
+
+```{r}
+top_5_manufacturers <- rbind(ford, chevrolet, toyota, honda, ram)
+top_5_manufacturers <- top_5_manufacturers %>% arrange(posting_date)
+```
+
+
+
+
+
+#### Create new SQLite DB with top-5 manufacturers
+```{r}
+conn <- dbConnect(RSQLite::SQLite(), "Top_5_Manufacturers.sqlite")
 dbListTables(conn)
 ```
 
 
 ```{r}
-dbWriteTable(conn, "Ford", ford, overwrite = TRUE)
-
+dbWriteTable(conn, "Top_5_Manufacturers", top_5_manufacturers, overwrite = TRUE)
 dbListTables(conn)
 ```
 
