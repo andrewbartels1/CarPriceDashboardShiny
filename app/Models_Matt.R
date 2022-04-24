@@ -27,15 +27,22 @@ library(bannerCommenter) # input into console -> banner("display text", snug = T
 
 
 # Create Path to SQLite db
+db_path <- "Top_5_Manufacturers.sqlite"
 
-# db_path <- "../CraigslistCarsClean.sqlite3"
-# 
-# # Establish connection
-# conn <- dbConnect(RSQLite::SQLite(), db_path)
-# cars <- dbGetQuery(conn, "SELECT * FROM Ford")
-# 
-# # Close db connection
-# dbDisconnect(conn)
+# Establish connection
+conn <- dbConnect(RSQLite::SQLite(), db_path)
+
+# List Tables
+dbListTables(conn)
+
+# Write Table to DB
+#dbWriteTable(conn, "cars", cars, overwrite = FALSE)
+
+# Write query
+cars <- dbGetQuery(conn, "SELECT * FROM cars")
+
+# Close db connection
+dbDisconnect(conn)
 
 ##=================================================================================
 ##  Create Function to assign each row to a specific region of the country       ==
@@ -208,7 +215,7 @@ State_Model_Prediction <- function(df, input_state, input_city, input_manufactur
 ##------------------------------------
 ##  Test Model_Prediction Function  --
 ##------------------------------------
-# State_Model_Prediction(cars, "CA", "Sacramento", "Ford", "F-150", 2015, 100000, "good", "4wd", "8")
+#State_Model_Prediction(cars, "CA", "Sacramento", "Ford", "F-150", 2015, 100000, "good", "4wd", "8")
 
 ##======================================================
 ##  Create Function to get National Predicted Price  ==
@@ -316,39 +323,40 @@ Avg_Price_Per_Region_Plot <- function(df, input_manufacturer, input_model, input
               n = n()) %>% 
     mutate(avg_price = avg_price,
            avg_odometer = avg_odometer)
-    
   
+  if (nrow(regions) != 0) {
+
     # Create Plot
     plot <- ggplot(regions) +
-      
+
     # Make custom panel grid
       geom_hline(aes(yintercept = y), data.frame(y = c(0:5) * 10000), color = "lightgrey") +
       geom_col(aes(x = region, y = avg_price, fill = n), position = "dodge2", show.legend = TRUE, alpha = .9) +
-      
+
       # Add dots
       geom_point(aes(x = region, y = avg_price), size = 2, color = "gray12") +
-      
-      # Create a Lollipop shaft 
-      geom_segment(aes(x = region, y = 0, xend = region, yend = 40000), linetype = "dashed", color = "gray12") + 
-      
+
+      # Create a Lollipop shaft
+      geom_segment(aes(x = region, y = 0, xend = region, yend = 40000), linetype = "dashed", color = "gray12") +
+
       # Create Labels for title, subtitle, x, y, and fill
       labs(title = glue("Average Price for {input_year} {input_manufacturer} {input_model}"),
            subtitle = "Comparison Between US Regions",
-           y = "Price", 
-           x = "Region", 
+           y = "Price",
+           x = "Region",
            fill = "Number of Vehicles") +
-      
+
       # Scale y axis so bars don't start in the center
       scale_y_continuous(
         limits = c(-1500, 45000),
         expand = c(0, 0),
         breaks = c(0, 10000, 20000, 30000, 40000)
                          ) +
-      
+
       annotate("text", x = 0, y = 21000, label = "20,000", size = 2) +
       annotate("text", x = 0, y = 31000, label = "30,000", size = 2) +
       annotate("text", x = 0, y = 41000, label = "40,000", size = 2) +
-      
+
       theme(
         # Remove axis ticks and text
         axis.title = element_blank(),
@@ -359,50 +367,56 @@ Avg_Price_Per_Region_Plot <- function(df, input_manufacturer, input_model, input
         # Move the legend to the bottom
         legend.position = "bottom",
             ) +
-      
+
       theme(
-        
+
         # Set default color for the text
         text = element_text(color = "gray12"),
-        
+
         # Customize the text in the title, subtitle, and caption
         plot.title = element_text(face = "bold", size = 15, hjust = 0.5),
         plot.subtitle = element_text(size = 10, hjust = 0.5),
         plot.caption = element_text(size = 8, hjust = .5),
-        
+
         # Make the background white and remove extra grid lines
         panel.background = element_rect(fill = "white", color = "white"),
         panel.grid = element_blank(),
         panel.grid.major.x = element_blank()
-           ) + 
-      
+           ) +
+
       # New fill and legend title for number of tracks per region
       scale_fill_gradientn(
         "Number of Vehicles",
         colours = c("#6C5B7B","#C06C84","#F67280","#F8B195")
                            ) +
-      
+
       # Make the guide for the fill discrete
       guides(
         fill = guide_colorsteps(
           barwidth = 15, barheight = .5, title.position = "top", title.hjust = .5)
              ) +
-      
-      
+
+
       # Make it circular
       coord_polar()
-      
+
       # Save the plot
       ggsave("circle_bar_plot.png", plot,width = 13, height = 8)
-      
-    return(plot)
+
+      return(plot)
+
+  } else {
+    
+   return("Not enough data available for this Make / Model / Year. Please try a different selection")
+   
+  }
 }
 
 ##---------------------------------------------
 ##  Test Avg_Price_Per_Region_Plot function --
 ##---------------------------------------------
 
-# Avg_Price_Per_Region_Plot(cars, "Ford", "Mustang", 2015)
+Avg_Price_Per_Region_Plot(cars, "Toyota", "Tacoma", 2010)
 
 ##==================================================================
 ##  Function to Make a Prediction based on user generated inputs  == Angie
@@ -536,3 +550,7 @@ State_Model_Prediction_KNNReg <- function(df, input_city,input_state,input_manuf
 ##------------------------------------
 
 # State_Model_Prediction_KNNReg(cars, "Sacramento","CA", "Ford", "F-150", 2015, 100000, "good", "4wd", "6")
+
+# Filter by manufacturer, model, year
+
+

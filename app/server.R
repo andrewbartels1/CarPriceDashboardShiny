@@ -19,6 +19,8 @@ server <- function(input, output, session) {
   # yank stuff from global that's supposed to run
   table_list <- dbListTables(conn)
   
+  #dbDisconnect(conn)
+  
   # print(cars)
   #
   # CARS STATS QUICK LOOK #
