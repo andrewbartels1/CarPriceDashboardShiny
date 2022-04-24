@@ -278,18 +278,17 @@ server <- function(input, output, session) {
   observe({
     updateSelectInput(
       session,
-      "AnalysisManf",
-      # choices =
-        # names(tempTable1()[,!names(tempTable1()) %in% c("description")]),
-      # selected = "Ford"
-    )
-    print(input$AnalysisManf)
-  })# Manf Drop Down
+      "AnalysisManf")
+    # print(input$AnalysisManf)
+  })
+  # Manf Drop Down
   
+  # Query temp table to select drop downs off of
   tempManfCleaned <-
     reactive(dbGetQuery(conn_cleaned, paste(
-      "SELECT * FROM Top_5_Manufacturers;"
+      "SELECT * FROM cars;"
     )))
+  
   
   observeEvent(input$AnalysisManf, {
         updateSelectInput(
@@ -297,9 +296,35 @@ server <- function(input, output, session) {
           "MakeModel",
           choices =
             unique(filter(tempManfCleaned(), manufacturer == input$AnalysisManf)[c("model")]),
-          # selected = "Ford"
+          selected = "Mustang"
         )
+    
       })
+  
+  observeEvent(input$AnalysisManf, {
+    tempFilt <- filter(tempManfCleaned(), manufacturer == input$AnalysisManf)
+    
+    updateSelectInput(
+      session,
+      "MakeYear",
+      choices =
+      unique(tempFilt[order(as.integer(tempFilt$year),decreasing = FALSE), "year"]),
+      selected = 2015)
+    
+    })
+  
+  # Pretty Box Plot
+  output$model_box <-  renderPlot({
+    Model_Box(tempManfCleaned(), input$AnalysisManf)
+  })
+  # Pretty Box Plot
+  
+  # Pretty Radar Plot
+  output$avgPriceRegion <-  renderPlot({
+    Avg_Price_Per_Region_Plot(tempManfCleaned(), input$AnalysisManf, input$MakeModel, input$MakeYear)
+  }, height = 750)
+  # Pretty Radar Plot
+  
   
   #######################
   # End Analysis Tab

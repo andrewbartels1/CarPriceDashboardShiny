@@ -104,7 +104,9 @@ Add_Regions <- function (df) {
 Model_Box <- function(df, input_manufacturer) {
   
   # Filter by the input_manufacturer
-  df <- df %>% filter(manufacturer == input_manufacturer)
+  df <- df %>% filter(manufacturer == input_manufacturer) %>% 
+               filter(price <= 100000)
+  df <- df[!df %in% boxplot.stats(df$price)$out]
   
   # Build box plots
   model_box <- df %>% 
@@ -123,7 +125,7 @@ Model_Box <- function(df, input_manufacturer) {
          color = "Model")
   
   # export .png of plot
-  ggsave(glue("{input_manufacturer}_boxplot.png"), width = 13, height = 8)
+  # ggsave(glue("{input_manufacturer}_boxplot.png"), width = 13, height = 8)
   
   # Return Plot
   return(model_box)
@@ -319,6 +321,9 @@ Avg_Price_Per_Region_Plot <- function(df, input_manufacturer, input_model, input
     
   
     # Create Plot
+    print(nrow(df))
+    
+    
     plot <- ggplot(regions) +
       
     # Make custom panel grid
@@ -345,9 +350,9 @@ Avg_Price_Per_Region_Plot <- function(df, input_manufacturer, input_model, input
         breaks = c(0, 10000, 20000, 30000, 40000)
                          ) +
       
-      annotate("text", x = 0, y = 21000, label = "20,000", size = 2) +
-      annotate("text", x = 0, y = 31000, label = "30,000", size = 2) +
-      annotate("text", x = 0, y = 41000, label = "40,000", size = 2) +
+      annotate("text", x = 0, y = 21000, label = "20,000", size = 5) +
+      annotate("text", x = 0, y = 31000, label = "30,000", size = 5) +
+      annotate("text", x = 0, y = 41000, label = "40,000", size = 5) +
       
       theme(
         # Remove axis ticks and text
@@ -355,7 +360,7 @@ Avg_Price_Per_Region_Plot <- function(df, input_manufacturer, input_model, input
         axis.ticks = element_blank(),
         axis.text.y = element_blank(),
         # Use gray text for the region names
-        axis.text.x = element_text(color = "gray12", size = 10),
+        axis.text.x = element_text(color = "gray12", size = 15),
         # Move the legend to the bottom
         legend.position = "bottom",
             ) +
@@ -366,9 +371,9 @@ Avg_Price_Per_Region_Plot <- function(df, input_manufacturer, input_model, input
         text = element_text(color = "gray12"),
         
         # Customize the text in the title, subtitle, and caption
-        plot.title = element_text(face = "bold", size = 15, hjust = 0.5),
-        plot.subtitle = element_text(size = 10, hjust = 0.5),
-        plot.caption = element_text(size = 8, hjust = .5),
+        plot.title = element_text(face = "bold", size = 20, hjust = 0.5),
+        plot.subtitle = element_text(size = 20, hjust = 0.5),
+        plot.caption = element_text(size = 26, hjust = .5),
         
         # Make the background white and remove extra grid lines
         panel.background = element_rect(fill = "white", color = "white"),
@@ -381,7 +386,7 @@ Avg_Price_Per_Region_Plot <- function(df, input_manufacturer, input_model, input
         "Number of Vehicles",
         colours = c("#6C5B7B","#C06C84","#F67280","#F8B195")
                            ) +
-      
+
       # Make the guide for the fill discrete
       guides(
         fill = guide_colorsteps(
@@ -402,8 +407,11 @@ Avg_Price_Per_Region_Plot <- function(df, input_manufacturer, input_model, input
 ##  Test Avg_Price_Per_Region_Plot function --
 ##---------------------------------------------
 
-# Avg_Price_Per_Region_Plot(cars, "Ford", "Mustang", 2015)
-
+# Avg_Price_Per_Region_Plot(cars, "Ford", "Mustang", 2015) # works!
+# Avg_Price_Per_Region_Plot(cars, "Ford", "Mustang", 2022) # doesn't work?
+# Avg_Price_Per_Region_Plot(cars, "Ford", "Mustang", 2022) # doesn't work?
+# Avg_Price_Per_Region_Plot(cars, "Toyota", "Supra", 2022) # doesn't work?
+# Avg_Price_Per_Region_Plot(cars, "Ford", "Crown Victoria", 2001) # works
 ##==================================================================
 ##  Function to Make a Prediction based on user generated inputs  == Angie
 ##==================================================================

@@ -199,9 +199,10 @@ body <- dashboardBody(tabItems(
   #######################
   tabItem(tabName = "analysis",
           h2("Analysis tab contents"),
-          tags$i("This tab contains some more complex visualizations for a specific Manufacturer to ensure the most value and consistent app experience."),
+          tags$i("This tab contains some more complex visualizations for a 
+                 specific Manufacturer to ensure the most value and consistent app experience."),
           fluidRow(
-          # Simple stats Plot
+          # User inputs on Analysis tab
           box(
             title = "Select Manufacturer to Analyze",
             status = "primary",
@@ -224,24 +225,38 @@ body <- dashboardBody(tabItems(
             varSelectInput(
               inputId = "MakeModel",
               label = "Select the Make/Model",
-              "Names")
-            # selectizeInput(
-            #   inputId = "firstplots",
-            #   label = "Select Year",
-            #   choices = c(
-            #     "Ford",
-            #     "Chevrolet",
-            #     "Toyota",
-            #     "Honda",
-            #     "Ram"
-            #   ),
-            #   multiple = FALSE,
-            #   selected = "count"
-            # ),
+              "Names")),
+          # User inputs on Analysis tab
+          
+          # Pretty box plots
+          box(
+            title = "Per Make/Model Box",
+            status = "primary",
+            width = "12",
+            collapsible = TRUE,
+            collapsed = FALSE,
+            plotOutput("model_box", width = "100%")),
+          # Pretty plots
+          
+          # Pretty box plots
+          box(
+            title = "Per Make/Model Box Plots",
+            status = "primary",
+            collapsible = TRUE,
+            collapsed = FALSE,
+            width = "12",
+            varSelectInput(
+              inputId = "MakeYear",
+              label = "Select the Year",
+              "Names"),
             
-            # plotOutput("manuf_bar_plot", width = "100%"),
-            
-          ))),
+            plotOutput("avgPriceRegion", width = "100%"),
+            br(), br(), br(), br(), br(), br(),br(), br(), br(), br(), br(), br(),br(), br(), br(), br(), br(), br()# Give me some space!
+            ),
+          br(), br(), br(), br(), br(), br(),br(), br(), br(), br(), br(), br(),br(), br(), br(), br(), br(), br()# Give me some space!
+                    # Pretty plots
+          
+          )),
 
   #######################
   # End Analysis Tab
@@ -249,10 +264,22 @@ body <- dashboardBody(tabItems(
   
   
   
-  
+  #######################
+  # Prediction Tab
+  #######################
   tabItem(tabName = "prediction",
-          h2("Prediction tab contents")),
-  # end 3rd Prediction Tab
+          h2("Car Selection and Prediction"),
+          tags$i("This tab is for the user to select all the various options below to see where "), br(), 
+          tags$i("the best location would be to purchase the choosen car and model based"), br(),
+          tags$i("off aggregated US Average Income statistics such as median family income and other comparible cars"),
+          
+          
+          ),
+  
+  #######################
+  # Prediction Tab
+  #######################
+  
   
   tabItem(tabName = "results",
           h2("Results tab contents")) # end 4th Results tab
