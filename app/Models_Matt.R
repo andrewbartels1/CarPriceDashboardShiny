@@ -34,6 +34,8 @@ db_path <- "CraigslistCarsClean.sqlite3"
 conn <- dbConnect(RSQLite::SQLite(), db_path)
 cars <- dbGetQuery(conn, "SELECT * FROM Ford")
 
+cars <- cars %>% filter(price > 0)
+
 # Close db connection
 dbDisconnect(conn)
 
@@ -405,5 +407,4 @@ Avg_Price_Per_Region_Plot <- function(df, input_manufacturer, input_model, input
 ##---------------------------------------------
 
 Avg_Price_Per_Region_Plot(cars, "Ford", "Mustang", 2015)
-
 
