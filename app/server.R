@@ -142,10 +142,8 @@ server <- function(input, output, session) {
   
   # Option Plots #
   output$plotTable1 <- renderPlot({
-    
     # Get query data for plotting if it isn't empty (it's an issue on startup)
     if (!(is_empty(input$columns1)) & !(is_empty(input$columns2))) {
-      
       col1 <- as.character(input$columns1)
       col2 <-  as.character(input$columns2)
       plotData <-
@@ -164,32 +162,41 @@ server <- function(input, output, session) {
       
       
       if (input$plotType == "scatter") {
-        p = ggplot(data = plotData, aes_string(x = input$columns1, y = input$columns2)) +
-          geom_point(alpha=0.5, color='blue3') +
-          labs(x=input$columns1, y=input$columns2)
+        p = ggplot(data = plotData,
+                   aes_string(x = input$columns1, y = input$columns2)) +
+          geom_point(alpha = 0.5, color = 'blue3') +
+          labs(x = input$columns1, y = input$columns2)
         plot(p)
         grid()
       }
-        
+      
       # Average Price per Manf Plot
       else if (input$plotType == "Box Plot") {
         meltData <- melt(plotData)
         p <- ggplot(meltData, aes(factor(variable), value))
-        p + geom_boxplot() + facet_wrap(~variable, scale="free")
-
-
+        p + geom_boxplot() + facet_wrap(~ variable, scale = "free")
+        
+        
       }
       else if (input$plotType == "simple linear model") {
-        if (is.character(plotData$input$columns1)){
+        if (is.character(plotData$input$columns1)) {
           plotData$input$columns1 <- as.factor(plotData$input$columns1)
         }
-        if (is.character(plotData$input$columns2)){
+        if (is.character(plotData$input$columns2)) {
           plotData$input$columns2 <- as.factor(plotData$input$columns2)
         }
         # plotData <- plotData[is.na(plotData) | plotData == "Inf"] <- NA  # Replace NaN & Inf with NA
         print(plotData)
-        m <- lm(input$columns1 ~ input$columns2, data = plotData, na.action=na.omit)  
-        plot(plotData$input$columns1 ~ plotData$input$columns2, main=paste("Scatter Plot:", input$columns1, "vs. ", input$columns2), xlab=input$columns1, ylab=input$columns2)
+        m <-
+          lm(input$columns1 ~ input$columns2,
+             data = plotData,
+             na.action = na.omit)
+        plot(
+          plotData$input$columns1 ~ plotData$input$columns2,
+          main = paste("Scatter Plot:", input$columns1, "vs. ", input$columns2),
+          xlab = input$columns1,
+          ylab = input$columns2
+        )
         abline(m)
       }
       
@@ -260,7 +267,6 @@ server <- function(input, output, session) {
     # print(paste("SELECT * FROM ",input$tables2," LIMIT 10;")) # uncomment to print the tables being cast to dataTableOutput
     
     output$tableOutput2 <- renderDataTable({
-      
       outputs2 <-
         tempTable2()[,!names(tempTable2()) %in% c("description")]
     })
@@ -276,42 +282,40 @@ server <- function(input, output, session) {
   #######################
   # Manf Drop down #
   observe({
-    updateSelectInput(
-      session,
-      "AnalysisManf")
-    # print(input$AnalysisManf)
+    updateSelectInput(session,
+                      "AnalysisManf")
   })
   # Manf Drop Down
   
   # Query temp table to select drop downs off of
   tempManfCleaned <-
-    reactive(dbGetQuery(conn_cleaned, paste(
-      "SELECT * FROM cars;"
-    )))
+    reactive(Clean_Cylinders(Clean_Drive(dbGetQuery(
+      conn_cleaned, paste("SELECT * FROM cars;")
+    ))))
   
   
   observeEvent(input$AnalysisManf, {
-        updateSelectInput(
-          session,
-          "MakeModel",
-          choices =
-            unique(filter(tempManfCleaned(), manufacturer == input$AnalysisManf)[c("model")]),
-          selected = "Mustang"
-        )
+    updateSelectInput(session,
+                      "MakeModel",
+                      choices =
+                        unique(
+                          filter(tempManfCleaned(), manufacturer == input$AnalysisManf)[c("model")]
+                        ),
+                      selected = "Mustang")
     
-      })
+  })
   
   observeEvent(input$AnalysisManf, {
-    tempFilt <- filter(tempManfCleaned(), manufacturer == input$AnalysisManf)
+    tempFilt <-
+      filter(tempManfCleaned(), manufacturer == input$AnalysisManf)
     
-    updateSelectInput(
-      session,
-      "MakeYear",
-      choices =
-      unique(tempFilt[order(as.integer(tempFilt$year),decreasing = FALSE), "year"]),
-      selected = 2015)
+    updateSelectInput(session,
+                      "MakeYear",
+                      choices =
+                        unique(tempFilt[order(as.integer(tempFilt$year), decreasing = FALSE), "year"]),
+                      selected = 2015)
     
-    })
+  })
   
   # Pretty Box Plot
   output$model_box <-  renderPlot({
@@ -321,7 +325,10 @@ server <- function(input, output, session) {
   
   # Pretty Radar Plot
   output$avgPriceRegion <-  renderPlot({
-    Avg_Price_Per_Region_Plot(tempManfCleaned(), input$AnalysisManf, input$MakeModel, input$MakeYear)
+    Avg_Price_Per_Region_Plot(tempManfCleaned(),
+                              input$AnalysisManf,
+                              input$MakeModel,
+                              input$MakeYear)
   }, height = 750)
   # Pretty Radar Plot
   
@@ -331,5 +338,155 @@ server <- function(input, output, session) {
   #######################
   
   
+  #######################
+  # Prediction Tab
+  #######################
+  updateActionButton(
+    session,
+    "goButton",
+    label = "Predicting Car Price!",
+    icon = icon("chart-bar", lib = "font-awesome")
+  )
+  observeEvent(input$predState, {
+    tempFilt <- filter(tempManfCleaned(), state == input$predState)
+    
+    updateSelectInput(session,
+                      "predCity",
+                      choices =
+                        unique(tempFilt$city),
+                      selected = "Yuba")
+    
+  })
+  
+  observeEvent(input$predState, {
+    tempFilt <- filter(tempManfCleaned(), state == input$predState)
+    
+    updateSelectInput(session,
+                      "predCity",
+                      choices =
+                        unique(tempFilt$city))
+    
+  })
+  
+  
+  
+  observeEvent(input$predManf, {
+    updateSelectInput(session,
+                      "predModel",
+                      choices =
+                        unique(filter(
+                          tempManfCleaned(), manufacturer == input$predManf
+                        )[c("model")]),
+                      selected = "Mustang")
+    
+  })
+  
+  # observeEvent(input$predYear, {
+  #   tempFilt <-
+  #     filter(tempManfCleaned(), manufacturer == input$AnalysisManf)
+  #
+  #   # updateNumericInput(session,
+  #   #                   "predYear",
+  #   #                   selected = 2015)
+  #
+  # })
+  
+  
+  
+  
+  
+  counter <- reactiveValues(countervalue = 0)
+  # for the model prediction output
+  observeEvent(input$goButton, {
+ 
+    # state lm
+    state_pred_model_output <- National_Model_Prediction(
+        tempManfCleaned(),
+        input$predState,
+        input$predCity,
+        input$predManf,
+        as.character(input$predModel),
+        as.integer(input$predYear),
+        as.integer(input$predMile),
+        input$predCond,
+        input$predDrive,
+        as.integer(input$predCyl)
+      )
+    
+    # national lm
+    national_pred_model_output <- State_Model_Prediction(
+      tempManfCleaned(),
+      input$predState,
+      input$predCity,
+      input$predManf,
+      as.character(input$predModel),
+      as.integer(input$predYear),
+      as.integer(input$predMile),
+      input$predCond,
+      input$predDrive,
+      as.integer(input$predCyl)
+    )
+    # knn pred
+    knn_pred_model_output <- State_Model_Prediction_KNNReg(
+      tempManfCleaned(),
+      input$predState,
+      input$predCity,
+      input$predManf,
+      as.character(input$predModel),
+      as.integer(input$predYear),
+      as.integer(input$predMile),
+      input$predCond,
+      input$predDrive,
+      input$predCyl
+    )
+    print(state_pred_model_output)
+    print(national_pred_model_output)
+    print(knn_pred_model_output)
+    # national_pred_model_output <- National_Model_Prediction(tempManfCleaned(), "CA", "Sacramento", "Ford", "F-150", 2015, 100000, "good", "4wd", "8")
+    output$verb <- renderText({
+      paste(
+        "You are now going to get a price prediction for",
+        input$predYear,
+        input$predManf,
+        input$predModel,
+        input$predDrive,
+        input$predCyl,
+        "cylinders, in ",
+        input$predCity,
+        ",",
+        input$predState,
+        " - ",
+        input$predCond,
+        "condition with",
+        input$predMile,
+        "miles in the Boxes below!"
+        
+      )
+    })
+    
+    output$NationalPredictionEstimate <- renderValueBox({
+      valueBox(
+        round(national_pred_model_output[[3]][1]), "National Prediction Estimate", icon = icon("flag-usa", lib = "font-awesome"),
+        color = "blue"
+      )
+    })
+    output$StatePredictionEstimate <- renderValueBox({
+      valueBox(
+        round(state_pred_model_output[[3]][1]), "State Prediction Estimate", icon = icon("road", lib="font-awesome"),
+        color = "aqua"
+      )
+    })
+    output$KNNPredictionEstimate <- renderValueBox({
+      valueBox(
+        round(knn_pred_model_output[[3]][1]), "KNN Prediction Estimate", icon = icon("users", lib = "font-awesome"),
+        color = "red"
+      )
+    })
+    
+  })
+  
+  
+ 
+
   
 }

@@ -15,6 +15,7 @@ pacman::p_load("DBI",
                "kknn",
                "randomForest",
                "reshape",
+               "caret",
                install = TRUE, update = getOption("pac_update"))
 
 # Put deps here!
@@ -34,3 +35,4 @@ library(stringr)
 library(kknn)
 library(randomForest)
 library(reshape)
+library(caret)

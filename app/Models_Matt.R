@@ -204,7 +204,7 @@ State_Model_Prediction <- function(df, input_state, input_city, input_manufactur
   predictions <- predict(lm_model, newdata = newData, interval = "confidence", level = .95)
   
   
-  return(list(head(df, 25), number_of_observations, model_summary, predictions))
+  return(list(number_of_observations, model_summary, predictions))
   
 }
 
@@ -448,14 +448,15 @@ Avg_Price_Per_Region_Plot <- function(df, input_manufacturer, input_model, input
 #' 
 #' 
 #' 
-State_Model_Prediction_KNNReg <- function(df, input_city,input_state,input_manufacturer, input_model, 
+State_Model_Prediction_KNNReg <- function(df, input_state,input_city,input_manufacturer, input_model, 
                                    input_year, input_odometer, input_condition, input_drive, input_cylinders) {
   
   
   # Create a df filtered by the user selected state, manufacturer, model, and condition.
+  
   df <- df %>%
-    filter(state == input_state,
-           city == input_city,
+    filter(state == as.character(input_state),
+           city == as.character(input_city),
            manufacturer == input_manufacturer,
            model == input_model,
            #condition == input_condition
@@ -473,8 +474,8 @@ State_Model_Prediction_KNNReg <- function(df, input_city,input_state,input_manuf
   
   #Extract Training Set
   df_train <- df_select[random,-3]
+  print(df_train)
 
-  
   #Preprocess training data
   #df_train_pp <- preProcess(df_train,method='range')
   
@@ -485,71 +486,55 @@ State_Model_Prediction_KNNReg <- function(df, input_city,input_state,input_manuf
   df_target_price <- df_select[random,'price']
 
   
-  #Extract Price Category to measure the accuracy for test dataset
-  #df_test_price <- df[-random,'price']
-  
-  #normalize train dataset
-  #fit <- predict(df_train_pp,df_train)
-  
-  #calculate accuracy to choose optimal k
-  # predicted <- rep(0,50) # predictions: start with a vector of all zeros
-  # accuracy <- rep(0,50)
-    # for each row, estimate its response based on the other rows
-    
-  # for (i in 1:50){
-  #     
-  #     # data[-i] means we remove row i of the data when finding nearest neighbors...
-  #     #...otherwise, it'll be its own nearest neighbor!
-  #     
-  #     model <- kknn(df$price~df$year+df$odometer,df[-i,],df[i,],k=X, scale = TRUE) # use scaled data
-  #     
-  #     # record whether the prediction is at least 0.5 (round to one) or less than 0.5 (round to zero)
-  #     
-  #     predicted[i] <- as.integer(fitted(model)+0.5)
-  #     accuracy[i] <- sum(predicted[i] == df$price[i]) / nrow(df)# round off to 0 or 1
-  #   }
-  #   
-  #   
-  # 
-  # optimal_k <- which.max(accuracy)
-  
-
   #set seed
   set.seed(1)
   
   # Create KNNReg model
+  
   knnreg_model <- knnreg(df_train,df_target_price,k=2)
   
   # Create new data point from user inputs
-  newData <- data.frame(city=input_city,
-                        state = input_state,
-                        manufacturer = input_manufacturer,
-                        model = input_model,
-                        year = input_year,
-                        odometer = input_odometer,
-                        condition=input_condition,
-                        cylinders = input_cylinders,
-                        drive = input_drive)
+  newData <- data.frame(year = input_year,
+                        odometer = input_odometer)
+                        # drive = input_drive,
+                        # cylinders = input_cylinders,
+                        # med_family_income = med_inc_fam,
+                        # med_non_family_income = med_inc_non_fam)
+  # newData <- data.frame(city=input_city,
+  #                       age = 2021 - input_year,
+  #                       state = input_state,
+  #                       manufacturer = input_manufacturer,
+  #                       model = input_model,
+  #                       year = input_year,
+  #                       odometer = input_odometer,
+  #                       condition=input_condition,
+  #                       cylinders = input_cylinders,
+  #                       drive = input_drive)
                         # med_family_income = med_inc_fam,
                         # med_non_family_income = med_inc_non_fam)
   
   #select column for newData to fit KNN Regression model
-  newData_select <- newData %>% select(year,odometer)
+  # newData_select <- newData %>% select(year,odometer)
 
   # Create list of objects to return as list
   number_of_observations <- paste("Number of Training Observations = ", nrow(df_train))
-  predictions <- predict(knnreg_model, newdata = newData_select, interval = "confidence", level = .95)
+  predictions <- predict(knnreg_model, newdata = newData, interval = "confidence", level = .95)
   
-  
-  return(list(df_select, number_of_observations, knnreg_model, predictions))
-  
+  if (!(predictions < 500) & (is.numeric(predictions))) {
+  return(list(number_of_observations, knnreg_model, predictions))
+  }
+  else{
+    return(list(number_of_observations, knnreg_model, NA))
+  }
 }
 
+# NEED TO MAKE SURE TO CATCH ERROR Warning: Error in contrasts<-: contrasts can be applied only to factors with 2 or more levels
+# Just change to Fairbanks Alaska from defaults
 ##------------------------------------
 ##  Test Model_Prediction Function  --
 ##------------------------------------
 
-State_Model_Prediction_KNNReg(cars, "Sacramento","CA", "Toyota", "Tacoma", 2015, 100000, "good", "4wd", "6")
+# State_Model_Prediction_KNNReg(cars, "Sacramento","CA", "Toyota", "Tacoma", 2015, 100000, "good", "4wd", "6")
 
 
 ##------------------------------------
@@ -639,5 +624,5 @@ Clean_Cylinders <- function(df) {
   
 }
 
-cars <- Clean_Cylinders(cars)
+# cars <- Clean_Cylinders(cars)
 

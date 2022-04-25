@@ -220,7 +220,7 @@ body <- dashboardBody(tabItems(
                 "Ram"
               ),
               multiple = FALSE,
-              selected = "count"
+              selected = "Ford"
             ),
             varSelectInput(
               inputId = "MakeModel",
@@ -272,10 +272,157 @@ body <- dashboardBody(tabItems(
           tags$i("This tab is for the user to select all the various options below to see where "), br(), 
           tags$i("the best location would be to purchase the choosen car and model based"), br(),
           tags$i("off aggregated US Average Income statistics such as median family income"),br(), 
-          tags$i("and other comparible cars"),
+          tags$i("and other comparible cars."),
           
+          h2("To Ensure proper model prediction, fill out the numbers incrementally 1-9 before calling the model with the Predict Button"),
           
+          selectizeInput(
+            inputId = "predState",
+            label = "1. State",
+            choices = c("Alabama"=	"AL",	
+                        "Alaska"=	"AK",	
+                        "Arizona"=	"AZ",	
+                        "Arkansas"=	"AR",	
+                        "California"=	"CA",	
+                        "Colorado"=	"CO",	
+                        "Connecticut"=	"CT",	
+                        "Delaware"=	"DE",
+                        "Florida"=	"FL",	
+                        "Georgia"=	"GA",	
+                        "Hawaii"=	"HI",	
+                        "Idaho"=	"ID",
+                        "Illinois"=	"IL",	
+                        "Indiana"=	"IN",	
+                        "Iowa"=	"IA",	
+                        "Kansas"=	"KS",	
+                        "Kentucky"=	"KY",	
+                        "Louisiana"=	"LA",	
+                        "Maine"=	"ME",	
+                        "Maryland"=	"MD",	
+                        "Massachusetts"=	"MA"	,
+                        "Michigan"=	"MI"	,
+                        "Minnesota"=	"MN"	,
+                        "Mississippi"=	"MS",
+                        "Missouri"=	"MO",
+                        "Montana"=	"MT",
+                        "Nebraska"=	"NE",
+                        "Nevada"=	"NV",
+                        "New Hampshire"=	"NH",
+                        "New Jersey"=	"NJ",
+                        "New Mexico"=	"NM",
+                        "New York"=	"NY",
+                        "North Carolina"=	"NC",
+                        "North Dakota"=	"ND",
+                        "Ohio"=	"OH",
+                        "Oklahoma"=	"OK",
+                        "Oregon"=	"OR",
+                        "Pennsylvania"=	"PA",
+                        "Rhode Island"=	"RI",
+                        "South Carolina"=	"SC",
+                        "South Dakota"=	"SD",
+                        "Tennessee"=	"TN",
+                        "Texas"=	"TX",
+                        "Utah"=	"UT",
+                        "Vermont"=	"VT",
+                        "Virginia"=	"VA",
+                        "Washington"=	"WA",
+                        "West Virginia"=	"WV",
+                        "Wisconsin"=	"WI",
+                        "Wyoming"=	"WY"),
+            multiple = FALSE,
+            selected = "CA"
           ),
+          varSelectInput(
+            inputId = "predCity",
+            label = "2. City",
+            "Names",
+            multiple = FALSE
+          ),
+          selectizeInput(
+            inputId = "predManf",
+            label = "3. Manufacturer",
+            choices = c(
+              "Ford",
+              "Chevrolet",
+              "Toyota",
+              "Honda",
+              "Ram"
+            ),
+            multiple = FALSE,
+            selected = "Ford"
+          ),
+          varSelectInput(
+            inputId = "predModel",
+            label = "4. Make/Model",
+            "Names",
+            multiple = FALSE
+          ),
+          numericInput(
+            inputId="predYear",
+            label="5. Year",
+            value=2015,
+            min = 1950,
+            max = 2021,
+            step = 1),
+          selectizeInput(
+            inputId = "predCond",
+            label = "6. Condition",
+            choices = c(
+              "excellent",
+              "fair",
+              "good",
+              "like new",
+              "new",
+              "salvage",
+              "unknown"
+            ),
+            multiple = FALSE,
+            selected = "like new"
+          ),
+          selectizeInput(
+            inputId = "predMile",
+            label = "7. Mileage",
+            choices = c(500,25000,75000,100000,150000),
+            multiple = FALSE
+          ),
+          selectizeInput(
+            inputId = "predDrive",
+            label = "8. Drive",
+            choices = c(
+              "All Wheel Drive" = "AWD",
+              "Four Wheel Drive" = "4WD",
+              "Rear Wheel Drive" = "RWD",
+              "Front Wheel Drive" = "FWD"),
+            multiple = FALSE,
+            selected = "RWD"
+          ),
+          selectizeInput(
+            inputId = "predCyl",
+            label = "9. Number of Cylinders",
+            choices = c(3,4,5,6,8,10,12,"unknown"=0),
+            multiple = FALSE
+          ),
+          # Updates goButton's label and icon
+          actionButton("goButton", 
+                       "Predict Car Estimate",
+                       icon = icon("chart-bar", lib = "font-awesome")),
+          br(),br(),
+          box(
+            title = "Model Predicted Price and Region",
+            status = "primary",
+            width = "12",
+            collapsible = TRUE,
+            collapsed = FALSE,
+            verbatimTextOutput("verb")),
+          
+  fluidRow(
+    # A static valueBox
+    valueBoxOutput("StatePredictionEstimate"),
+    valueBoxOutput("NationalPredictionEstimate"),
+    valueBoxOutput("KNNPredictionEstimate"),
+    tags$i("If the models return 0, there was not enough data for a good prediction!")
+  ),
+  ),
   
   #######################
   # Prediction Tab
