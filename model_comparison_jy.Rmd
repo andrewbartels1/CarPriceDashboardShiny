@@ -14,6 +14,8 @@ output: html_document
   3.a. Create a Sample Dataframe
   3.b. Create 3 Sample Model-Creation Functions
   3.c. Run Model_Comparison() on the sample data and display comparison table
+  
+4. Model_Comparison is applied to Matt and Angie's models
 
 
 #### 1. Setup
@@ -63,7 +65,7 @@ Model_Comparison <- function(df, list_of_tuples)
   valid_size = round(0.2 * nrow(df), 0)
   test_size = round(0.2 * nrow(df), 0)
   shuffled_rows <- sample(nrow(df)) 
-  data = df[shuffled_rows, ]
+  df = df[shuffled_rows, ]
   train_data = df[1:train_size, ]
   valid_data = df[(train_size + 1):(train_size + valid_size), ] 
   test_data = df[(train_size + valid_size + 1):nrow(df), ]
@@ -83,7 +85,7 @@ Model_Comparison <- function(df, list_of_tuples)
     mod = tuple_list[[i]][[2]](train_data)
   
     # Use the model to predict values on the validation set and collect the SSE in a list
-    predictions <- predict(mod, valid_data)
+    predictions = predict(mod, valid_data)
     SSR = sum((predictions - valid_data$price)^2)
     SST = sum((valid_data$price - mean(valid_data$price))^2)
     R_2 = 1 - SSR/SST
@@ -232,4 +234,119 @@ tuple_list =
 # Run the function on sample data and models (created in the code cells below)
 Model_Comparison(cars_new, tuple_list)
 ```
+
+
+### 4. Apply Model_Comparison to the same data from Models_Matt.R
+
+
+### First, replicate the dataframe used
+
+```{r}
+# Create Path to SQLite db
+
+db_path <- "CraigslistCarsClean.sqlite3"
+
+# Establish connection
+conn <- dbConnect(RSQLite::SQLite(), db_path)
+cars <- dbGetQuery(conn, "SELECT * FROM Ford")
+
+# Close db connection
+dbDisconnect(conn)
+
+Add_Regions <- function (df) {
+  
+  # Create 9 different regions of the country
+  southwest <- c("CA", "AZ", "NM", "HI","NV")
+  west <- c("UT", "CO", "WY", "MT", "ND", "SD")
+  pnw <- c("AK", "OR", "ID", "WA")
+  n_east <- c("CT", "ME", "MA", "NH", "RI", "VT")
+  east <- c("NJ", "NY", "DE", "MD", "PA", "VA", "DC", "WV")
+  s_east <- c("AL", "FL", "GA", "KY", "MS", "NC", "SC", "TN")
+  midwest <- c("IL", "IN", "MI", "MN", "OH", "WI")
+  south <- c("TX", "AR", "LA", "OK")
+  central <- c("IA", "KS", "MO", "NE")
+  
+  # Add Regions to cars DF
+  df <- df %>%
+    mutate(region = case_when(state %in% southwest ~ "Southwest", 
+                              state %in% west ~ "West",
+                              state %in% pnw ~ "Pacific Northwest",
+                              state %in% n_east ~ "Northeast",
+                              state %in% east ~ "East",
+                              state %in% s_east ~ "Southeast",
+                              state %in% midwest ~ "Midwest",
+                              state %in% south ~ "South",
+                              state %in% central ~ "Central"
+                              )
+           )
+  
+ return(df) 
+  
+}
+
+# Add regions to 'cars' df
+cars <- Add_Regions(cars)
+
+
+Clean_Drive <- function(df){
+  awd <- paste(c("awd", "awD", "Awd", "AwD", "AWD"), collapse = "|")
+  rwd <- paste(c("rwd", "RwD", "Rwd", "rwD", "RWD"), collapse = "|")
+  fwd <- paste(c("fwd", "FwD", "fWD", "fwD", "FWD", "Fwd"), collapse = "|")
+  fourwheeldrive <- paste(c("4wd", "4wD", "4WD", "4wD", "4Wd"), collapse = "|")
+  
+  df$drive <- str_replace_all(df$drive, regex(pattern = awd), "AWD")
+  df$drive <- str_replace_all(df$drive, regex(pattern = rwd), "RWD")
+  df$drive <- str_replace_all(df$drive, regex(pattern = fwd), "FWD")
+  df$drive <- str_replace_all(df$drive, regex(pattern = fourwheeldrive), "4WD")
+  
+  return(df)
+}
+
+##------------------------------------
+##  Test Clean_Drive() Function  --
+##------------------------------------
+cars <- Clean_Drive(cars)
+
+
+head(cars)
+
+
+```
+
+
+### Next, Create LM's and run Model_Comparison() to select model and get test its Accuracy
+
+
+```{r}
+standard_lm_function = function(df)
+{
+  lm_model <- lm(price ~  state + condition + age + odometer + drive + cylinders + med_family_income + med_non_family_income, data = df)
+  return (lm_model)
+}
+
+standard_lm_log_age = function(df)
+{
+  lm_model <- lm(price ~ state + condition + log(age + 2) + odometer + drive + cylinders + med_family_income + med_non_family_income, data = df)
+  return (lm_model)
+}
+
+log_age_log_odometer = function(df)
+{
+  lm_model <- lm(price ~ state + condition + log(age + 2) + log(odometer + 1) + drive + cylinders + med_family_income + med_non_family_income, data = df)
+  return (lm_model)
+}
+
+
+tuple_list =
+  list(
+    list("Standard LM", standard_lm_function),
+    list("Log Age", standard_lm_log_age),
+    list("Log Age Log Odometer", log_age_log_odometer)
+  )
+
+
+Model_Comparison(cars, tuple_list)
+
+```
+
 
