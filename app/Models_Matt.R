@@ -318,29 +318,27 @@ Avg_Price_Per_Region_Plot <- function(df, input_manufacturer, input_model, input
               n = n()) %>% 
     mutate(avg_price = avg_price,
            avg_odometer = avg_odometer)
-    
   
+  if (nrow(regions) != 0) {
+    
     # Create Plot
-    print(nrow(df))
-    
-    
     plot <- ggplot(regions) +
       
-    # Make custom panel grid
+      # Make custom panel grid
       geom_hline(aes(yintercept = y), data.frame(y = c(0:5) * 10000), color = "lightgrey") +
       geom_col(aes(x = region, y = avg_price, fill = n), position = "dodge2", show.legend = TRUE, alpha = .9) +
       
       # Add dots
       geom_point(aes(x = region, y = avg_price), size = 2, color = "gray12") +
       
-      # Create a Lollipop shaft 
-      geom_segment(aes(x = region, y = 0, xend = region, yend = 40000), linetype = "dashed", color = "gray12") + 
+      # Create a Lollipop shaft
+      geom_segment(aes(x = region, y = 0, xend = region, yend = 40000), linetype = "dashed", color = "gray12") +
       
       # Create Labels for title, subtitle, x, y, and fill
       labs(title = glue("Average Price for {input_year} {input_manufacturer} {input_model}"),
            subtitle = "Comparison Between US Regions",
-           y = "Price", 
-           x = "Region", 
+           y = "Price",
+           x = "Region",
            fill = "Number of Vehicles") +
       
       # Scale y axis so bars don't start in the center
@@ -348,11 +346,11 @@ Avg_Price_Per_Region_Plot <- function(df, input_manufacturer, input_model, input
         limits = c(-1500, 45000),
         expand = c(0, 0),
         breaks = c(0, 10000, 20000, 30000, 40000)
-                         ) +
+      ) +
       
-      annotate("text", x = 0, y = 21000, label = "20,000", size = 5) +
-      annotate("text", x = 0, y = 31000, label = "30,000", size = 5) +
-      annotate("text", x = 0, y = 41000, label = "40,000", size = 5) +
+      annotate("text", x = 0, y = 21000, label = "20,000", size = 2) +
+      annotate("text", x = 0, y = 31000, label = "30,000", size = 2) +
+      annotate("text", x = 0, y = 41000, label = "40,000", size = 2) +
       
       theme(
         # Remove axis ticks and text
@@ -360,10 +358,10 @@ Avg_Price_Per_Region_Plot <- function(df, input_manufacturer, input_model, input
         axis.ticks = element_blank(),
         axis.text.y = element_blank(),
         # Use gray text for the region names
-        axis.text.x = element_text(color = "gray12", size = 15),
+        axis.text.x = element_text(color = "gray12", size = 10),
         # Move the legend to the bottom
         legend.position = "bottom",
-            ) +
+      ) +
       
       theme(
         
@@ -371,37 +369,44 @@ Avg_Price_Per_Region_Plot <- function(df, input_manufacturer, input_model, input
         text = element_text(color = "gray12"),
         
         # Customize the text in the title, subtitle, and caption
-        plot.title = element_text(face = "bold", size = 20, hjust = 0.5),
-        plot.subtitle = element_text(size = 20, hjust = 0.5),
-        plot.caption = element_text(size = 26, hjust = .5),
+        plot.title = element_text(face = "bold", size = 15, hjust = 0.5),
+        plot.subtitle = element_text(size = 10, hjust = 0.5),
+        plot.caption = element_text(size = 8, hjust = .5),
         
         # Make the background white and remove extra grid lines
         panel.background = element_rect(fill = "white", color = "white"),
         panel.grid = element_blank(),
         panel.grid.major.x = element_blank()
-           ) + 
+      ) +
       
       # New fill and legend title for number of tracks per region
       scale_fill_gradientn(
         "Number of Vehicles",
         colours = c("#6C5B7B","#C06C84","#F67280","#F8B195")
-                           ) +
-
+      ) +
+      
       # Make the guide for the fill discrete
       guides(
         fill = guide_colorsteps(
           barwidth = 15, barheight = .5, title.position = "top", title.hjust = .5)
-             ) +
+      ) +
       
       
       # Make it circular
       coord_polar()
-      
-      # Save the plot
-      ggsave("circle_bar_plot.png", plot,width = 13, height = 8)
-      
+    
+    # Save the plot
+    ggsave("circle_bar_plot.png", plot,width = 13, height = 8)
+    
     return(plot)
+    
+  } else {
+    
+    return("Not enough data available for this Make / Model / Year. Please try a different selection")
+    
+  }
 }
+
 
 ##---------------------------------------------
 ##  Test Avg_Price_Per_Region_Plot function --
