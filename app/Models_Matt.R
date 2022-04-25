@@ -17,6 +17,7 @@ library(glue) # to format strings
 library(viridis)
 library(kknn) #for KNN model
 library(bannerCommenter) # input into console -> banner("display text", snug = TRUE, bandChar = "=")
+library(caret)
 
 ##==================================================================
 ##  Connect to Database and create df based on input_manufacturer ==
@@ -548,7 +549,7 @@ State_Model_Prediction_KNNReg <- function(df, input_city,input_state,input_manuf
 ##  Test Model_Prediction Function  --
 ##------------------------------------
 
-# State_Model_Prediction_KNNReg(cars, "Sacramento","CA", "Ford", "F-150", 2015, 100000, "good", "4wd", "6")
+State_Model_Prediction_KNNReg(cars, "Sacramento","CA", "Toyota", "Tacoma", 2015, 100000, "good", "4wd", "6")
 
 
 ##------------------------------------
@@ -556,9 +557,19 @@ State_Model_Prediction_KNNReg <- function(df, input_city,input_state,input_manuf
 ##------------------------------------
 
 
-# In the predictions tab it's assumed the user will select:
+# In the predictions tab, the dataframe 'cars' will already be loaded in the background.
 
-# df <- ("some thaat is an example")
+#it's assumed the user will select:
+
+# Select 1 Manufacturer from Dropdown Menu:
+# - Ford
+# - Toyota
+# - Honda
+# - Chevrolet
+# - Ram
+
+
+# Select 1 model of vehicle from the unique list
 
 # user inputs are "Ford", "Mustang", and 2015 (i.e. 3 drop  downs)
 # Avg_Price_Per_Region_Plot(df, "Ford", "Mustang", 2015)
@@ -575,7 +586,28 @@ State_Model_Prediction_KNNReg <- function(df, input_city,input_state,input_manuf
 
 
 
+######################################
+##  Function to clean "drive" column  --
+######################################
 
+Clean_Drive <- function(df){
+  awd <- paste(c("awd", "awD", "Awd", "AwD", "AWD"), collapse = "|")
+  rwd <- paste(c("rwd", "RwD", "Rwd", "rwD", "RWD"), collapse = "|")
+  fwd <- paste(c("fwd", "FwD", "fWD", "fwD", "FWD", "Fwd"), collapse = "|")
+  fourwheeldrive <- paste(c("4wd", "4wD", "4WD", "4wD", "4Wd"), collapse = "|")
+  
+  df$drive <- str_replace_all(df$drive, regex(pattern = awd), "AWD")
+  df$drive <- str_replace_all(df$drive, regex(pattern = rwd), "RWD")
+  df$drive <- str_replace_all(df$drive, regex(pattern = fwd), "FWD")
+  df$drive <- str_replace_all(df$drive, regex(pattern = fourwheeldrive), "4WD")
+  
+  return(df)
+}
+
+##------------------------------------
+##  Test Clean_Drive() Function  --
+##------------------------------------
+#cars <- Clean_Drive(cars)
 
 
 
