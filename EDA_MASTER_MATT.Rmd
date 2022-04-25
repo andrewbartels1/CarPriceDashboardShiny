@@ -118,7 +118,7 @@ head(cars)
 cars$age <- 2021 - cars$year
 ```
 
-Convert 'state', 'manufacturer', 'model' to factor datastructure
+Convert 'state', 'manufacturer', 'model' to factor data structure
 ```{r}
 cars$state <- cars$state %>% factor()
 cars$manufacturer <- cars$manufacturer %>% factor()
@@ -130,6 +130,9 @@ cars$drive <- cars$drive %>% factor()
 cars$title_status <- cars$title_status %>% factor()
 ```
 
+```{r}
+head(cars)
+```
 Convert 'condition' to ordered factor
 ```{r}
 cars %>% count(condition)
@@ -446,10 +449,11 @@ head(car_num)
 #correlation matrix for collinearity check
 
 ```{r}
-cars_clean_pm$fuel <- as.factor(cars_clean_pm$fuel)
-cars_clean_pm$title_status <- as.factor(cars_clean_pm$title_status)
-cars_clean_pm$transmission <- as.factor(cars_clean_pm$transmission)
-cars_sub <- select(cars_clean_pm,year,cylinders_clean,fuel,odometer,title_status,transmission,price)
+# cars_clean_pm$fuel <- as.factor(cars_clean_pm$fuel)
+# cars_clean_pm$title_status <- as.factor(cars_clean_pm$title_status)
+# cars_clean_pm$transmission <- as.factor(cars_clean_pm$transmission)
+# cars_clean_pm$condition <- as.factor(cars_clean_pm$condition)
+cars_sub <- select(cars,year,condition,cylinders,fuel,odometer,price)
 glimpse(cars_sub)
 model.matrix(~0+., data=cars_sub) %>%
   cor(use="pairwise.complete.obs") %>%
