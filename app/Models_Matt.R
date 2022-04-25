@@ -29,13 +29,13 @@ library(caret)
 
 # Create Path to SQLite db
 
-# db_path <- "../CraigslistCarsClean.sqlite3"
-# 
-# # Establish connection
+# db_path <- "Top_5_Manufacturers.sqlite"
+# #
+# # # Establish connection
 # conn <- dbConnect(RSQLite::SQLite(), db_path)
-# cars <- dbGetQuery(conn, "SELECT * FROM Ford")
-# 
-# # Close db connection
+# cars <- dbGetQuery(conn, "SELECT * FROM cars")
+# #
+# # # Close db connection
 # dbDisconnect(conn)
 
 ##=================================================================================
@@ -610,4 +610,34 @@ Clean_Drive <- function(df){
 #cars <- Clean_Drive(cars)
 
 
+#############################
+# Clean Cylinders
+#############################
+
+Clean_Cylinders <- function(df) {
+  three <- "3"
+  four <- "4"
+  five <- "5"
+  six <- "6"
+  eight <- "8"
+  ten <- "10"
+  twelve <- "12"
+  zero <- "un"
+  
+  df$cylinders <- str_replace(df$cylinders,regex(pattern = three), "3")
+  df$cylinders <- str_replace(df$cylinders,regex(pattern = four), "4")
+  df$cylinders <- str_replace(df$cylinders,regex(pattern = five), "5")
+  df$cylinders <- str_replace(df$cylinders,regex(pattern = six), "6")
+  df$cylinders <- str_replace(df$cylinders,regex(pattern = eight), "8")
+  df$cylinders <- str_replace(df$cylinders,regex(pattern = ten), "10")
+  df$cylinders <- str_replace(df$cylinders,regex(pattern = twelve), "12")
+  df$cylinders <- str_replace(df$cylinders,regex(pattern = zero), "0")
+  
+  df$cylinders <- as.numeric(df$cylinders)
+  
+  return(df)
+  
+}
+
+cars <- Clean_Cylinders(cars)
 
