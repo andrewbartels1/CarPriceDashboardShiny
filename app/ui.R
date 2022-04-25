@@ -271,7 +271,8 @@ body <- dashboardBody(tabItems(
           h2("Car Selection and Prediction"),
           tags$i("This tab is for the user to select all the various options below to see where "), br(), 
           tags$i("the best location would be to purchase the choosen car and model based"), br(),
-          tags$i("off aggregated US Average Income statistics such as median family income and other comparible cars"),
+          tags$i("off aggregated US Average Income statistics such as median family income"),br(), 
+          tags$i("and other comparible cars"),
           
           
           ),
