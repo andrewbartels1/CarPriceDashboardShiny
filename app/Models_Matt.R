@@ -173,45 +173,61 @@ Model_Box <- function(df, input_manufacturer) {
 State_Model_Prediction <- function(df, input_state, input_city, input_manufacturer, input_model, 
                                    input_year, input_odometer, input_condition, input_drive, input_cylinders) {
   
-  # Create a df filtered by the user selected state, manufacturer, model, and condition.
-  df <- df %>%
-    filter(state == input_state,
-           manufacturer == input_manufacturer, 
-           model == input_model,
-           condition == input_condition
+  out <- tryCatch(
+    {
+      # Create a df filtered by the user selected state, manufacturer, model, and condition.
+      df <- df %>%
+        filter(state == input_state,
+               manufacturer == input_manufacturer, 
+               model == input_model,
+               condition == input_condition
+              )
+    
+      # Extract income values for model. This is used to figure out what median income is in the user selected city.
+      med_inc <- df %>% filter(state == input_state, city == input_city)
+      med_inc_fam <- med_inc$med_family_income[1]
+      med_inc_non_fam <- med_inc$med_non_family_income[1]
+      
+      # Create linear model
+      lm_model <- lm(price ~ age + odometer + drive + cylinders + med_family_income + med_non_family_income, data = df)
+      
+      # Create new data point from user inputs
+      newData <- data.frame(model = input_model,
+                            age = 2021 - input_year,
+                            odometer = input_odometer,
+                            drive = input_drive,
+                            cylinders = input_cylinders,
+                            med_family_income = med_inc_fam,
+                            med_non_family_income = med_inc_non_fam)
+      
+      # Create list of objects to return as list
+      number_of_observations <- paste("Number of Training Observations = ", nrow(df))
+      model_summary <- summary(lm_model)
+      predictions <- predict(lm_model, newdata = newData, interval = "confidence", level = .95)
+    },
+    
+    error=function(e) {
+      print("Not enough data to make a prediction")
+      return(NA)
+    },
+    
+    warning=function(cond) {
+      message("Warning: Note enough data to make a prediciton")
+      return(NULL)
+    }, 
+    
+    finally={
+      return(list(number_of_observations, model_summary, predictions))
+      }
     )
-  
-  # Extract income values for model. This is used to figure out what median income is in the user selected city.
-  med_inc <- df %>% filter(state == input_state, city == input_city)
-  med_inc_fam <- med_inc$med_family_income[1]
-  med_inc_non_fam <- med_inc$med_non_family_income[1]
-  
-  # Create linear model
-  lm_model <- lm(price ~ age + odometer + drive + cylinders + med_family_income + med_non_family_income, data = df)
-  
-  # Create new data point from user inputs
-  newData <- data.frame(model = input_model,
-                        age = 2021 - input_year,
-                        odometer = input_odometer,
-                        drive = input_drive,
-                        cylinders = input_cylinders,
-                        med_family_income = med_inc_fam,
-                        med_non_family_income = med_inc_non_fam)
-  
-  # Create list of objects to return as list
-  number_of_observations <- paste("Number of Training Observations = ", nrow(df))
-  model_summary <- summary(lm_model)
-  predictions <- predict(lm_model, newdata = newData, interval = "confidence", level = .95)
-  
-  
-  return(list(number_of_observations, model_summary, predictions))
-  
+    return(out)
 }
 
 ##------------------------------------
 ##  Test Model_Prediction Function  --
 ##------------------------------------
-# State_Model_Prediction(cars, "CA", "Sacramento", "Ford", "F-150", 2015, 100000, "good", "4wd", "8")
+
+#State_Model_Prediction(cars, "CA", "Sacramento", "Ford", "F-150", 2015, 100000, "good", "4wd", "8")
 
 ##======================================================
 ##  Create Function to get National Predicted Price  ==
@@ -243,38 +259,53 @@ State_Model_Prediction <- function(df, input_state, input_city, input_manufactur
 #' 
 National_Model_Prediction <- function(df, input_state, input_city, input_manufacturer, 
                                       input_model, input_year, input_odometer, input_condition, input_drive, input_cylinders) {
-  
-  # Create a df filtered by the user selected manufacturer, model, and condition.
-  df <- df %>%
-    filter(manufacturer == input_manufacturer,
-           model == input_model,
-           condition == input_condition)
-
-  # Extract income values for newData
-  med_inc <- df %>% filter(state == input_state, city == input_city)
-  med_inc_fam <- med_inc$med_family_income[1]
-  med_inc_non_fam <- med_inc$med_non_family_income[1]
-
-  # Create linear model
-  lm_model <- lm(price ~ age + odometer + drive + cylinders + med_family_income + med_non_family_income, data = df)
-
-  # Create new data point from user inputs
-  newData <- data.frame(model = input_model,
-                        age = 2021 - input_year,
-                        odometer = input_odometer,
-                        drive = input_drive,
-                        cylinders = input_cylinders,
-                        med_family_income = med_inc_fam,
-                        med_non_family_income = med_inc_non_fam)
-
-  # Create list of objects to return as list
-  number_of_observations <- paste("Number of Training Observations = ", nrow(df))
-  model_summary <- summary(lm_model)
-  predictions <- predict(lm_model, newdata = newData, interval = "confidence", level = .95)
-
-
-  return(list(number_of_observations, model_summary, predictions))
-
+    
+  out <- tryCatch(
+      {
+        # Create a df filtered by the user selected manufacturer, model, and condition.
+        df <- df %>%
+          filter(manufacturer == input_manufacturer,
+                 model == input_model,
+                 condition == input_condition)
+      
+        # Extract income values for newData
+        med_inc <- df %>% filter(state == input_state, city == input_city)
+        med_inc_fam <- med_inc$med_family_income[1]
+        med_inc_non_fam <- med_inc$med_non_family_income[1]
+      
+        # Create linear model
+        lm_model <- lm(price ~ age + odometer + drive + cylinders + med_family_income + med_non_family_income, data = df)
+      
+        # Create new data point from user inputs
+        newData <- data.frame(model = input_model,
+                              age = 2021 - input_year,
+                              odometer = input_odometer,
+                              drive = input_drive,
+                              cylinders = input_cylinders,
+                              med_family_income = med_inc_fam,
+                              med_non_family_income = med_inc_non_fam)
+      
+        # Create list of objects to return as list
+        number_of_observations <- paste("Number of Training Observations = ", nrow(df))
+        model_summary <- summary(lm_model)
+        predictions <- predict(lm_model, newdata = newData, interval = "confidence", level = .95)
+    },
+    
+    error=function(e) {
+      print("Not enough data to make a prediction")
+      return(NA)
+    },
+    
+    warning=function(cond) {
+      message("Warning: Note enough data to make a prediciton")
+      return(NULL)
+    }, 
+    
+    finally={
+      return(list(number_of_observations, model_summary, predictions))
+    }
+    )
+    return(out)
 }
 
 
@@ -282,7 +313,7 @@ National_Model_Prediction <- function(df, input_state, input_city, input_manufac
 ##  Test National_Model_Prediction Function  --
 ##---------------------------------------------
 
-#National_Model_Prediction(cars, "CA", "Sacramento", "Ford", "F-150", 2015, 100000, "good", "4wd", "8")
+#National_Model_Prediction(cars, "CA", "Los Angeles", "Ford", "F-150", 2015, 100000, "good", "4wd", "8")
 
 ##===============================================================================
 ##  Create Plot to compare average price for different regions of the Country  ==
@@ -307,107 +338,116 @@ National_Model_Prediction <- function(df, input_state, input_city, input_manufac
 #' 
 Avg_Price_Per_Region_Plot <- function(df, input_manufacturer, input_model, input_year) {
   
-  # Filter by manufacturer, model, year
-  regions <- df %>% 
-    filter(manufacturer == input_manufacturer,
-           model == input_model,
-           year == input_year) %>% 
-    group_by(region) %>%
-    # create avg price column, avg odometer column, and number of observations
-    summarise(avg_price = mean(price),
-              avg_odometer = mean(odometer),
-              n = n()) %>% 
-    mutate(avg_price = avg_price,
-           avg_odometer = avg_odometer)
-  
-  if (nrow(regions) != 0) {
-    
-    # Create Plot
-    plot <- ggplot(regions) +
-      
-      # Make custom panel grid
-      geom_hline(aes(yintercept = y), data.frame(y = c(0:5) * 10000), color = "lightgrey") +
-      geom_col(aes(x = region, y = avg_price, fill = n), position = "dodge2", show.legend = TRUE, alpha = .9) +
-      
-      # Add dots
-      geom_point(aes(x = region, y = avg_price), size = 2, color = "gray12") +
-      
-      # Create a Lollipop shaft
-      geom_segment(aes(x = region, y = 0, xend = region, yend = 40000), linetype = "dashed", color = "gray12") +
-      
-      # Create Labels for title, subtitle, x, y, and fill
-      labs(title = glue("Average Price for {input_year} {input_manufacturer} {input_model}"),
-           subtitle = "Comparison Between US Regions",
-           y = "Price",
-           x = "Region",
-           fill = "Number of Vehicles") +
-      
-      # Scale y axis so bars don't start in the center
-      scale_y_continuous(
-        limits = c(-1500, 45000),
-        expand = c(0, 0),
-        breaks = c(0, 10000, 20000, 30000, 40000)
-      ) +
-      
-      annotate("text", x = 0, y = 21000, label = "20,000", size = 7) +
-      annotate("text", x = 0, y = 31000, label = "30,000", size = 7) +
-      annotate("text", x = 0, y = 41000, label = "40,000", size = 7) +
-      
-      theme(
-        # Remove axis ticks and text
-        axis.title = element_blank(),
-        axis.ticks = element_blank(),
-        axis.text.y = element_blank(),
-        # Use gray text for the region names
-        axis.text.x = element_text(color = "gray12", size = 10),
-        # Move the legend to the bottom
-        legend.position = "bottom",
-      ) +
-      
-      theme(
+  out <- tryCatch(
+    {
+      # Filter by manufacturer, model, year
+      regions <- df %>% 
+        filter(manufacturer == input_manufacturer,
+               model == input_model,
+               year == input_year) %>% 
+        group_by(region) %>%
+        # create avg price column, avg odometer column, and number of observations
+        summarise(avg_price = mean(price),
+                  avg_odometer = mean(odometer),
+                  n = n()) %>% 
+        mutate(avg_price = avg_price,
+               avg_odometer = avg_odometer)
         
-        # Set default color for the text
-        text = element_text(color = "gray12"),
+        # Create Plot
+        plot <- ggplot(regions) +
+          
+          # Make custom panel grid
+          geom_hline(aes(yintercept = y), data.frame(y = c(0:5) * 10000), color = "lightgrey") +
+          geom_col(aes(x = region, y = avg_price, fill = n), position = "dodge2", show.legend = TRUE, alpha = .9) +
+          
+          # Add dots
+          geom_point(aes(x = region, y = avg_price), size = 2, color = "gray12") +
+          
+          # Create a Lollipop shaft
+          geom_segment(aes(x = region, y = 0, xend = region, yend = 40000), linetype = "dashed", color = "gray12") +
+          
+          # Create Labels for title, subtitle, x, y, and fill
+          labs(title = glue("Average Price for {input_year} {input_manufacturer} {input_model}"),
+               subtitle = "Comparison Between US Regions",
+               y = "Price",
+               x = "Region",
+               fill = "Number of Vehicles") +
+          
+          # Scale y axis so bars don't start in the center
+          scale_y_continuous(
+            limits = c(-1500, 45000),
+            expand = c(0, 0),
+            breaks = c(0, 10000, 20000, 30000, 40000)
+          ) +
+          
+          annotate("text", x = 0, y = 21000, label = "20,000", size = 2) +
+          annotate("text", x = 0, y = 31000, label = "30,000", size = 2) +
+          annotate("text", x = 0, y = 41000, label = "40,000", size = 2) +
+          
+          theme(
+            # Remove axis ticks and text
+            axis.title = element_blank(),
+            axis.ticks = element_blank(),
+            axis.text.y = element_blank(),
+            # Use gray text for the region names
+            axis.text.x = element_text(color = "gray12", size = 10),
+            # Move the legend to the bottom
+            legend.position = "bottom",
+          ) +
+          
+          theme(
+            
+            # Set default color for the text
+            text = element_text(color = "gray12"),
+            
+            # Customize the text in the title, subtitle, and caption
+            plot.title = element_text(face = "bold", size = 15, hjust = 0.5),
+            plot.subtitle = element_text(size = 10, hjust = 0.5),
+            plot.caption = element_text(size = 8, hjust = .5),
+            
+            # Make the background white and remove extra grid lines
+            panel.background = element_rect(fill = "white", color = "white"),
+            panel.grid = element_blank(),
+            panel.grid.major.x = element_blank()
+          ) +
+          
+          # New fill and legend title for number of tracks per region
+          scale_fill_gradientn(
+            "Number of Vehicles",
+            colours = c("#6C5B7B","#C06C84","#F67280","#F8B195")
+          ) +
+          
+          # Make the guide for the fill discrete
+          guides(
+            fill = guide_colorsteps(
+              barwidth = 15, barheight = .5, title.position = "top", title.hjust = .5)
+          ) +
+          
+          
+          # Make it circular
+          coord_polar()
         
-        # Customize the text in the title, subtitle, and caption
-        plot.title = element_text(face = "bold", size = 15, hjust = 0.5),
-        plot.subtitle = element_text(size = 10, hjust = 0.5),
-        plot.caption = element_text(size = 8, hjust = .5),
-        
-        # Make the background white and remove extra grid lines
-        panel.background = element_rect(fill = "white", color = "white"),
-        panel.grid = element_blank(),
-        panel.grid.major.x = element_blank()
-      ) +
-      
-      # New fill and legend title for number of tracks per region
-      scale_fill_gradientn(
-        "Number of Vehicles",
-        colours = c("#6C5B7B","#C06C84","#F67280","#F8B195")
-      ) +
-      
-      # Make the guide for the fill discrete
-      guides(
-        fill = guide_colorsteps(
-          barwidth = 15, barheight = .5, title.position = "top", title.hjust = .5)
-      ) +
-      
-      
-      # Make it circular
-      coord_polar()
+        # Save the plot
+        ggsave("circle_bar_plot.png", plot,width = 13, height = 8)
+    },
     
-    # Save the plot
-    ggsave("circle_bar_plot.png", plot,width = 13, height = 8)
+    error=function(e) {
+      message("error")
+      print(e)
+      return(NULL)
+    },
     
-    return(plot)
-    
-  } else {
-    
-    return("Not enough data available for this Make / Model / Year. Please try a different selection")
-    
-  }
-}
+    warning=function(cond) {
+      message("Warning")
+      print(cond)
+    },
 
+    finally={
+      return(plot)
+    }
+  )
+ return(out) 
+}
 
 ##---------------------------------------------
 ##  Test Avg_Price_Per_Region_Plot function --
@@ -448,84 +488,92 @@ Avg_Price_Per_Region_Plot <- function(df, input_manufacturer, input_model, input
 #' 
 #' 
 #' 
-State_Model_Prediction_KNNReg <- function(df, input_state,input_city,input_manufacturer, input_model, 
+State_Model_Prediction_KNNReg <- function(df, input_state, input_city, input_manufacturer, input_model, 
                                    input_year, input_odometer, input_condition, input_drive, input_cylinders) {
   
-  
-  # Create a df filtered by the user selected state, manufacturer, model, and condition.
-  
-  df <- df %>%
-    filter(state == as.character(input_state),
-           city == as.character(input_city),
-           manufacturer == input_manufacturer,
-           model == input_model,
-           #condition == input_condition
-    )
-  
-  #My thinking is using the filtered data as raw source for training/test dataset split
-  #so that we can get closer to the actual price given user inputs as conditions
-  #select certain columns to train data since other user
-  df_select <- df %>% select(year,odometer,price)
-  #drop any NA
-  #df_clean <- df_select[complete.cases(df_select),]
-  
-  #Generate a random number that is 80% of the total number of rows in dataset.
-  random <- sample(1:nrow(df_select), 0.8 * nrow(df_select))
-  
-  #Extract Training Set
-  df_train <- df_select[random,-3]
-  print(df_train)
-
-  #Preprocess training data
-  #df_train_pp <- preProcess(df_train,method='range')
-  
-  #Extract Testing Set
-  #df_test <- df_select[-random,-3]
-
-  #Extract Price Category of train dataset 
-  df_target_price <- df_select[random,'price']
-
-  
-  #set seed
-  set.seed(1)
-  
-  # Create KNNReg model
-  
-  knnreg_model <- knnreg(df_train,df_target_price,k=2)
-  
-  # Create new data point from user inputs
-  newData <- data.frame(year = input_year,
-                        odometer = input_odometer)
-                        # drive = input_drive,
-                        # cylinders = input_cylinders,
-                        # med_family_income = med_inc_fam,
-                        # med_non_family_income = med_inc_non_fam)
-  # newData <- data.frame(city=input_city,
-  #                       age = 2021 - input_year,
-  #                       state = input_state,
-  #                       manufacturer = input_manufacturer,
-  #                       model = input_model,
-  #                       year = input_year,
-  #                       odometer = input_odometer,
-  #                       condition=input_condition,
-  #                       cylinders = input_cylinders,
-  #                       drive = input_drive)
-                        # med_family_income = med_inc_fam,
-                        # med_non_family_income = med_inc_non_fam)
-  
-  #select column for newData to fit KNN Regression model
-  # newData_select <- newData %>% select(year,odometer)
-
-  # Create list of objects to return as list
-  number_of_observations <- paste("Number of Training Observations = ", nrow(df_train))
-  predictions <- predict(knnreg_model, newdata = newData, interval = "confidence", level = .95)
-  
-  if (!(predictions < 500) & (is.numeric(predictions))) {
-  return(list(number_of_observations, knnreg_model, predictions))
-  }
-  else{
-    return(list(number_of_observations, knnreg_model, NA))
-  }
+  out <- tryCatch(
+    {
+      # Create a df filtered by the user selected state, manufacturer, model, and condition.
+      df <- df %>%
+        filter(state == input_state,
+               #city == input_city,
+               manufacturer == input_manufacturer,
+               model == input_model
+               #condition == input_condition
+              )
+      
+      #My thinking is using the filtered data as raw source for training/test dataset split
+      #so that we can get closer to the actual price given user inputs as conditions
+      #select certain columns to train data since other user
+      df_select <- df %>% select(year,odometer,price)
+      #drop any NA
+      #df_clean <- df_select[complete.cases(df_select),]
+      
+      #Generate a random number that is 80% of the total number of rows in dataset.
+      random <- sample(1:nrow(df_select), 0.8 * nrow(df_select))
+      
+      #Extract Training Set
+      df_train <- df_select[random,-3]
+    
+      #Preprocess training data
+      #df_train_pp <- preProcess(df_train,method='range')
+      
+      #Extract Testing Set
+      #df_test <- df_select[-random,-3]
+    
+      #Extract Price Category of train dataset 
+      df_target_price <- df_select[random,'price']
+    
+      #set seed
+      set.seed(1)
+      
+      # Create KNNReg model
+      
+      knnreg_model <- knnreg(df_train,df_target_price,k=2)
+      
+      # Create new data point from user inputs
+      # newData <- data.frame(year = input_year,
+      #                       odometer = input_odometer)
+      #                       # drive = input_drive,
+      #                       # cylinders = input_cylinders,
+      #                       # med_family_income = med_inc_fam,
+      #                       # med_non_family_income = med_inc_non_fam)
+      newData <- data.frame(#city=input_city,
+                            #age = 2021 - input_year,
+                            #state = input_state,
+                            #manufacturer = input_manufacturer,
+                            #model = input_model,
+                            year = input_year,
+                            odometer = input_odometer)
+                            #condition=input_condition,
+                            #cylinders = input_cylinders,
+                            #drive = input_drive)
+                            #med_family_income = med_inc_fam,
+                            #med_non_family_income = med_inc_non_fam)
+      
+     
+      #select column for newData to fit KNN Regression model
+      # newData_select <- newData %>% select(year,odometer)
+    
+      # Create list of objects to return as list
+      number_of_observations <- paste("Number of Training Observations = ", nrow(df_train))
+      predictions <- predict(knnreg_model, newdata = newData, interval = "confidence", level = .95)
+      
+    },
+    error=function(e) {
+      print("Not enough data to make a prediction")
+      return(NA)
+    },
+    warning=function(cond) {
+      message("Not enough neighbors")
+      return(NULL)
+    },
+    
+    finally={
+      return(list(number_of_observations, knnreg_model, predictions))
+    }
+  )
+  return(out)
 }
 
 # NEED TO MAKE SURE TO CATCH ERROR Warning: Error in contrasts<-: contrasts can be applied only to factors with 2 or more levels
@@ -534,7 +582,7 @@ State_Model_Prediction_KNNReg <- function(df, input_state,input_city,input_manuf
 ##  Test Model_Prediction Function  --
 ##------------------------------------
 
-# State_Model_Prediction_KNNReg(cars, "Sacramento","CA", "Toyota", "Tacoma", 2015, 100000, "good", "4wd", "6")
+#State_Model_Prediction_KNNReg(cars, "AK", "Fairbanks", "Ford", "F-150", 2022, 100000, "good", "4wd", "6")
 
 
 ##------------------------------------
