@@ -19,7 +19,7 @@ server <- function(input, output, session) {
   # Connect to the database
   conn <- dbConnect(RSQLite::SQLite(), db_path)
   
-  db_path_cleaned <- "../Top_5_Manufacturers.sqlite"
+  db_path_cleaned <- "../Top_5_Manufacturers.sqlite3"
   
   # Connect to the database
   conn_cleaned <- dbConnect(RSQLite::SQLite(), db_path_cleaned)

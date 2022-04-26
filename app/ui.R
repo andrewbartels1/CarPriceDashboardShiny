@@ -19,14 +19,10 @@ sidebar <- dashboardSidebar(sidebarMenu(
     icon = icon("signal", lib = "glyphicon")
   ),
   menuItem(
-    "Prediction",
+    "Prediction & Results",
     tabName = "prediction",
     icon = icon("chart-bar", lib = "font-awesome")
-  ),
-  menuItem("Results",
-           tabName = "results",
-           icon = icon("list-alt"))
-))
+  )))
 # end sidebar content
 
 ## Body content
@@ -419,18 +415,14 @@ body <- dashboardBody(tabItems(
     # A static valueBox
     valueBoxOutput("StatePredictionEstimate"),
     valueBoxOutput("NationalPredictionEstimate"),
-    valueBoxOutput("KNNPredictionEstimate"),
+    valueBoxOutput("KNNPredictionEstimate"),br(),br(),br(),
     tags$i("If the models return 0, there was not enough data for a good prediction!")
   ),
-  ),
-  
+  )
   #######################
   # Prediction Tab
   #######################
   
-  
-  tabItem(tabName = "results",
-          h2("Results tab contents")) # end 4th Results tab
   
 ))
 

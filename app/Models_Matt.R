@@ -349,9 +349,9 @@ Avg_Price_Per_Region_Plot <- function(df, input_manufacturer, input_model, input
         breaks = c(0, 10000, 20000, 30000, 40000)
       ) +
       
-      annotate("text", x = 0, y = 21000, label = "20,000", size = 2) +
-      annotate("text", x = 0, y = 31000, label = "30,000", size = 2) +
-      annotate("text", x = 0, y = 41000, label = "40,000", size = 2) +
+      annotate("text", x = 0, y = 21000, label = "20,000", size = 7) +
+      annotate("text", x = 0, y = 31000, label = "30,000", size = 7) +
+      annotate("text", x = 0, y = 41000, label = "40,000", size = 7) +
       
       theme(
         # Remove axis ticks and text
