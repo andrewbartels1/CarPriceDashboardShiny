@@ -69,13 +69,7 @@ body <- dashboardBody(tabItems(
           label = "Second Tables To Select for Plotting",
           "Names",
           selected = c("Ford")
-        ),
-        
-        # Debugging comment only to see drop down selection from backend
-        # textOutput("selected_var1"),
-        # textOutput("selected_var2"),
-        # textOutput("selected_col1"),
-        # textOutput("selected_col2")
+        )
       ),
       # end of first row left box,
       # Plot box #
@@ -88,18 +82,7 @@ body <- dashboardBody(tabItems(
           label = "Plot Type to Select",
           list(
             "scatter",
-            "Box Plot",
-            "simple linear model" 
-            # probably good enough for now? agnostic plotting is pretty hard
-            # "cluster",
-            # "Violin",
-            # "Counts",
-            # "Marginal Histogram / Boxplot",
-            # "Diverging bars",
-            # "Density plot",
-            # "Treemap",
-            # "Clusters",
-            # "Spatial"
+            "Box Plot"
           )
         )
       ),
@@ -396,7 +379,8 @@ body <- dashboardBody(tabItems(
             inputId = "predCyl",
             label = "9. Number of Cylinders",
             choices = c(3,4,5,6,8,10,12,"unknown"=0),
-            multiple = FALSE
+            multiple = FALSE,
+            selected = 4
           ),
           # Updates goButton's label and icon
           actionButton("goButton", 
@@ -416,8 +400,9 @@ body <- dashboardBody(tabItems(
     valueBoxOutput("StatePredictionEstimate"),
     valueBoxOutput("NationalPredictionEstimate"),
     valueBoxOutput("KNNPredictionEstimate"),br(),br(),br(),
-    tags$i("If the models return 0, there was not enough data for a good prediction!")
+    
   ),
+  tags$i("If the models return 0/NA, there was not enough data for a good prediction!")
   )
   #######################
   # Prediction Tab

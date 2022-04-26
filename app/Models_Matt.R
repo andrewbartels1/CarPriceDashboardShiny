@@ -491,8 +491,14 @@ Avg_Price_Per_Region_Plot <- function(df, input_manufacturer, input_model, input
 State_Model_Prediction_KNNReg <- function(df, input_state, input_city, input_manufacturer, input_model, 
                                    input_year, input_odometer, input_condition, input_drive, input_cylinders) {
   
+  # initializing variable
+  number_of_observations <- 0
+  
   out <- tryCatch(
     {
+      # initializing variable
+      number_of_observations <- 0
+      
       # Create a df filtered by the user selected state, manufacturer, model, and condition.
       df <- df %>%
         filter(state == input_state,
@@ -530,14 +536,7 @@ State_Model_Prediction_KNNReg <- function(df, input_state, input_city, input_man
       # Create KNNReg model
       
       knnreg_model <- knnreg(df_train,df_target_price,k=2)
-      
-      # Create new data point from user inputs
-      # newData <- data.frame(year = input_year,
-      #                       odometer = input_odometer)
-      #                       # drive = input_drive,
-      #                       # cylinders = input_cylinders,
-      #                       # med_family_income = med_inc_fam,
-      #                       # med_non_family_income = med_inc_non_fam)
+
       newData <- data.frame(#city=input_city,
                             #age = 2021 - input_year,
                             #state = input_state,
@@ -561,10 +560,12 @@ State_Model_Prediction_KNNReg <- function(df, input_state, input_city, input_man
       
     },
     error=function(e) {
+      number_of_observations <- paste("Number of Training Observations = ", nrow(df_train))
       print("Not enough data to make a prediction")
       return(NA)
     },
     warning=function(cond) {
+      number_of_observations <- paste("Number of Training Observations = ", nrow(df_train))
       message("Not enough neighbors")
       return(NULL)
     },
