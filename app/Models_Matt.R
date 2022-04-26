@@ -259,7 +259,8 @@ State_Model_Prediction <- function(df, input_state, input_city, input_manufactur
 #' 
 National_Model_Prediction <- function(df, input_state, input_city, input_manufacturer, 
                                       input_model, input_year, input_odometer, input_condition, input_drive, input_cylinders) {
-    out <- tryCatch(
+    
+  out <- tryCatch(
       {
         # Create a df filtered by the user selected manufacturer, model, and condition.
         df <- df %>%
