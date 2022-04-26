@@ -26,16 +26,15 @@ library(bannerCommenter) # input into console -> banner("display text", snug = T
 # My thinking here is that the app will query the "clean" table upon launch and assign the table to 
 # appropriately named data frame called 'cars'. Currently, the only usable table with a clean model variable is "Ford".
 
-
 # Create Path to SQLite db
-db_path <- "CraigslistCarsClean.sqlite3"
-
-# Establish connection
-conn <- dbConnect(RSQLite::SQLite(), db_path)
-cars <- dbGetQuery(conn, "SELECT * FROM Ford")
-
-# Close db connection
-dbDisconnect(conn)
+# db_path <- "../CraigslistCarsClean.sqlite3"
+# 
+# # Establish connection
+# conn <- dbConnect(RSQLite::SQLite(), db_path)
+# cars <- dbGetQuery(conn, "SELECT * FROM Ford")
+# 
+# # Close db connection
+# dbDisconnect(conn)
 
 ##=================================================================================
 ##  Create Function to compare fuel types for different Vehicle types            ==
@@ -90,10 +89,7 @@ Fuel_Comparison <- function(df, input_manufacturer){
 ##  test function  --
 ##-------------------
 
-Fuel_Comparison(cars, "Ford")
-
-
-
+# Fuel_Comparison(cars, "Ford")
 
 ##======================================================
 ##  Create Function to compare condition of vehicles  ==
@@ -128,7 +124,7 @@ Condition_Comparison <- function(df, input_manufacturer) {
     coord_flip()
   
   # export .png of plot
-  ggsave(glue("{input_manufacturer}_violin_plot_condition.png"), width = 13, height = 8)
+  # ggsave(glue("{input_manufacturer}_violin_plot_condition.png"), width = 13, height = 8)
   
   return(plot)
   
@@ -138,6 +134,7 @@ Condition_Comparison <- function(df, input_manufacturer) {
 ##  test function  --
 ##-------------------
 
-Condition_Comparison(cars, "Ford")
+
+#Condition_Comparison(cars, "Ford")
 
 

@@ -4,12 +4,18 @@ pacman::p_load("DBI",
                "RSQLite",
                "shiny",
                "shinythemes",
+               "shinyWidgets",
                "DT",
                "forecast",
                "ggplot2",
                "plotly",
                "maps",
                "shinydashboard",
+               "stringr",
+               "kknn",
+               "randomForest",
+               "reshape",
+               "caret",
                install = TRUE, update = getOption("pac_update"))
 
 # Put deps here!
@@ -25,3 +31,8 @@ library(plotly)
 library(maps)
 library(bslib)
 library(shinydashboard)
+library(stringr)
+library(kknn)
+library(randomForest)
+library(reshape)
+library(caret)
