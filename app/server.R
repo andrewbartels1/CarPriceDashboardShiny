@@ -13,12 +13,12 @@ server <- function(input, output, session) {
   source("./global.R", local = TRUE)
   source("./Models_Matt.R")
   
-  db_path <- "../CraigslistCarsClean.sqlite3"
+  db_path <- "../database/CraigslistCarsClean.sqlite3"
   
   # Connect to the database
   conn <- dbConnect(RSQLite::SQLite(), db_path)
   
-  db_path_cleaned <- "../Top_5_Manufacturers.sqlite3"
+  db_path_cleaned <- "../database/Top_5_Manufacturers.sqlite3"
   
   # Connect to the database
   conn_cleaned <- dbConnect(RSQLite::SQLite(), db_path_cleaned)
