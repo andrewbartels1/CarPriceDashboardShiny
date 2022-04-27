@@ -16,6 +16,9 @@ pacman::p_load("DBI",
                "randomForest",
                "reshape",
                "caret",
+               "roxygen2",
+               "ggcorrplot",
+               "viridis",
                install = TRUE, update = getOption("pac_update"))
 
 # Put deps here!
@@ -25,7 +28,7 @@ library(shiny)
 library(shinyWidgets)
 library(shinyalert)
 library(DT)
-library(forecast)
+# library(forecast)
 library(ggplot2)
 library(plotly)
 library(maps)

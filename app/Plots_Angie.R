@@ -12,7 +12,7 @@ library(readxl)
 library(stringr) # string formatting
 library(RSQLite) # to connect to SQlite database
 library(roxygen2) # For Function Documentation: ctrl + option + shift + r
-library(corrplot)
+# library(corrplot)
 library(ggcorrplot)
 library(glue) # to format strings
 library(viridis)
@@ -135,3 +135,4 @@ Condition_Comparison <- function(df, input_manufacturer) {
 ##-------------------
 
 # Condition_Comparison(cars, "Ford")
+# Fuel_Comparison(cars, "Ford")

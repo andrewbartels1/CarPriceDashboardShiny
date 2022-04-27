@@ -16,7 +16,7 @@ library(ggcorrplot)
 library(glue) # to format strings
 library(viridis)
 library(kknn) #for KNN model
-library(bannerCommenter) # input into console -> banner("display text", snug = TRUE, bandChar = "=")
+# library(bannerCommenter) # input into console -> banner("display text", snug = TRUE, bandChar = "=")
 library(caret)
 
 ##==================================================================
@@ -428,7 +428,7 @@ Avg_Price_Per_Region_Plot <- function(df, input_manufacturer, input_model, input
           coord_polar()
         
         # Save the plot
-        ggsave("circle_bar_plot.png", plot,width = 13, height = 8)
+        # ggsave("circle_bar_plot.png", plot,width = 13, height = 8)
     },
     
     error=function(e) {
