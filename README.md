@@ -53,7 +53,7 @@ Once all dependancies are met, some setup to database and data paths are needed!
 
 1. Move into the main directory `cd MGT6203-GRP-PROJECT`
 2. Download the following database files from the public OneDrive link:
-   * [CraigslistCarsClean.sqlite3](https://1drv.ms/u/s!Ahk80qDLp1S2qa5DZW5DvBfLCif3hA?e=FhknY4)
+   * [CraigslistCarsClean.sqlite3](https://1drv.ms/u/s!Ahk80qDLp1S2qa5DZW5DvBfLCif3hA)
    * [Top_5_Manufacturers.sqlite3](https://1drv.ms/u/s!Ahk80qDLp1S2qa5CGugrLV0X2hOa-g?e=FABwfo)
 
 3. Place the `.sqlite3` files in the `database` folder as seen in the file structure below
