@@ -57,7 +57,7 @@ Once all dependancies are met, some setup to database and data paths are needed!
    * [Top_5_Manufacturers.sqlite3](https://1drv.ms/u/s!Ahk80qDLp1S2qa5CGugrLV0X2hOa-g?e=FABwfo)
 
 3. Place the `.sqlite3` files in the `database` folder as seen in the file structure below
-<-- Where the database needs to live
+
 ```console
 MGT6203-grp-project
 ├── analysis (misc files plotting and looking at data)
@@ -72,12 +72,12 @@ MGT6203-grp-project
 │   ├── Plots_Angie.R
 │   ├── renv
 │   ├── renv.lock
-│   ├── server.R
-│   ├── ui.R
+│   ├── server.R <-- Open in RStudio and clikc "Run App"
+│   ├── ui.R 
 │   └── www
 ├── database 
-│   ├── CraigslistCarsClean.sqlite3
-│   └── Top_5_Manufacturers.sqlite3
+│   ├── CraigslistCarsClean.sqlite3 <-- Where the database needs to live
+│   └── Top_5_Manufacturers.sqlite3 <-- Where the database needs to live
 ├── Dockerfile
 ├── docs
 │   ├── team36finalreport.pdf
