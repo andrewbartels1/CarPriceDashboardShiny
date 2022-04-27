@@ -1,23 +1,23 @@
-rm(list = ls())
+# rm(list = ls())
 
 ##=================================
 ##  Load Libraries and set Path  ==
 ##=================================
 
-library(tidyverse)
-library(dplyr)
-options(dplyr.summarise.inform = FALSE)
-
-library(readxl) 
-library(stringr) # string formatting
-library(RSQLite) # to connect to SQlite database
-library(roxygen2) # For Function Documentation: ctrl + option + shift + r
-# library(corrplot)
-library(ggcorrplot)
-library(glue) # to format strings
-library(viridis)
-
-library(bannerCommenter) # input into console -> banner("display text", snug = TRUE, bandChar = "=")
+# library(tidyverse)
+# library(dplyr)
+# # options(dplyr.summarise.inform = FALSE)
+# 
+# library(readxl) 
+# library(stringr) # string formatting
+# library(RSQLite) # to connect to SQlite database
+# library(roxygen2) # For Function Documentation: ctrl + option + shift + r
+# # library(corrplot)
+# library(ggcorrplot)
+# library(glue) # to format strings
+# library(viridis)
+# 
+# library(bannerCommenter) # input into console -> banner("display text", snug = TRUE, bandChar = "=")
 
 ##=======================================
 ##  Connect to Database and create df  ==
@@ -80,7 +80,7 @@ Fuel_Comparison <- function(df, input_manufacturer){
     coord_flip()
   
   # export .png of plot
-  ggsave(glue("{input_manufacturer}_stacked_bar_fuel_type.png"), width = 13, height = 8)
+  # ggsave(glue("{input_manufacturer}_stacked_bar_fuel_type.png"), width = 13, height = 8)
   
   return(plot)
 }

@@ -11,7 +11,6 @@ server <- function(input, output, session) {
   # Setup
   #######################
   source("./global.R", local = TRUE)
-  source("./Plots_Angie.R")
   source("./Models_Matt.R")
   
   db_path <- "../CraigslistCarsClean.sqlite3"
@@ -331,6 +330,20 @@ server <- function(input, output, session) {
                               input$MakeYear)
   }, height = 750)
   # Pretty Radar Plot
+  
+  # Fuel type plot
+  # Pretty Radar Plot
+  output$ConditionComparison <-  renderPlot({
+    Condition_Comparison(tempManfCleaned(),
+                              input$AnalysisManf)
+  }, height = 350)
+  # Condition_Comparison(cars, "Ford")
+  # Pretty Radar Plot
+  output$FuelComparison <-  renderPlot({
+    Fuel_Comparison(tempManfCleaned(),
+                    input$AnalysisManf)
+  }, height = 350)
+  # Fuel_Comparison(cars, "Ford")
   
   
   #######################

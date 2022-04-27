@@ -232,9 +232,27 @@ body <- dashboardBody(tabItems(
             plotOutput("avgPriceRegion", width = "100%"),
             br(), br(), br(), br(), br(), br(),br(), br(), br(), br(), br(), br(),br(), br(), br(), br(), br(), br()# Give me some space!
             ),
-          br(), br(), br(), br(), br(), br(),br(), br(), br(), br(), br(), br(),br(), br(), br(), br(), br(), br()# Give me some space!
+          br(), br(), br(), br(), br(), br(),br(), br(), br(), br(), br(), br(),br(), br(), br(), br(), br(), br(),# Give me some space!
                     # Pretty plots
-          
+          # Pretty condition plots
+          box(
+            title = "Condition Comparison per Manufacturer",
+            status = "primary",
+            collapsible = TRUE,
+            collapsed = FALSE,
+            width = "12",
+            plotOutput("ConditionComparison", width = "100%")),
+          br(), br(), br(), br(), br(), br(),br(), br(), br(), br(), br(), br(),br(), br(), br(), br(), br(), br(),# Give me some space!
+
+          # Pretty Fuel plots
+          box(
+            title = "Fuel Comparison per Manufacturer",
+            status = "primary",
+            collapsible = TRUE,
+            collapsed = FALSE,
+            width = "12",
+            plotOutput("FuelComparison", width = "100%")),
+          br(), br(), br(), br(), br(), br(),br(), br(), br(), br(), br(), br(),br(), br(), br(), br(), br(), br()# Give me some space!
           )),
 
   #######################
