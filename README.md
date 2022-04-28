@@ -103,7 +103,11 @@ Pull requests are welcome! For major changes, please open an issue first to disc
 
 
 [MIT](https://choosealicense.com/licenses/mit/) © [Andrew Bartels](https://github.com/andrewbartels1)
-      [Matt Palmer](https://github.com/TroutNinja)
-      [Shawn Azzu]
-      [Ngoc "Angie" Nguyen]
-      [Jason Young]
+
+[Matt Palmer](https://github.com/TroutNinja)
+    
+[Shawn Azzu]
+
+[Ngoc "Angie" Nguyen]
+
+[Jason Young]
